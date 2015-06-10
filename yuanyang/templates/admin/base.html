@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]> <html class="ie6"> <![endif]-->
+<!--[if IE 7 ]> <html class="ie7"> <![endif]-->
+<!--[if IE 8 ]> <html class="ie8"> <![endif]-->
+<!--[if IE 9 ]> <html class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html class=""> <!--<![endif]-->
+<head>
+    <title>{% block title %}{% endblock %} | 远洋招标管理后台</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="{{ static('img/favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ static('img/favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ static('components/bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ static('components/font-awesome/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ static('css/custom_bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ static('css/non-responsive.css') }}">
+    <link rel="stylesheet" href="{{ static('css/base.css') }}">
+    <!-- Ext CSS-->
+    {%- block css %}{% endblock -%}
+    <script src="{{ static('components/jquery/dist/jquery.min.js') }}"></script>
+    <script>
+        // Detecting IE
+        var oldIE = false;
+        if ($("html").is(".ie6, .ie7, .ie8 .ie9")) {
+            oldIE = true;
+        }
+    </script>
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.0/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+{% block body_header %}
+{% include "admin/header.html" %}
+{% endblock %}
+{% block body_main %}
+<ul class="breadcrumb">
+{% for crumb in g.breadcrumbs %}
+    <li>{{ crumb }}</li>
+{% endfor %}
+</ul>
+<div class="container">
+    {% block body_content %}{% endblock %}
+</div>
+{% endblock %}
+{% include "admin/footer.html" %}
+<script src="{{ static('components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+<script src="{{ static('js/base.js') }}"></script>
+<!-- Ext JavaScript-->
+{% block js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,27 @@
+<nav class="navbar navbar-default navbar-static-top" role="navigation">
+    <!-- Brand -->
+    <a class="navbar-brand" href="{{ url_for('admin_main.index') }}">
+        <img src="{{ static('img/yuanyang-logo.png') }}" style="height: 40px;"/>
+    </a>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div id="my-navbar">
+        <ul class="nav navbar-nav" style="margin-left: 20px">
+            <li class="active"><a href="#">项目管理</a></li>
+            <li><a href="#">供应商管理</a></li>
+            <li><a href="#">用户管理</a></li>
+            <li><a href="#">信息管理</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    欢迎您，{{ current_user.name }} <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-caret">
+                    <li><a href="#"><i class="fa fa-cog"></i> 设 置 </a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{ url_for('admin_auth.logout') }}"><i class="fa fa-power-off"></i> 退 出</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
