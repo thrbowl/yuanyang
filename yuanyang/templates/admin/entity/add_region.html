@@ -1,10 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+{% extends "admin/base.html" %}
 
-</body>
-</html>
+{% block title %}添加地区{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script src="{{ static('components/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/additional-methods.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
+    <script>
+        $(function() {
+            $("#entity_type").change(function() {
+                location.href = this.value;
+            });
+
+            $("#addForm").validate({
+                rules: {
+                    name: {
+                        required: true,
+                        minlength: 2,
+                        remote: "{{ url_for('admin_entity.check_region_unique') }}"
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "请输入地区名名称",
+                        minlength: "名称至少需要两个字",
+                        remote: "该地区已经存在"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <form id="addForm" class="form-horizontal" method="POST">
+            <div class="form-group">
+                <label for="entity_type" class="col-xs-2 control-label">添加：</label>
+
+                <div class="col-xs-6">
+                    <select class="form-control" name="entity_type" id="entity_type">
+                        <option value="{{ url_for('admin_entity.set_startpage') }}">启动页</option>
+                        <option value="{{ url_for('admin_entity.add_carousel') }}">轮播</option>
+                        <option value="{{ url_for('admin_entity.add_region') }}" selected>地区</option>
+                        <option value="{{ url_for('admin_entity.add_building') }}">楼盘</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-xs-2 control-label">名称：</label>
+
+                <div class="col-xs-6">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="名称">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-2 col-xs-6">
+                    <button type="submit" name="_actionBtn" class="btn btn-default" value="1">保存</button>
+                    <button type="submit" name="_actionBtn" class="btn btn-default" value="2">保存并继续添加</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

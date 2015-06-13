@@ -6,15 +6,27 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div id="my-navbar">
         <ul class="nav navbar-nav" style="margin-left: 20px">
-            <li class="active"><a href="#">项目管理</a></li>
-            <li><a href="#">供应商管理</a></li>
-            <li><a href="#">用户管理</a></li>
-            <li><a href="#">信息管理</a></li>
+            <li {% if g.menu=='project' %}class="active"{% endif %}>
+                <a href="{{ url_for('admin_project.index') }}">项目管理</a>
+            </li>
+            <li {% if g.menu=='supplier' %}class="active"{% endif %}>
+                <a href="{{ url_for('admin_supplier.index') }}">供应商管理</a>
+            </li>
+            {% if current_user.is_superuser %}
+                <li {% if g.menu=='user' %}class="active"{% endif %}>
+                    <a href="{{ url_for('admin_user.index') }}">用户管理</a>
+                </li>
+            {% endif %}
+            {% if current_user.is_superuser %}
+                <li {% if g.menu=='entity' %}class="active"{% endif %}>
+                    <a href="{{ url_for('admin_entity.index') }}">信息管理</a>
+                </li>
+            {% endif %}
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li>
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    欢迎您，{{ current_user.name }} <i class="fa fa-caret-down"></i>
+                    欢迎您，{{ current_user.username }} <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-caret">
                     <li><a href="#"><i class="fa fa-cog"></i> 设 置 </a></li>

@@ -36,6 +36,9 @@
 {% include "admin/header.html" %}
 {% endblock %}
 {% block body_main %}
+{% if get_flashed_messages() %}
+<div class="alert alert-warning flash-message">{{ get_flashed_messages()[-1] }}</div>
+{% endif %}
 <ul class="breadcrumb">
 {% for crumb in g.breadcrumbs %}
     <li>{{ crumb }}</li>

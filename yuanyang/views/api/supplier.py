@@ -18,13 +18,13 @@ def login():
     username = request.form['username']
     password = request.form['password']
 
-    supplior = Supplier.get(username)
+    supplie = Supplier.get(username)
     if not supplier:
         return
     elif supplier:
         pass
 
-    session['supplier_id'] = supplior.id
+    session['supplier_id'] = supplie.id
 
 
 @supplier.route('/logout', methods=['POST'])

@@ -10,6 +10,9 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s: %(message)s',
 )
 
+BASE_URL = ''
+BASE_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 # Cookie secret
 SECRET_KEY = 'dX6mg0jx0y`8(F_|Cp(#zUQTSAX_y<Q0%^W*#Q7<Wwyb2$^9CB4f<J>7Q~*#{&F~'
 
@@ -24,3 +27,8 @@ SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
 # WTForms
 WTF_CSRF_ENABLED = False
+
+# Flask Uploads
+UPLOADS_DEFAULT_DEST = os.path.join(BASE_ROOT, 'static/')
+UPLOADS_DEFAULT_URL = '/static'
+UPLOADS_ALLOWED_EXTENSIONS = ('jpg', 'jpeg', 'png')

@@ -58,7 +58,7 @@ def create_app(name=None, settings=None):
         from .views.admin.auth import auth
         app.register_blueprint(auth, url_prefix='/admin/auth')
         from .views.admin.entity import entity
-        app.register_blueprint(entity, url_prefix='/admin/data')
+        app.register_blueprint(entity, url_prefix='/admin/entity')
         from .views.admin.project import project
         app.register_blueprint(project, url_prefix='/admin/project')
         from .views.admin.supplier import supplier

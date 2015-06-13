@@ -1,0 +1,43 @@
+{% extends "admin/base.html" %}
+
+{% block title %}添加新用户{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script>
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <form class="form-horizontal" method="POST" style="margin-bottom: 20px;">
+            <div class="form-group">
+                <label for="username" class="col-xs-2 control-label">用户姓名：</label>
+
+                <div class="col-xs-6">
+                    <input type="text" class="form-control" id="username" name="username" placeholder="用户姓名">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password" class="col-xs-2 control-label">用户密码：</label>
+
+                <div class="col-xs-6">
+                    <input type="text" class="form-control" id="password" name="password" placeholder="用户密码">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="region" class="col-xs-2 control-label">所属地区：</label>
+
+                <div class="col-xs-6">
+                    <select class="form-control" name="region" id="region">
+                        {% for region in region_list %}
+                            <option value="{{ region.id }}">{{ region.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

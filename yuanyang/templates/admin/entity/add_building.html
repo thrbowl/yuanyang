@@ -1,10 +1,140 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+{% extends "admin/base.html" %}
 
-</body>
-</html>
+{% block title %}添加楼盘{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{{ static('components/select2/select2.css') }}"/>
+    <link rel="stylesheet" href="{{ static('components/select2/select2-bootstrap.css') }}"/>
+{% endblock %}
+
+{% block js %}
+    <script src="{{ static('components/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/additional-methods.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
+    <script src="{{ static('components/select2/select2.min.js') }}"></script>
+    <script src="{{ static('components/select2/select2_locale_zh-CN.js') }}"></script>
+    <script>
+        $(function () {
+            $("#entity_type").change(function () {
+                location.href = this.value;
+            });
+
+            $("#region").change(function () {
+                $("#owners").empty();
+                $.getJSON("{{ url_for('admin_entity.region_users') }}/" + this.value, function (users) {
+                    $.each(users, function (id, username) {
+                        $("#owners").append($("<option></option>").attr("value", id).text(username));
+                    });
+                });
+                $("#owners").select2();
+            });
+            $("#owners").select2();
+
+            $("#logo").change(function(){
+                    readURL(this, "#preview_building_logo");
+                });
+
+            $.validator.setDefaults({ignore: ""});
+            $("#addForm").validate({
+                rules: {
+                    name: {
+                        required: true,
+                        minlength: 3,
+                        remote: "{{ url_for('admin_entity.check_building_unique') }}"
+                    },
+                    logo: {
+                        required: true,
+                        extension: "jpeg|jpg|png"
+                    },
+                    owners: {
+                        required: true
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "请输入楼盘名称",
+                        minlength: "名称至少需要三个字",
+                        remote: "该楼盘已经存在"
+                    },
+                    logo: {
+                        required: "请选择楼盘Logo",
+                        extension: "请选择合法的Logo，后缀必须为jpeg,jpg,png"
+                    },
+                    owners: {
+                        required: "请选择楼盘负责人"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <form id="addForm" class="form-horizontal" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="entity_type" class="col-xs-2 control-label">添加：</label>
+
+                <div class="col-xs-6">
+                    <select class="form-control" name="entity_type" id="entity_type">
+                        <option value="{{ url_for('admin_entity.set_startpage') }}">启动页</option>
+                        <option value="{{ url_for('admin_entity.add_carousel') }}">轮播</option>
+                        <option value="{{ url_for('admin_entity.add_region') }}">地区</option>
+                        <option value="{{ url_for('admin_entity.add_building') }}" selected>楼盘</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-xs-2 control-label">名称：</label>
+
+                <div class="col-xs-6">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="名称">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="logo" class="col-xs-2 control-label">Logo：</label>
+
+                <div class="col-xs-6">
+                    <div style="position: relative;">
+                        <img src="{{ static('img/building-logo.jpg') }}" class="building-logo"
+                             onclick="$('#logo').click()" id="preview_building_logo"/>
+                        <input type="button" value="&nbsp; 选择文件 &nbsp;"
+                               style="position:absolute; bottom: 0;margin-left: 10px;" onclick="$('#logo').click()">
+                    </div>
+                    <div class="clearfix"></div>
+                    <label id="logo-error" class="error" for="logo" style="display: none"></label>
+                    <p class="help-block">请使用尺寸为169X172px，格式为jpg，jpeg，png的图片</p>
+                    <input type="file" id="logo" name="logo" style="display: none">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="region" class="col-xs-2 control-label">地区：</label>
+
+                <div class="col-xs-6">
+                    <select class="form-control" name="region" id="region">
+                        {% for region in region_list %}
+                            <option value="{{ region.id }}">{{ region.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="owners" class="col-xs-2 control-label">负责人：</label>
+
+                <div class="col-xs-6">
+                    <select class="form-control" name="owners" id="owners" multiple>
+                        {% for user in region_list[0].users %}
+                            <option value="{{ user.id }}">{{ user.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-2 col-xs-6">
+                    <button type="submit" name="_actionBtn" class="btn btn-default" value="1">保存</button>
+                    <button type="submit" name="_actionBtn" class="btn btn-default" value="2">保存并继续添加</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

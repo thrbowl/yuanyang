@@ -3,7 +3,6 @@ from flask import Blueprint, render_template, url_for, request
 from flask.ext.login import login_required, login_user, redirect, logout_user, current_user
 from ...forms import LoginForm
 from ...models import db, User
-from ...utils import generate_hash_salt
 
 auth = Blueprint('admin_auth', __name__)
 
@@ -18,11 +17,9 @@ def login():
         username = form.username.data
         password = form.password.data
         user = User.get(username)
-        if user:
-            password, salt = generate_hash_salt(password, salt=user.salt)
-            if user.password == password:
-                login_user(user)
-                return redirect(next)
+        if user and user.password == password:
+            login_user(user)
+            return redirect(next)
     return render_template('admin/auth/login.html', form=form, next=next)
 
 
