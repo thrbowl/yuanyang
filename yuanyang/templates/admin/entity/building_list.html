@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+
+{% block title %}信息管理{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script>
+        function deleteBuilding(building_id) {
+            var data = {
+                building_id: building_id
+            };
+            $.post("{{ url_for('admin_entity.delete_building') }}", data, function(message) {
+                if (message.type == 'success') {
+                    location.reload();
+                }
+            });
+        }
+
+        function editBuilding(building_id) {
+            location.href = "{{ url_for('admin_entity.edit_building') }}/" + building_id;
+        }
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <div>
+            <a href="{{ url_for('admin_entity.add_building') }}"
+               class="btn btn-default pull-right active" style="width: 200px">
+                添加新楼盘
+            </a>
+            {% from 'admin/macros/entity_switcher.html' import render_entity_manage_switcher %}
+            {{ render_entity_manage_switcher('building') }}
+        </div>
+        <div class="clearfix"></div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Logo</th>
+                <th>楼盘名称</th>
+                <th>地区</th>
+                <th>楼盘地址</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for building in pager.items %}
+                <tr>
+                    <td width="10%"><img src="{{ building.logo }}" class="img-thumbnail building-logo-thumbnail"/></td>
+                    <td width="30%">{{ building.name }}</td>
+                    <td width="10%">{{ building.region.name }}</td>
+                    <td width="35%">{{ building.address }}</td>
+                    <td width="15%">
+                        <a href="javascript:;" onclick="editBuilding({{ building.id }})">编辑</a>
+                        <a href="javascript:;" onclick="deleteBuilding({{ building.id }})">删除</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% from 'admin/macros/pagination.html' import render_pagination %}
+        {{ render_pagination(pager, 'admin_entity.building_manage') }}
+    </div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% macro render_pagination(pager, endpoint) %}
+    <nav class="text-center">
+        <ul class="pagination">
+            {% if pager.has_prev %}
+                <li>
+                    <a href="{{ url_for(endpoint) }}?page={{ pager.prev_num }}">
+                        <span>&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="disabled">
+                    <a href="javascript:;">
+                        <span>&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for page in pager.iter_pages() %}
+                {% if pager.page==page %}
+                    <li class="active"><a href="javascript:;">{{ page }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for(endpoint, page=page) }}">{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if pager.has_next %}
+                <li>
+                    <a href="{{ url_for(endpoint) }}?page={{ pager.next_num }}">
+                        <span>&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="disabled">
+                    <a href="#">
+                        <span>&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endmacro %}

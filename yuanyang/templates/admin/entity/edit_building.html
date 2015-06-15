@@ -1,6 +1,6 @@
 {% extends "admin/base.html" %}
 
-{% block title %}添加楼盘{% endblock %}
+{% block title %}编辑楼盘{% endblock %}
 
 {% block css %}
     <link rel="stylesheet" href="{{ static('components/select2/select2.css') }}"/>
@@ -15,6 +15,10 @@
     <script src="{{ static('components/select2/select2_locale_zh-CN.js') }}"></script>
     <script src="{{ static('js/entity.js') }}"></script>
     <script>
+        var current_region_id = {{ building.region_id }};
+        var current_owner_ids = {{ building.users }};
+        var current_building_name = {{ building.name }};
+
         $(function () {
             $("#region").change(function () {
                 $("#owners").empty();
@@ -23,8 +27,7 @@
                         $("#owners").append($("<option></option>").attr("value", id).text(username));
                     });
                 });
-                $("#owners").select2();
-            });
+            }).val(current_region_id).trigger("change");
             $("#owners").select2();
 
             $("#logo").change(function(){
@@ -37,7 +40,7 @@
                     name: {
                         required: true,
                         minlength: 3,
-                        remote: "{{ url_for('admin_entity.check_building_unique') }}"
+                        remote: "{{ url_for('admin_entity.check_building_unique') }}?prev_name=" + current_building_name
                     },
                     logo: {
                         extension: "jpeg|jpg|png"
@@ -73,7 +76,8 @@
                 <label for="name" class="col-xs-2 control-label">名称：</label>
 
                 <div class="col-xs-6">
-                    <input type="text" class="form-control" id="name" name="name" placeholder="名称">
+                    <input type="text" class="form-control" id="name" name="name"
+                           placeholder="名称" value="{{ building.name }}">
                 </div>
             </div>
             <div class="form-group">
@@ -81,7 +85,7 @@
 
                 <div class="col-xs-6">
                     <div style="position: relative;">
-                        <img src="{{ config.BUILDING_LOGO_DEFAULT }}" class="img-thumbnail building-logo"
+                        <img src="{{ building.logo }}" class="img-thumbnail building-logo"
                              onclick="$('#logo').click()" id="preview_building_logo"/>
                         <input type="button" value="&nbsp; 选择文件 &nbsp;"
                                style="position:absolute; bottom: 0;margin-left: 10px;" onclick="$('#logo').click()">
@@ -116,8 +120,7 @@
             </div>
             <div class="form-group">
                 <div class="col-xs-offset-2 col-xs-6">
-                    <button type="submit" name="_actionBtn" class="btn btn-default" value="1">保存</button>
-                    <button type="submit" name="_actionBtn" class="btn btn-default" value="2">保存并继续添加</button>
+                    <button type="submit" class="btn btn-default" value="1">保存</button>
                 </div>
             </div>
         </form>

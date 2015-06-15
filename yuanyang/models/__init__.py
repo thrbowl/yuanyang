@@ -108,7 +108,7 @@ class Building(db.Model):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)  # 楼盘名称
-    logo = Column(String(100), nullable=False)  # 楼盘logo图
+    _logo = Column('logo', String(100), nullable=False)  # 楼盘logo图
     address = Column(String(100), nullable=False, default='')  # 楼盘地址
     region_id = Column(Integer, ForeignKey('regions.id'), nullable=False)  # 楼盘所在地区
     order_num = Column(Integer, nullable=False, default=0)
@@ -121,6 +121,14 @@ class Building(db.Model):
     def __init__(self, name):
         self.name = name
         self.create_date = datetime.datetime.now()
+
+    def get_logo(self):
+        return self._logo or settings['BUILDING_LOGO_DEFAULT']
+
+    def set_logo(self, logo):
+        self._logo = logo
+
+    logo = property(get_logo, set_logo)
 
     @property
     def project_total(self):

@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+
+{% block title %}设置启动页{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script src="{{ static('js/entity.js') }}"></script>
+    <script>
+        $(function() {
+        });
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <form class="form-horizontal" method="POST">
+            {% from 'admin/macros/entity_switcher.html' import render_entity_add_switcher %}
+            {{ render_entity_add_switcher('startpage') }}
+        </form>
+    </div>
+{% endblock %}

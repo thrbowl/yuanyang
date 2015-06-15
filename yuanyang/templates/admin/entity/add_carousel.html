@@ -9,12 +9,9 @@
     <script src="{{ static('components/jquery-validation/jquery.validate.min.js') }}"></script>
     <script src="{{ static('components/jquery-validation/additional-methods.min.js') }}"></script>
     <script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
+    <script src="{{ static('js/entity.js') }}"></script>
     <script>
         $(function () {
-            $("#entity_type").change(function () {
-                location.href = this.value;
-            });
-
             $("#logo").change(function(){
                     readURL(this, "#preview_building_logo");
                 });
@@ -49,18 +46,8 @@
 {% block body_content %}
     <div>
         <form id="addForm" class="form-horizontal" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="entity_type" class="col-xs-2 control-label">添加：</label>
-
-                <div class="col-xs-6">
-                    <select class="form-control" name="entity_type" id="entity_type">
-                        <option value="{{ url_for('admin_entity.set_startpage') }}">启动页</option>
-                        <option value="{{ url_for('admin_entity.add_carousel') }}" selected>轮播</option>
-                        <option value="{{ url_for('admin_entity.add_region') }}">地区</option>
-                        <option value="{{ url_for('admin_entity.add_building') }}">楼盘</option>
-                    </select>
-                </div>
-            </div>
+            {% from 'admin/macros/entity_switcher.html' import render_entity_add_switcher %}
+            {{ render_entity_add_switcher('carousel') }}
             <div class="form-group">
                 <label for="name" class="col-xs-2 control-label">名称：</label>
 
@@ -73,7 +60,7 @@
 
                 <div class="col-xs-6">
                     <div style="position: relative;">
-                        <img src="{{ static('img/carousel-img.jpg') }}" class="carousel-img"
+                        <img src="{{ config.CAROUSEL_IMG_DEFAULT }}" class="img-thumbnail carousel-img"
                              onclick="$('#image').click()" id="preview_carousel_img"/>
                         <input type="button" value="&nbsp; 选择文件 &nbsp;"
                                style="position:absolute; bottom: 0;margin-left: 10px;" onclick="$('#image').click()">

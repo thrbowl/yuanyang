@@ -1,0 +1,25 @@
+{% macro render_entity_add_switcher(type) %}
+    <div class="form-group">
+        <label for="entity_type" class="col-xs-2 control-label">添加：</label>
+
+        <div class="col-xs-6">
+            <select class="form-control" name="entity_type" id="entity_type">
+                <option value="{{ url_for('admin_entity.add_startpage') }}" {% if type=='startpage' %}selected{% endif %}>启动页</option>
+                <option value="{{ url_for('admin_entity.add_carousel') }}" {% if type=='carousel' %}selected{% endif %}>轮播</option>
+                <option value="{{ url_for('admin_entity.add_region') }}" {% if type=='region' %}selected{% endif %}>地区</option>
+                <option value="{{ url_for('admin_entity.add_building') }}" {% if type=='building' %}selected{% endif %}>楼盘</option>
+            </select>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_entity_manage_switcher(type) %}
+    <div>
+        <ul class="nav nav-tabs">
+            <li {% if type=='startpage' %}class="active"{% endif %}><a href="{{ url_for('admin_entity.startpage_manage') }}">启动页</a></li>
+            <li {% if type=='carousel' %}class="active"{% endif %}><a href="{{ url_for('admin_entity.carousel_manage') }}">轮播</a></li>
+            <li {% if type=='region' %}class="active"{% endif %}><a href="{{ url_for('admin_entity.region_manage') }}">地区</a></li>
+            <li {% if type=='building' %}class="active"{% endif %}><a href="{{ url_for('admin_entity.building_manage') }}">楼盘</a></li>
+        </ul>
+    </div>
+{% endmacro %}

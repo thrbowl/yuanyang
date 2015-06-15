@@ -39,6 +39,7 @@ def create_app(name=None, settings=None):
 
         logging.debug('Add user login manager')
         login_manager = LoginManager()
+        login_manager.login_message = None
         login_manager.init_app(app)
         login_manager.login_view = 'admin_auth.login'
 

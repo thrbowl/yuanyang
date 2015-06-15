@@ -24,12 +24,15 @@
                     <select class="form-control regionSelect" name="region" id="region"
                             style="width:200px; display: inline-block">
                         {% for reg in region_list %}
-                            <option value="{{ reg.id }}" {% if region.id==reg.id  %}selected{% endif %}>{{ reg.name }}</option>
+                            <option value="{{ reg.id }}" {% if region.id==reg.id  %}selected{% endif %}>
+                                {{ reg.name }}
+                            </option>
                         {% endfor %}
                     </select>
                 </label>
             </div>
-            <a href="{{ url_for('admin_entity.add_building') }}" class="btn btn-default pull-right active" style="width: 200px">
+            <a href="{{ url_for('admin_entity.add_building') }}" class="btn btn-default pull-right active"
+               style="width: 200px">
                 创建新楼盘
             </a>
         </form>
@@ -39,7 +42,7 @@
                 <li class="list-group-item">
                     <div class="pull-left">
                         <a href="{{ url_for('admin_project.view_building', building_id=building.id) }}">
-                            <img src="{{ building.logo }}" class="building-logo"/>
+                            <img src="{{ building.logo }}" class="img-thumbnail building-logo-thumbnail"/>
                         </a>
                     </div>
                     <div class="pull-left" style="margin-left: 20px;height: 60px;position: relative;">
@@ -61,6 +64,8 @@
                     </div>
                     <div class="clearfix"></div>
                 </li>
+            {% else %}
+                <p class="text-warning">该地区没有楼盘</p>
             {% endfor %}
         </ul>
     </div>

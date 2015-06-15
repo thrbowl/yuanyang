@@ -3,6 +3,7 @@ import hashlib
 import base64
 import random
 import string
+from PIL import Image
 
 
 SALT_CHARS = string.ascii_letters + string.digits
@@ -44,3 +45,9 @@ def generate_hash_salt(password, method='sha1', hash_encoding='base64', salt_len
             )
             return base_method(value).decode('ascii')
     return enc_method(hash), salt
+
+
+def check_image_size(filepath, width, height):
+    im = Image.open(filepath)
+    im.close()
+    return im.size == (width, height)
