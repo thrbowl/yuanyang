@@ -95,6 +95,7 @@ def add_building():
             user = User.query.get(user_id)
             building.users.append(user)
         db.session.add(building)
+        db.session.commit()
 
         flash(u'楼盘添加成功')
         if request.form['_actionBtn'] == '1':

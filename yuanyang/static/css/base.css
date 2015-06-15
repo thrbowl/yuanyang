@@ -1,0 +1,74 @@
+/* patches */
+::-webkit-input-placeholder {
+    /* WebKit browsers */
+    color: #d3d3d3;
+}
+
+:-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: #d3d3d3;
+}
+
+::-moz-placeholder {
+    /* Mozilla Firefox 19+ */
+    color: #d3d3d3;
+}
+
+:-ms-input-placeholder {
+    /* Internet Explorer 10+ */
+    color: #d3d3d3;
+}
+
+/** OPEN SANS FONT **/
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Open Sans'),
+    local('OpenSans'),
+    url("../fonts/OpenSans-Regular.ttf") format('truetype'),
+    url("../fonts/OpenSans.woff") format('woff');
+}
+
+/* global */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.nopadding {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.building-logo {
+    width: 169px;
+    height: 172px;
+}
+
+.building-logo-thumbnail {
+    width: 60px;
+    height: 60px;
+}
+
+.carousel-img {
+    width: 640px;
+    height: 330px;
+}
+
+label.error {
+    color: #ff0000;
+}
+
+.flash-message {
+    position: absolute;
+    top: 44px;
+    text-align: center;
+    margin:auto;
+    left:0;
+    right:0;
+    padding: 8px;
+    width: 300px;
+}

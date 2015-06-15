@@ -7,3 +7,4 @@ Flask-Uploads
 SQLAlchemy
 MySQL-python
 WTForms
+Pillow
