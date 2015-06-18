@@ -13,6 +13,7 @@
     <link rel="icon" href="{{ static('img/favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ static('components/bootstrap/dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ static('components/font-awesome/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ static('components/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css') }}">
     <link rel="stylesheet" href="{{ static('css/custom_bootstrap.css') }}">
     <link rel="stylesheet" href="{{ static('css/non-responsive.css') }}">
     <link rel="stylesheet" href="{{ static('css/base.css') }}">
@@ -49,7 +50,11 @@
 </div>
 {% endblock %}
 {% include "admin/footer.html" %}
+<script src="{{ static('components/moment/moment.js') }}"></script>
+<script src="{{ static('components/moment/zh-cn.js') }}"></script>
 <script src="{{ static('components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+<script src="{{ static('components/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js') }}"></script>
+<script src="{{ static('components/bootstrap-datetimepicker/build/js/locales/bootstrap-datetimepicker.zh-CN.js') }}"></script>
 <script src="{{ static('js/base.js') }}"></script>
 <!-- Ext JavaScript-->
 {% block js %}{% endblock %}

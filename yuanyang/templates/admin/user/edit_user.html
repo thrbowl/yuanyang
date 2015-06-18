@@ -1,0 +1,102 @@
+{% extends "admin/base.html" %}
+
+{% block title %}添加用户{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script src="{{ static('components/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/additional-methods.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
+    <script src="{{ static('js/entity.js') }}"></script>
+    <script>
+        var current_region_id = "{{ user.region_id }}";
+        var current_building_ids = [];
+        {% for building in user.buildings %}
+            current_building_ids.push({{ building.id }});
+        {% endfor %}
+
+        $(function () {
+            $("#region").change(function () {
+                $("#buildingsDiv").empty();
+                $.getJSON("{{ url_for('admin_user.region_buildings') }}/" + this.value, function (buildings) {
+                    $.each(buildings, function (id, name) {
+                        $("#buildingsDiv").append('<div><label><input type="checkbox" name="buildings" ' +
+                                'value="' + id + '"> ' + name + '</label></div>');
+                    });
+                    $("#buildingsDiv").find(':checkbox[name="buildings"]').each(function () {
+                        var val = parseInt(this.value);
+                        $(this).prop("checked", $.inArray(val, current_building_ids) != -1);
+                    });
+                });
+            }).val(current_region_id).trigger("change");
+
+            $("#addForm").validate({
+                rules: {
+                    password: {
+                        required: true,
+                        minlength: 6
+                    }
+                },
+                messages: {
+                    password: {
+                        required: "请输入密码",
+                        minlength: "密码至少6个字符"
+                    },
+                    buildings: {
+                        required: "请选择所属楼盘"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <form id="addForm" class="form-horizontal" method="POST">
+            <div class="form-group">
+                <label for="username" class="col-xs-2 control-label">用户姓名：</label>
+
+                <div class="col-xs-6">
+                    <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password" class="col-xs-2 control-label">用户密码：</label>
+
+                <div class="col-xs-6">
+                    <input type="text" class="form-control" id="password" name="password"
+                           placeholder="用户密码" value="{{ user.password }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="region" class="col-xs-2 control-label">所属地区：</label>
+
+                <div class="col-xs-6">
+                    <select class="form-control" name="region" id="region">
+                        {% for region in region_list %}
+                            <option value="{{ region.id }}">{{ region.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="region" class="col-xs-2 control-label">所属楼盘：</label>
+
+                <div class="col-xs-6">
+                    <label id="buildings-error" class="error" for="buildings" style="display: none"></label>
+
+                    <div id="buildingsDiv">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-2 col-xs-6">
+                    <button type="submit" class="btn btn-default" value="1">保存</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

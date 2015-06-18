@@ -15,24 +15,29 @@
     <script src="{{ static('components/select2/select2_locale_zh-CN.js') }}"></script>
     <script src="{{ static('js/entity.js') }}"></script>
     <script>
-        var current_region_id = {{ building.region_id }};
-        var current_owner_ids = {{ building.users }};
-        var current_building_name = {{ building.name }};
+        var current_region_id = "{{ building.region_id }}";
+        var current_building_name = "{{ building.name }}";
+        var current_owner_ids = [];
+        {% for user in building.users %}
+            current_owner_ids.push({{ user.id }});
+        {% endfor %}
 
         $(function () {
             $("#region").change(function () {
                 $("#owners").empty();
-                $.getJSON("{{ url_for('admin_entity.region_users') }}/" + this.value, function (users) {
+                var elem = this;
+                $.getJSON("{{ url_for('admin_entity.region_users') }}/" + elem.value, function (users) {
                     $.each(users, function (id, username) {
                         $("#owners").append($("<option></option>").attr("value", id).text(username));
                     });
+                    $("#owners").select2("val", current_owner_ids);
                 });
             }).val(current_region_id).trigger("change");
             $("#owners").select2();
 
-            $("#logo").change(function(){
-                    readURL(this, "#preview_building_logo");
-                });
+            $("#logo").change(function () {
+                readURL(this, "#preview_building_logo");
+            });
 
             $.validator.setDefaults({ignore: ""});
             $("#addForm").validate({
@@ -92,6 +97,7 @@
                     </div>
                     <div class="clearfix"></div>
                     <label id="logo-error" class="error" for="logo" style="display: none"></label>
+
                     <p class="help-block">请使用尺寸为169X172px，格式为jpg，jpeg，png的图片</p>
                     <input type="file" id="logo" name="logo" style="display: none">
                 </div>
@@ -112,9 +118,6 @@
 
                 <div class="col-xs-6">
                     <select class="form-control" name="owners" id="owners" multiple>
-                        {% for user in region_list[0].users %}
-                            <option value="{{ user.id }}">{{ user.username }}</option>
-                        {% endfor %}
                     </select>
                 </div>
             </div>

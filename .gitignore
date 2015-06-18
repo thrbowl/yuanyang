@@ -97,3 +97,4 @@ nohup.out
 *.swo
 .gulp
 *.sql
+media

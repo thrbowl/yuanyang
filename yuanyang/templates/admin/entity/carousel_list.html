@@ -1,0 +1,77 @@
+{% extends "admin/base.html" %}
+
+{% block title %}编辑地区{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script>
+        function deleteCarousel(carousel_id) {
+            var data = {
+                carousel_id: carousel_id
+            };
+            $.post("{{ url_for('admin_entity.delete_carousel') }}", data, function (message) {
+                if (message.type == 'success') {
+                    location.reload();
+                }
+            });
+        }
+
+        function editCarousel(carousel_id) {
+            location.href = "{{ url_for('admin_entity.edit_carousel') }}/" + carousel_id;
+        }
+
+        function moveUp(last_id, current_id) {
+            var data = {
+                last_id: last_id,
+                current_id: current_id
+            };
+            $.post("{{ url_for('admin_entity.exchange_carousel_pos') }}", data, function (message) {
+                if (message.type == 'success') {
+                    location.reload();
+                }
+            });
+        }
+
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <div>
+            <a href="{{ url_for('admin_entity.add_carousel') }}"
+               class="btn btn-default pull-right active" style="width: 200px">
+                添加轮播
+            </a>
+            {% from 'admin/macros/entity_switcher.html' import render_entity_manage_switcher %}
+            {{ render_entity_manage_switcher('carousel') }}
+        </div>
+        <div class="clearfix"></div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>图片</th>
+                <th>名称</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for carousel in pager.items %}
+                <tr>
+                    <td width=""><img src="{{ carousel.image }}" class="img-thumbnail carousel-img-thumbnail"/></td>
+                    <td width="">{{ carousel.title }}</td>
+                    <td width="">
+                        <a href="javascript:;" onclick="editCarousel({{ carousel.id }})">编辑</a>
+                        <a href="javascript:;" onclick="deleteCarousel({{ carousel.id }})">删除</a>
+                        {% if not loop.first %}
+                            <a href="javascript:;" onclick="moveUp({{ last_id }}, {{ carousel.id }} )">上升</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% set last_id=carousel.id %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

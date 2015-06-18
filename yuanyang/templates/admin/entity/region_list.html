@@ -1,0 +1,60 @@
+{% extends "admin/base.html" %}
+
+{% block title %}编辑地区{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script>
+        function deleteRegion(region_id) {
+            var data = {
+                region_id: region_id
+            };
+            $.post("{{ url_for('admin_entity.delete_region') }}", data, function(message) {
+                if (message.type == 'success') {
+                    location.reload();
+                }
+            });
+        }
+
+        function editRegion(region_id) {
+            location.href = "{{ url_for('admin_entity.edit_region') }}/" + region_id;
+        }
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <div>
+            <a href="{{ url_for('admin_entity.add_region') }}"
+               class="btn btn-default pull-right active" style="width: 200px">
+                添加地区
+            </a>
+            {% from 'admin/macros/entity_switcher.html' import render_entity_manage_switcher %}
+            {{ render_entity_manage_switcher('region') }}
+        </div>
+        <div class="clearfix"></div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>地区</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for region in pager.items %}
+                <tr>
+                    <td width="">{{ region.name }}</td>
+                    <td width="">
+                        <a href="javascript:;" onclick="editRegion({{ region.id }})">编辑</a>
+                        <a href="javascript:;" onclick="deleteRegion({{ region.id }})">删除</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% from 'admin/macros/pagination.html' import render_pagination %}
+        {{ render_pagination(pager, 'admin_entity.region_manage') }}
+    </div>
+{% endblock %}

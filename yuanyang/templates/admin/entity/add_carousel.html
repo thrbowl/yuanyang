@@ -12,14 +12,14 @@
     <script src="{{ static('js/entity.js') }}"></script>
     <script>
         $(function () {
-            $("#logo").change(function(){
-                    readURL(this, "#preview_building_logo");
+            $("#image").change(function(){
+                    readURL(this, "#preview_carousel_img");
                 });
 
             $.validator.setDefaults({ignore: ""});
             $("#addForm").validate({
                 rules: {
-                    name: {
+                    title: {
                         required: true,
                         minlength: 2
                     },
@@ -35,7 +35,7 @@
                     },
                     image: {
                         required: "请选择轮播图片",
-                        extension: "请选择合法的Logo，后缀必须为jpeg,jpg,png"
+                        extension: "请选择合法的图片，后缀必须为jpeg,jpg,png"
                     }
                 }
             });
@@ -49,14 +49,14 @@
             {% from 'admin/macros/entity_switcher.html' import render_entity_add_switcher %}
             {{ render_entity_add_switcher('carousel') }}
             <div class="form-group">
-                <label for="name" class="col-xs-2 control-label">名称：</label>
+                <label for="title" class="col-xs-2 control-label">名称：</label>
 
                 <div class="col-xs-6">
-                    <input type="text" class="form-control" id="name" name="name" placeholder="名称">
+                    <input type="text" class="form-control" id="title" name="title" placeholder="名称">
                 </div>
             </div>
             <div class="form-group">
-                <label for="logo" class="col-xs-2 control-label">图片：</label>
+                <label for="image" class="col-xs-2 control-label">图片：</label>
 
                 <div class="col-xs-6">
                     <div style="position: relative;">

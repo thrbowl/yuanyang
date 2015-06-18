@@ -45,7 +45,7 @@
                             <img src="{{ building.logo }}" class="img-thumbnail building-logo-thumbnail"/>
                         </a>
                     </div>
-                    <div class="pull-left" style="margin-left: 20px;height: 60px;position: relative;">
+                    <div class="pull-left" style="margin-left: 20px;height: 60px;position: relative;min-width: 500px">
                         <h4 class="list-group-item-heading">
                             <a href="{{ url_for('admin_project.view_building', building_id=building.id) }}">
                                 {{ building.name }}

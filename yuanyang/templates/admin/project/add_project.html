@@ -1,0 +1,140 @@
+{% extends "admin/base.html" %}
+
+{% block title %}创建新项目{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            $("#pbusiness_scope").change(function () {
+                $.getJSON("{{ url_for('api_business_scope.lv2_scopes') }}/" + this.value, function (business_scopes) {
+                    $("#business_scope").empty();
+                    $.each(business_scopes, function (idx, item) {
+                        $("#business_scope").append($("<option></option>").attr("value", item.id).text(item.name));
+                    });
+                });
+            });
+
+            $("#due_date1,#lead_start_date1,#lead_end_date1").datetimepicker({
+                format: "YYYY-MM-DD"
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <div class="pull-right">
+            <a href="#">草稿箱>></a>
+        </div>
+        <form id="addForm" class="form-horizontal" method="POST">
+            <div class="form-group">
+                <label for="building" class="col-xs-2 control-label">所属楼盘：</label>
+
+                <div class="col-xs-6">
+                    <select name="building" id="building" class="form-control" style="width: 300px;">
+                        {% for building in building_list %}
+                            <option value="{{ building.id }}">
+                                {{ building.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="pbusiness_scope" class="col-xs-2 control-label">项目类型：</label>
+
+                <div class="col-xs-10">
+                    <select class="form-control" id="pbusiness_scope" name="pbusiness_scope"
+                            style="width: 300px;display: inline-block;">
+                        {% for bs in business_scope_list %}
+                            <option value="{{ bs.id }}">
+                                {{ bs.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-control" id="business_scope" name="business_scope"
+                            style="width: 300px;display: inline-block;margin-left: 20px;">
+                        {% for bs in business_scope_list[0].children %}
+                            <option value="{{ bs.id }}">
+                                {{ bs.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-xs-2 control-label">项目名称：</label>
+
+                <div class="col-xs-6">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="项目名称"
+                           style="width: 300px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="due_date" class="col-xs-2 control-label">截止时间：</label>
+
+                <div class="col-xs-6">
+                    <div class="input-group" id="due_date1" style="width: 300px;">
+                        <input type="text" class="form-control" id="due_date" name="due_date"
+                               placeholder="截止时间">
+
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="lead_start_date" class="col-xs-2 control-label">项目交付时间：</label>
+
+                <div class="col-xs-10">
+                    <div class="input-group pull-left" id="lead_start_date1" style="width: 300px;">
+                        <input type="text" class="form-control" id="lead_start_date" name="lead_start_date">
+
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="input-group pull-left" id="lead_end_date1" style="width: 300px;;margin-left: 20px;">
+                        <input type="text" class="form-control" id="lead_end_date" name="lead_end_date">
+
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="form-group">
+                <label for="price_range" class="col-xs-2 control-label">报价区间：</label>
+
+                <div class="col-xs-6">
+                    <select name="price_range" id="price_range" class="form-control" style="width: 300px;">
+                        {% for pr in price_range_list %}
+                            <option value="{{ pr }}">
+                                {{ pr.get_display_name() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="price_range" class="col-xs-2 control-label">项目需求：</label>
+
+                <div class="col-xs-6">
+                    <textarea class="form-control" rows="5" name="requirements" id="requirements"
+                              style="width: 620px;resize: none;"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" name="_actionBtn" class="btn btn-default" value="1">提交</button>
+                    <button type="submit" name="_actionBtn" class="btn btn-default" value="2">保存</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

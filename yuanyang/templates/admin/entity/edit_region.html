@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+
+{% block title %}编辑地区{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script src="{{ static('components/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/additional-methods.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
+    <script src="{{ static('js/entity.js') }}"></script>
+    <script>
+        var current_region_id = "{{ region.id }}";
+        var current_region_name = "{{ region.name }}";
+        $(function() {
+            $("#addForm").validate({
+                rules: {
+                    name: {
+                        required: true,
+                        minlength: 2,
+                        remote: "{{ url_for('admin_entity.check_region_unique') }}?prev_name=" + current_region_name
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "请输入地区名名称",
+                        minlength: "名称至少需要两个字",
+                        remote: "该地区已经存在"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <form id="addForm" class="form-horizontal" method="POST">
+            {% from 'admin/macros/entity_switcher.html' import render_entity_add_switcher %}
+            {{ render_entity_add_switcher('region') }}
+            <div class="form-group">
+                <label for="name" class="col-xs-2 control-label">名称：</label>
+
+                <div class="col-xs-6">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="名称" value="{{ region.name }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-2 col-xs-6">
+                    <button type="submit" class="btn btn-default" value="1">保存</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

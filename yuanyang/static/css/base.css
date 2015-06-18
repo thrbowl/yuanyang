@@ -58,6 +58,11 @@ html, body {
     height: 330px;
 }
 
+.carousel-img-thumbnail {
+    width: 200px;
+    height: 105px;
+}
+
 label.error {
     color: #ff0000;
 }
@@ -71,4 +76,8 @@ label.error {
     right:0;
     padding: 8px;
     width: 300px;
+}
+
+table td .row1 {
+    margin-bottom: 8px;
 }

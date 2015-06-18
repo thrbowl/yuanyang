@@ -1,18 +1,61 @@
 {% extends "admin/base.html" %}
 
-{% block title %}添加新用户{% endblock %}
+{% block title %}添加用户{% endblock %}
 
 {% block css %}
 {% endblock %}
 
 {% block js %}
+    <script src="{{ static('components/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/additional-methods.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
+    <script src="{{ static('js/entity.js') }}"></script>
     <script>
+        $(function () {
+            $("#region").change(function () {
+                $("#buildingsDiv").empty();
+                $.getJSON("{{ url_for('admin_user.region_buildings') }}/" + this.value, function (buildings) {
+                    $.each(buildings, function (id, name) {
+                        $("#buildingsDiv").append('<div><label><input type="checkbox" name="buildings" id="buildings" ' +
+                                'value="' + id + '"> ' + name + '</label></div>');
+                    });
+                });
+            });
+
+            $("#addForm").validate({
+                rules: {
+                    username: {
+                        required: true,
+                        minlength: 2,
+                        remote: "{{ url_for('admin_user.check_user_unique') }}"
+                    },
+                    password: {
+                        required: true,
+                        minlength: 6
+                    }
+                },
+                messages: {
+                    username: {
+                        required: "请输入名称",
+                        minlength: "名称至少需要两个字",
+                        remote: "该名称已经存在"
+                    },
+                    password: {
+                        required: "请输入密码",
+                        minlength: "密码至少6个字符"
+                    },
+                    buildings: {
+                        required: "请选择所属楼盘"
+                    }
+                }
+            });
+        });
     </script>
 {% endblock %}
 
 {% block body_content %}
     <div>
-        <form class="form-horizontal" method="POST" style="margin-bottom: 20px;">
+        <form id="addForm" class="form-horizontal" method="POST">
             <div class="form-group">
                 <label for="username" class="col-xs-2 control-label">用户姓名：</label>
 
@@ -36,6 +79,30 @@
                             <option value="{{ region.id }}">{{ region.name }}</option>
                         {% endfor %}
                     </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="region" class="col-xs-2 control-label">所属楼盘：</label>
+
+                <div class="col-xs-6">
+                    <label id="buildings-error" class="error" for="buildings" style="display: none"></label>
+
+                    <div id="buildingsDiv">
+                        {% for building in region_list[0].buildings %}
+                            <div>
+                                <label>
+                                    <input type="checkbox" value="{{ building.id }}" name="buildings" id="buildings">
+                                    {{ building.name }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-2 col-xs-6">
+                    <button type="submit" name="_actionBtn" class="btn btn-default" value="1">保存</button>
+                    <button type="submit" name="_actionBtn" class="btn btn-default" value="2">保存并继续添加</button>
                 </div>
             </div>
         </form>

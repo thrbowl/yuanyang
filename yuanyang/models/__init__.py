@@ -3,10 +3,9 @@ import datetime
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import UserMixin
 from flask import current_app
-from sqlalchemy import Table, Column, ForeignKey, Integer, String, Boolean, Text, DateTime, func, and_, select, desc
-from sqlalchemy.orm import relationship, relation, backref, object_session
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import Table, Column, ForeignKey, Integer, String, Boolean, Text, DateTime, Date, desc
+from sqlalchemy.orm import relationship, backref
+
 
 db = SQLAlchemy()
 settings = current_app.config
@@ -115,7 +114,8 @@ class Building(db.Model):
     create_date = Column(DateTime, nullable=False)
 
     region = relationship('Region', backref=backref('buildings',
-                          order_by='desc(Building.order_num),desc(Building.id)', cascade="all, delete"))
+                                                    order_by='desc(Building.order_num),desc(Building.id)',
+                                                    cascade="all, delete"))
     users = relationship('User', secondary=user_buildings, order_by='desc(User.id)')
 
     def __init__(self, name):
@@ -132,11 +132,11 @@ class Building(db.Model):
 
     @property
     def project_total(self):
-        return Project.query.count()
+        return Project.query.filter(Project.building_id == self.id, Project._status != Project.STATUS_DRAFT).count()
 
     @property
     def bidding_project_total(self):
-        return Project.query.filter(Project._status == Project.STATUS_BIDDING).count()
+        return Project.query.filter(Project.building_id == self.id, Project._status == Project.STATUS_BIDDING).count()
 
 
 class BusinessScope(db.Model):
@@ -148,6 +148,9 @@ class BusinessScope(db.Model):
     parent_id = Column(Integer, ForeignKey('business_scopes.id'))  # 上级分类
     order_num = Column(Integer, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
+
+    children = relationship('BusinessScope', cascade="all, delete-orphan", backref=backref('parent', remote_side=[id]),
+                            order_by='desc(BusinessScope.order_num),desc(BusinessScope.id)')
 
     def __init__(self, name):
         self.name = name
@@ -222,20 +225,22 @@ class Project(db.Model):
     PRICE_RANGE_100_XW = _CONS(6, u'100W以上')
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)  # 项目名称
+    name = Column(String(100))  # 项目名称
     building_id = Column(Integer, ForeignKey('buildings.id'), nullable=False)  # 所属楼盘
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # 创建者
     type_id = Column(Integer, ForeignKey('business_scopes.id'), nullable=False)  # 项目类型
     supplier_id = Column(Integer, ForeignKey('suppliers.id'))  # 中标供应商
     _status = Column('status', Integer, nullable=False)  # 项目状态
-    due_date = Column(DateTime, nullable=False)  # 截止时间
-    publish_date = Column(DateTime, nullable=False)  # 发布时间
-    lead_start_date = Column(DateTime, nullable=False)  # 交付起始时间
-    lead_end_date = Column(DateTime, nullable=False)  # 交付完成时间
+    due_date = Column(Date)  # 截止时间
+    publish_date = Column(DateTime)  # 发布时间
+    lead_start_date = Column(Date)  # 交付起始时间
+    lead_end_date = Column(Date)  # 交付完成时间
     _price_range = Column('price_range', Integer, nullable=False)  # 报价区间
+    requirements = Column(Text)  # 项目需求
     create_date = Column(DateTime, nullable=False)
 
     building = relationship('Building', backref=backref('projects', order_by=due_date, cascade="all, delete"))
+    business_scope = relationship('BusinessScope')
 
     def __init__(self):
         self.create_date = datetime.datetime.now()
@@ -278,6 +283,27 @@ class Project(db.Model):
 
     price_range = property(get_price_range, set_price_range)
 
+    def publish(self):
+        pass
+
+
+PROJECT_PRICE_RANGE_LIST = [
+    Project.PRICE_RANGE_0_5W,
+    Project.PRICE_RANGE_5_10W,
+    Project.PRICE_RANGE_10_20W,
+    Project.PRICE_RANGE_20_30W,
+    Project.PRICE_RANGE_30_50W,
+    Project.PRICE_RANGE_100_XW
+]
+
+PROJECT_STATUS_LIST = [
+    Project.STATUS_BIDDING,
+    Project.STATUS_COMPLETED,
+    Project.STATUS_COMMENTED,
+    Project.STATUS_ENDED,
+    Project.STATUS_FAILURE
+]
+
 
 class Carousel(db.Model):
     """轮播"""
@@ -285,7 +311,7 @@ class Carousel(db.Model):
 
     id = Column(Integer, primary_key=True)
     title = Column(String(100), nullable=False)  # 标题
-    image = Column(String(100), nullable=False)  # 轮播图
+    _image = Column('image', String(100), nullable=False)  # 轮播图
     url = Column(String(100), nullable=False, default='')  # 链接地址
     description = Column(Text)  # 描述
     order_num = Column(Integer, nullable=False, default=0)
@@ -296,29 +322,37 @@ class Carousel(db.Model):
         self.image = image
         self.create_date = datetime.datetime.now()
 
+    def get_image(self):
+        return self._image or settings['CAROUSEL_IMG_DEFAULT']
 
-class Config(db.Model):
+    def set_image(self, image):
+        self._image = image
+
+    image = property(get_image, set_image)
+
+
+class StartPage(db.Model):
     """配置"""
-    __tablename__ = 'configs'
+    __tablename__ = 'startpages'
 
     id = Column(Integer, primary_key=True)
-    startpage_text1 = Column(String(100), nullable=False)
-    startpage_image1 = Column(String(100), nullable=False)
+    text1 = Column(String(100), nullable=False)
+    image1 = Column(String(100), nullable=False)
+    is_active = Column(Boolean, nullable=False, default=False)
+    create_date = Column(DateTime, nullable=False)
 
-    def __init__(self):
-        raise RuntimeError(u'Config is singleton object')
-
-
-def get_config():
-    return Config.query.get(1)
+    def __init__(self, text1, image1):
+        self.text1 = text1
+        self.image1 = image1
+        self.create_date = datetime.datetime.now()
 
 
 # class Feed(db.Model):
 # """动态"""
 # __tablename__ = 'feeds'
 #
-#     id = Column(Integer, primary_key=True)
-#     content = Column(String(500), nullable=False)
+# id = Column(Integer, primary_key=True)
+# content = Column(String(500), nullable=False)
 #
 #
 # class Comment(db.Model):

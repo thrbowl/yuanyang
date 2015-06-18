@@ -6,10 +6,129 @@
 {% endblock %}
 
 {% block js %}
+    <script>
+        $("#building").change(function () {
+            location.href = "{{ url_for('admin_project.view_building') }}/" + this.value;
+        });
+    </script>
 {% endblock %}
 
 {% block body_content %}
-    <div class="row">
+    {% if building_list %}
+        <form class="form-inline" style="margin-bottom: 40px;">
+            <div class="form-group">
+                <select class="form-control col-xs-offset-2" style="width: 300px;" id="building">
+                    {% for building1 in building_list %}
+                        <option value="{{ building1.id }}"
+                                {% if building1.id==building.id %}selected{% endif %}>
+                            {{ building1.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group pull-right">
+                <a href="{{ url_for('admin_project.add_project') }}"
+                   class="btn btn-default active" style="width: 200px">
+                    创建项目
+                </a>
+            </div>
+        </form>
+        <div class="clearfix"></div>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form id="SearchForm" class="form-horizontal" method="GET">
+                    <div class="form-group">
+                        <div for="lead_start_date" class="col-xs-2 control-label">发布时间：</div>
 
-    </div>
+                        <div class="col-xs-10 row">
+                            <div class="input-group pull-left" id="lead_start_date1" style="width: 230px;">
+                                <input type="text" class="form-control" id="lead_start_date" name="lead_start_date">
+
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                            </div>
+                            <div class="input-group pull-left" id="lead_end_date1"
+                                 style="width: 230px;;margin-left: 20px;">
+                                <input type="text" class="form-control" id="lead_end_date" name="lead_end_date">
+
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="form-group">
+                        <div for="business_scope" class="col-xs-2 control-label">项目类型：</div>
+
+                        <div class="col-xs-10 row" style="padding-top: 7px">
+                            <select class="form-control" id="business_scope" name="business_scope"
+                                    style="width: 230px;">
+                                {% for bs1 in business_scope_list %}
+                                    <optgroup label="{{ bs1.name }}">
+                                        {% for bs2 in bs1.children %}
+                                            <option value="{{ bs2.id }}">{{ bs2.name }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div for="price_range" class="col-xs-2 control-label">报价区间：</div>
+
+                        <div class="col-xs-10 row" style="padding-top: 7px">
+                            <a href="#" style="margin-right: 20px;">全部</a>
+                            {% for price_range in price_range_list %}
+                                <a href="#" style="margin-right: 20px;">{{ price_range.get_display_name() }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div for="price_range" class="col-xs-2 control-label">发布状态：</div>
+
+                        <div class="col-xs-10 row" style="padding-top: 7px">
+                            <a href="#" style="margin-right: 20px;">全部</a>
+                            {% for status in status_list %}
+                                <a href="#" style="margin-right: 20px;">{{ status.get_display_name() }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% if building.projects %}
+            <table class="table table-striped">
+            {% for project in building.projects %}
+                <tr>
+                    <td width="30%">
+                        <div class="row1"><a href="#" style="font-size: 18px;">{{ project.name }}</a></div>
+                        <div class="row2">发布时间: {{ project.publish_date.strftime('%Y-%m-%d') }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">项目类型: {{ project.business_scope.name }}</div>
+                        <div class="row2">报价区间: {{ project.price_range.get_display_name() }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">&nbsp;</div>
+                        <div class="row2">报名截止时间: {{ project.due_date }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">最近投标（1）</div>
+                        <div class="row2">已投标（11）</div>
+                    </td>
+                    <td>
+                        <div class="row1">&nbsp;</div>
+                        <div class="row2">发布状态: {{ project.status.get_display_name() }}</div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <p class="text-warning">该楼盘还没有项目</p>
+        {% endif %}
+    {% else %}
+        <p class="text-warning">没有属于您的楼盘，请找管理员添加</p>
+    {% endif %}
 {% endblock %}

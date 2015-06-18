@@ -54,6 +54,11 @@ def create_app(name=None, settings=None):
         db.init_app(app)
 
         logging.debug('Register blueprints')
+        from .views.api.supplier import supplier
+        app.register_blueprint(supplier, url_prefix='/api/supplier')
+        from .views.api.business_scope import business_scope
+        app.register_blueprint(business_scope, url_prefix='/api/business_scope')
+
         from .views.admin.main import main
         app.register_blueprint(main, url_prefix='/admin')
         from .views.admin.auth import auth
@@ -66,8 +71,5 @@ def create_app(name=None, settings=None):
         app.register_blueprint(supplier, url_prefix='/admin/supplier')
         from .views.admin.user import user
         app.register_blueprint(user, url_prefix='/admin/user')
-
-        from .views.api.supplier import supplier
-        app.register_blueprint(supplier, url_prefix='/api/supplier')
 
         return app

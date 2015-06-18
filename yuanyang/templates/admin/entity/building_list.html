@@ -29,7 +29,7 @@
         <div>
             <a href="{{ url_for('admin_entity.add_building') }}"
                class="btn btn-default pull-right active" style="width: 200px">
-                添加新楼盘
+                添加楼盘
             </a>
             {% from 'admin/macros/entity_switcher.html' import render_entity_manage_switcher %}
             {{ render_entity_manage_switcher('building') }}

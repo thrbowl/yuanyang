@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+
+{% block title %}编辑轮播{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script src="{{ static('components/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/additional-methods.min.js') }}"></script>
+    <script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
+    <script src="{{ static('js/entity.js') }}"></script>
+    <script>
+        $(function () {
+            $("#image").change(function(){
+                    readURL(this, "#preview_carousel_img");
+                });
+
+            $.validator.setDefaults({ignore: ""});
+            $("#addForm").validate({
+                rules: {
+                    title: {
+                        required: true,
+                        minlength: 2
+                    },
+                    image: {
+                        extension: "jpeg|jpg|png"
+                    }
+                },
+                messages: {
+                    title: {
+                        required: "请输入轮播名称",
+                        minlength: "名称至少需要两个字"
+                    },
+                    image: {
+                        extension: "请选择合法的图片，后缀必须为jpeg,jpg,png"
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <form id="addForm" class="form-horizontal" method="POST" enctype="multipart/form-data">
+            {% from 'admin/macros/entity_switcher.html' import render_entity_add_switcher %}
+            {{ render_entity_add_switcher('carousel') }}
+            <div class="form-group">
+                <label for="title" class="col-xs-2 control-label">名称：</label>
+
+                <div class="col-xs-6">
+                    <input type="text" class="form-control" id="title" name="title" placeholder="名称" value="{{ carousel.title }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="image" class="col-xs-2 control-label">图片：</label>
+
+                <div class="col-xs-6">
+                    <div style="position: relative;">
+                        <img src="{{ carousel.image }}" class="img-thumbnail carousel-img"
+                             onclick="$('#image').click()" id="preview_carousel_img"/>
+                        <input type="button" value="&nbsp; 选择文件 &nbsp;"
+                               style="position:absolute; bottom: 0;margin-left: 10px;" onclick="$('#image').click()">
+                    </div>
+                    <div class="clearfix"></div>
+                    <label id="logo-error" class="error" for="image" style="display: none"></label>
+                    <p class="help-block">请使用尺寸为640X330px，格式为jpg，jpeg，png的图片</p>
+                    <input type="file" id="image" name="image" style="display: none">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-2 col-xs-6">
+                    <button type="submit" class="btn btn-default" value="1">保存</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
