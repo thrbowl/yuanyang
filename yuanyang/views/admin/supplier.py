@@ -8,4 +8,10 @@ supplier = Blueprint('admin_supplier', __name__)
 @supplier.route('/', methods=['GET'])
 @login_required
 def index():
-    return "PO"
+    return redirect(url_for('admin_supplier.supplier_list'))
+
+
+@supplier.route('/supplier_list', methods=['GET'])
+@login_required
+def supplier_list():
+    pass

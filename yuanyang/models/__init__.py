@@ -57,7 +57,7 @@ class User(db.Model, UserMixin):
     create_date = Column(DateTime, nullable=False)
 
     buildings = relationship('Building', secondary=user_buildings,
-                             order_by='desc(Building.order_num),desc(Building.id)')
+                             order_by='desc(Building.create_date)')
     region = relationship('Region', backref=backref('users', order_by=desc(create_date)))
 
     def __init__(self, username, password):
@@ -82,6 +82,9 @@ class User(db.Model, UserMixin):
 
     def enable(self):
         self._is_active = True
+
+    def get_project_drafts(self):
+        return Project.query.filter(Project.user_id == self.id, Project._status == Project.STATUS_DRAFT).all()
 
 
 class Area(db.Model):
@@ -110,13 +113,12 @@ class Building(db.Model):
     _logo = Column('logo', String(100), nullable=False)  # 楼盘logo图
     address = Column(String(100), nullable=False, default='')  # 楼盘地址
     region_id = Column(Integer, ForeignKey('regions.id'), nullable=False)  # 楼盘所在地区
-    order_num = Column(Integer, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
     region = relationship('Region', backref=backref('buildings',
-                                                    order_by='desc(Building.order_num),desc(Building.id)',
+                                                    order_by='desc(Building.create_date)',
                                                     cascade="all, delete"))
-    users = relationship('User', secondary=user_buildings, order_by='desc(User.id)')
+    users = relationship('User', secondary=user_buildings, order_by='desc(User.create_date)')
 
     def __init__(self, name):
         self.name = name
@@ -150,7 +152,7 @@ class BusinessScope(db.Model):
     create_date = Column(DateTime, nullable=False)
 
     children = relationship('BusinessScope', cascade="all, delete-orphan", backref=backref('parent', remote_side=[id]),
-                            order_by='desc(BusinessScope.order_num),desc(BusinessScope.id)')
+                            order_by='desc(BusinessScope.order_num),desc(BusinessScope.create_date)')
 
     def __init__(self, name):
         self.name = name
@@ -239,7 +241,7 @@ class Project(db.Model):
     requirements = Column(Text)  # 项目需求
     create_date = Column(DateTime, nullable=False)
 
-    building = relationship('Building', backref=backref('projects', order_by=due_date, cascade="all, delete"))
+    building = relationship('Building', backref=backref('projects', order_by=due_date.desc(), cascade="all, delete"))
     business_scope = relationship('BusinessScope')
 
     def __init__(self):
@@ -265,17 +267,17 @@ class Project(db.Model):
     status = property(get_status, set_status)
 
     def get_price_range(self):
-        if self._status == Project.PRICE_RANGE_0_5W:
+        if self._price_range == Project.PRICE_RANGE_0_5W:
             return Project.PRICE_RANGE_0_5W
-        elif self._status == Project.PRICE_RANGE_5_10W:
+        elif self._price_range == Project.PRICE_RANGE_5_10W:
             return Project.PRICE_RANGE_5_10W
-        elif self._status == Project.PRICE_RANGE_10_20W:
+        elif self._price_range == Project.PRICE_RANGE_10_20W:
             return Project.PRICE_RANGE_10_20W
-        elif self._status == Project.PRICE_RANGE_20_30W:
+        elif self._price_range == Project.PRICE_RANGE_20_30W:
             return Project.PRICE_RANGE_20_30W
-        elif self._status == Project.PRICE_RANGE_30_50W:
+        elif self._price_range == Project.PRICE_RANGE_30_50W:
             return Project.PRICE_RANGE_30_50W
-        elif self._status == Project.PRICE_RANGE_100_XW:
+        elif self._price_range == Project.PRICE_RANGE_100_XW:
             return Project.PRICE_RANGE_100_XW
 
     def set_price_range(self, price_range):
@@ -310,15 +312,15 @@ class Carousel(db.Model):
     __tablename__ = 'carousels'
 
     id = Column(Integer, primary_key=True)
-    title = Column(String(100), nullable=False)  # 标题
+    name = Column(String(100), nullable=False)  # 标题
     _image = Column('image', String(100), nullable=False)  # 轮播图
     url = Column(String(100), nullable=False, default='')  # 链接地址
     description = Column(Text)  # 描述
     order_num = Column(Integer, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
-    def __init__(self, title, image):
-        self.title = title
+    def __init__(self, name, image):
+        self.name = name
         self.image = image
         self.create_date = datetime.datetime.now()
 
@@ -332,19 +334,27 @@ class Carousel(db.Model):
 
 
 class StartPage(db.Model):
-    """配置"""
+    """启动页"""
     __tablename__ = 'startpages'
 
     id = Column(Integer, primary_key=True)
-    text1 = Column(String(100), nullable=False)
-    image1 = Column(String(100), nullable=False)
+    name = Column(String(100), nullable=False)
+    _image = Column('image', String(100), nullable=False)
     is_active = Column(Boolean, nullable=False, default=False)
     create_date = Column(DateTime, nullable=False)
 
-    def __init__(self, text1, image1):
-        self.text1 = text1
-        self.image1 = image1
+    def __init__(self, name, image):
+        self.name = name
+        self.image = image
         self.create_date = datetime.datetime.now()
+
+    def get_image(self):
+        return self._image or settings['STARTPAGE_IMG_DEFAULT']
+
+    def set_image(self, image):
+        self._image = image
+
+    image = property(get_image, set_image)
 
 
 # class Feed(db.Model):

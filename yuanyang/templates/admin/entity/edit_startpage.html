@@ -1,6 +1,6 @@
 {% extends "admin/base.html" %}
 
-{% block title %}添加轮播{% endblock %}
+{% block title %}编辑启动页{% endblock %}
 
 {% block css %}
 {% endblock %}
@@ -11,9 +11,9 @@
     <script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
     <script src="{{ static('js/entity.js') }}"></script>
     <script>
-        $(function () {
+        $(function() {
             $("#image").change(function(){
-                    readURL(this, "#preview_carousel_img");
+                    readURL(this, "#preview_startpage_img");
                 });
 
             $.validator.setDefaults({ignore: ""});
@@ -24,17 +24,15 @@
                         minlength: 2
                     },
                     image: {
-                        required: true,
                         extension: "jpeg|jpg|png"
                     }
                 },
                 messages: {
                     name: {
-                        required: "请输入轮播名称",
+                        required: "请输入名称",
                         minlength: "名称至少需要两个字"
                     },
                     image: {
-                        required: "请选择轮播图片",
                         extension: "请选择合法的图片，后缀必须为jpeg,jpg,png"
                     }
                 }
@@ -47,12 +45,12 @@
     <div>
         <form id="addForm" class="form-horizontal" method="POST" enctype="multipart/form-data">
             {% from 'admin/macros/entity_switcher.html' import render_entity_add_switcher %}
-            {{ render_entity_add_switcher('carousel') }}
+            {{ render_entity_add_switcher('startpage') }}
             <div class="form-group">
                 <label for="name" class="col-xs-2 control-label">名称：</label>
 
                 <div class="col-xs-6">
-                    <input type="text" class="form-control" id="name" name="name" placeholder="名称">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="名称" value="{{ startpage.name }}">
                 </div>
             </div>
             <div class="form-group">
@@ -60,8 +58,8 @@
 
                 <div class="col-xs-6">
                     <div style="position: relative;">
-                        <img src="{{ config.CAROUSEL_IMG_DEFAULT }}" class="img-thumbnail carousel-img"
-                             onclick="$('#image').click()" id="preview_carousel_img"/>
+                        <img src="{{ startpage.image }}" class="img-thumbnail carousel-img"
+                             onclick="$('#image').click()" id="preview_startpage_img"/>
                         <input type="button" value="&nbsp; 选择文件 &nbsp;"
                                style="position:absolute; bottom: 0;margin-left: 10px;" onclick="$('#image').click()">
                     </div>
@@ -73,8 +71,7 @@
             </div>
             <div class="form-group">
                 <div class="col-xs-offset-2 col-xs-6">
-                    <button type="submit" name="_actionBtn" class="btn btn-default" value="1">保存</button>
-                    <button type="submit" name="_actionBtn" class="btn btn-default" value="2">保存并继续添加</button>
+                    <button type="submit" class="btn btn-default">保存</button>
                 </div>
             </div>
         </form>

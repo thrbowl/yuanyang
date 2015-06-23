@@ -27,7 +27,7 @@
 {% block body_content %}
     <div>
         <div class="pull-right">
-            <a href="#">草稿箱>></a>
+            <a href="{{ url_for('admin_project.draft_list') }}">草稿箱>></a>
         </div>
         <form id="addForm" class="form-horizontal" method="POST">
             <div class="form-group">

@@ -40,7 +40,7 @@ def view_building(building_id):
     g.menu = 'project'
 
     if current_user.is_superuser:
-        building_list = Building.query.order_by(Building.order_num.desc(), Building.id.desc()).all()
+        building_list = Building.query.order_by(Building.create_date.desc()).all()
     else:
         building_list = current_user.buildings
 
@@ -112,7 +112,7 @@ def add_project():
     g.breadcrumbs = [u'项目管理', u'创建新项目']
     g.menu = 'project'
     if current_user.is_superuser:
-        building_list = Building.query.order_by(Building.order_num.desc(), Building.id.desc()).all()
+        building_list = Building.query.order_by(Building.create_date.desc()).all()
     else:
         building_list = current_user.buildings
 
@@ -125,3 +125,13 @@ def add_project():
         business_scope_list=business_scope_list,
         price_range_list=PROJECT_PRICE_RANGE_LIST
     )
+
+
+@project.route('/draft_list', methods=['GET'])
+@login_required
+def draft_list():
+    g.breadcrumbs = [u'项目管理', u'发布新项目', u'项目草稿箱']
+    g.menu = 'project'
+
+    project_list = current_user.get_project_drafts()
+    return render_template('admin/project/draft_list.html', project_list=project_list)

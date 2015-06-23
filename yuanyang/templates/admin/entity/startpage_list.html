@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+
+{% block title %}启动页管理{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script>
+        function deleteStartpage(startpage_id) {
+            var data = {
+                startpage_id: startpage_id
+            };
+            $.post("{{ url_for('admin_entity.delete_startpage') }}", data, function (message) {
+                if (message.type == 'success') {
+                    location.reload();
+                }
+            });
+        }
+
+        function editStartpage(startpage_id) {
+            location.href = "{{ url_for('admin_entity.edit_startpage') }}/" + startpage_id;
+        }
+
+        function setUsingStartPage(startpage_id) {
+            var data = {
+                startpage_id: startpage_id
+            };
+            $.post("{{ url_for('admin_entity.set_using') }}", data, function (message) {
+                if (message.type == 'success') {
+                    location.reload();
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <div>
+            <a href="{{ url_for('admin_entity.add_startpage') }}"
+               class="btn btn-default pull-right active" style="width: 200px">
+                添加启动页
+            </a>
+            {% from 'admin/macros/entity_switcher.html' import render_entity_manage_switcher %}
+            {{ render_entity_manage_switcher('startpage') }}
+        </div>
+        <div class="clearfix"></div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>图片</th>
+                <th>名称</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for startpage in pager.items %}
+                <tr>
+                    <td width=""><img src="{{ startpage.image }}" class="img-thumbnail carousel-img-thumbnail"/></td>
+                    <td width="">{{ startpage.name }}</td>
+                    <td width="">
+                        {% if not startpage.is_active %}
+                            <a href="javascript:;" onclick="setUsingStartPage({{ startpage.id }})">使用</a>
+                            <a href="javascript:;" onclick="editStartpage({{ startpage.id }})">编辑</a>
+                            <a href="javascript:;" onclick="deleteStartpage({{ startpage.id }})">删除</a>
+                        {% else %}
+                            使用中
+                            <a href="javascript:;" onclick="editStartpage({{ startpage.id }})">编辑</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% from 'admin/macros/pagination.html' import render_pagination %}
+        {{ render_pagination(pager, 'admin_entity.startpage_manage') }}
+    </div>
+{% endblock %}

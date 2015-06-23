@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+
+{% block title %}楼盘详情{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block body_content %}
+    {% if project_list %}
+        <table class="table table-striped">
+            {% for project in project_list %}
+                <tr>
+                    <td width="30%">
+                        <div class="row1"><a href="#" style="font-size: 18px;">{{ project.name|default('未填写', true) }}</a></div>
+                        <div class="row2">发布时间: {{ project.publish_date|default('未填写', true) }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">项目类型: {{ project.business_scope.name }}</div>
+                        <div class="row2">报价区间: {{ project.price_range.get_display_name() }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">&nbsp;</div>
+                        <div class="row2">报名截止时间: {{ project.due_date|default('未填写', true) }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">&nbsp;</div>
+                        <div class="row2">
+                            <a href=""> 发布 </a>
+                            <a href=""> 编辑 </a>
+                            <a href=""> 删除 </a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p class="text-warning">没有草稿</p>
+    {% endif %}
+{% endblock %}

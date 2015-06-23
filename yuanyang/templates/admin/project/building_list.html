@@ -7,10 +7,10 @@
 
 {% block js %}
     <script>
-        $(function() {
-           $("#region").change(function(){
-               location.href = "{{ url_for('admin_project.building_list') }}/" + this.value;
-           })
+        $(function () {
+            $("#region").change(function () {
+                location.href = "{{ url_for('admin_project.building_list') }}/" + this.value;
+            })
         });
     </script>
 {% endblock %}
@@ -24,7 +24,7 @@
                     <select class="form-control regionSelect" name="region" id="region"
                             style="width:200px; display: inline-block">
                         {% for reg in region_list %}
-                            <option value="{{ reg.id }}" {% if region.id==reg.id  %}selected{% endif %}>
+                            <option value="{{ reg.id }}" {% if region.id==reg.id %}selected{% endif %}>
                                 {{ reg.name }}
                             </option>
                         {% endfor %}
@@ -45,16 +45,12 @@
                             <img src="{{ building.logo }}" class="img-thumbnail building-logo-thumbnail"/>
                         </a>
                     </div>
-                    <div class="pull-left" style="margin-left: 20px;height: 60px;position: relative;min-width: 500px">
+                    <div class="pull-left" style="height:60px;padding:20px;min-width: 500px">
                         <h4 class="list-group-item-heading">
                             <a href="{{ url_for('admin_project.view_building', building_id=building.id) }}">
                                 {{ building.name }}
                             </a>
                         </h4>
-
-                        <div class="list-group-item-text" style="position:absolute; bottom: 0;color: gray;">
-                            楼盘地址: {{ building.address }}
-                        </div>
                     </div>
                     <div class="pull-right" style="height: 60px;width:80px;position: relative;">
                         <div style="position:absolute; bottom: 0;">楼盘项目({{ building.project_total }})</div>
