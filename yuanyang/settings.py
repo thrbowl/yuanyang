@@ -15,6 +15,7 @@ BASE_URL = ''
 BASE_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_BASE_ROOT = os.path.join(BASE_ROOT, 'static/')
 STATIC_BASE_URL = '/static/'
+
 BUILDING_LOGO_DEFAULT = urlparse.urljoin(STATIC_BASE_URL, 'img/building_logo_default.jpg')
 BUILDING_LOGO_SIZE = (168, 172)
 CAROUSEL_IMG_DEFAULT = urlparse.urljoin(STATIC_BASE_URL, 'img/carousel_img_default.jpg')
@@ -22,6 +23,8 @@ CAROUSEL_IMG_SIZE = (640, 330)
 CAROUSEL_NUM_LIMIT = 4
 STARTPAGE_IMG_DEFAULT = urlparse.urljoin(STATIC_BASE_URL, 'img/carousel_img_default.jpg')
 STARTPAGE_IMG_SIZE = (640, 330)
+
+CLOSURE_PERIOD = 7 * 24 * 3600
 
 # Cookie secret
 SECRET_KEY = 'dX6mg0jx0y`8(F_|Cp(#zUQTSAX_y<Q0%^W*#Q7<Wwyb2$^9CB4f<J>7Q~*#{&F~'

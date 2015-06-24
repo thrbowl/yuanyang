@@ -7,19 +7,19 @@
 
 {% block js %}
     <script>
-        function deleteRegion(region_id) {
+        function deletecol-xs-10(col-xs-10_id) {
             var data = {
-                region_id: region_id
+                col-xs-10_id: col-xs-10_id
             };
-            $.post("{{ url_for('admin_entity.delete_region') }}", data, function(message) {
+            $.post("{{ url_for('admin_entity.delete_col-xs-10') }}", data, function(message) {
                 if (message.type == 'success') {
                     location.reload();
                 }
             });
         }
 
-        function editRegion(region_id) {
-            location.href = "{{ url_for('admin_entity.edit_region') }}/" + region_id;
+        function editcol-xs-10(col-xs-10_id) {
+            location.href = "{{ url_for('admin_entity.edit_col-xs-10') }}/" + col-xs-10_id;
         }
     </script>
 {% endblock %}
@@ -27,12 +27,12 @@
 {% block body_content %}
     <div>
         <div>
-            <a href="{{ url_for('admin_entity.add_region') }}"
+            <a href="{{ url_for('admin_entity.add_col-xs-10') }}"
                class="btn btn-default pull-right active" style="width: 200px">
                 添加地区
             </a>
             {% from 'admin/macros/entity_switcher.html' import render_entity_manage_switcher %}
-            {{ render_entity_manage_switcher('region') }}
+            {{ render_entity_manage_switcher('col-xs-10') }}
         </div>
         <div class="clearfix"></div>
         <table class="table table-striped">
@@ -43,18 +43,18 @@
             </tr>
             </thead>
             <tbody>
-            {% for region in pager.items %}
+            {% for col-xs-10 in pager.items %}
                 <tr>
-                    <td width="">{{ region.name }}</td>
+                    <td width="">{{ col-xs-10.name }}</td>
                     <td width="">
-                        <a href="javascript:;" onclick="editRegion({{ region.id }})">编辑</a>
-                        <a href="javascript:;" onclick="deleteRegion({{ region.id }})">删除</a>
+                        <a href="javascript:;" onclick="editcol-xs-10({{ col-xs-10.id }})">编辑</a>
+                        <a href="javascript:;" onclick="deletecol-xs-10({{ col-xs-10.id }})">删除</a>
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
         {% from 'admin/macros/pagination.html' import render_pagination %}
-        {{ render_pagination(pager, 'admin_entity.region_manage') }}
+        {{ render_pagination(pager, 'admin_entity.col-xs-10_manage') }}
     </div>
 {% endblock %}

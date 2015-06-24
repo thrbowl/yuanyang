@@ -31,25 +31,24 @@ def add_user():
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = request.form['password'].strip()
-        region_id = int(request.form['region'])
+        area_id = int(request.form['area_id'])
         buildings = request.form.getlist('buildings')
 
         user = User(username, password)
-        user.region_id = region_id
+        user.area_id = area_id
         user.buildings = [Building.query.get(building_id) for building_id in buildings]
         db.session.add(user)
         db.session.commit()
 
-        flash(u'用户添加成功')
+        flash(u'添加成功')
         if request.form['_actionBtn'] == '1':
             return redirect(url_for('admin_user.user_list'))
         elif request.form['_actionBtn'] == '2':
             return redirect(url_for('admin_user.add_user'))
 
-    g.breadcrumbs = [u'用户管理', u'添加新用户']
+    g.breadcrumbs = [u'用户管理', u'添加用户']
     g.menu = 'user'
-    region_list = Region.query.all()
-    return render_template('admin/user/add_user.html', region_list=region_list)
+    return render_template('admin/user/add_user.html')
 
 
 @user.route('/edit_user', methods=['GET', 'POST'])
@@ -59,21 +58,20 @@ def edit_user(user_id):
     user = User.query.get(user_id)
     if request.method == 'POST':
         password = request.form['password'].strip()
-        region_id = int(request.form['region'])
+        area_id = int(request.form['area_id'])
         buildings = request.form.getlist('buildings')
 
         user.password = password
-        user.region_id = region_id
+        user.area_id = area_id
         user.buildings = [Building.query.get(building_id) for building_id in buildings]
         db.session.commit()
 
-        flash(u'用户更新成功')
+        flash(u'更新成功')
         return redirect(url_for('admin_user.user_list'))
 
     g.breadcrumbs = [u'用户管理', u'编辑用户']
     g.menu = 'user'
-    region_list = Region.query.all()
-    return render_template('admin/user/edit_user.html', user=user, region_list=region_list)
+    return render_template('admin/user/edit_user.html', user=user)
 
 
 @user.route('/json/delete_user', methods=['POST'])
@@ -84,22 +82,12 @@ def delete_user():
     user1 = User.query.get(user_id)
     db.session.delete(user1)
     db.session.commit()
-    flash(u'用户删除成功')
 
+    flash(u'删除成功')
     return jsonify(SUCCESS_MESSAGE)
 
 
 ########################################################################################################################
-@user.route('/json/region_buildings', methods=['GET'])
-@user.route('/json/region_buildings/<int:region_id>', methods=['GET'])
-@login_required('admin')
-def region_buildings(region_id):
-    region = Region.query.get(region_id)
-    data = dict([(building.id, building.name) for building in region.buildings])
-
-    return jsonify(data)
-
-
 @user.route('/json/check_user_unique', methods=['GET'])
 @login_required('admin')
 def check_user_unique():

@@ -3,7 +3,7 @@ import datetime
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import UserMixin
 from flask import current_app
-from sqlalchemy import Table, Column, ForeignKey, Integer, String, Boolean, Text, DateTime, Date, desc
+from sqlalchemy import Table, Column, ForeignKey, Integer, String, Boolean, Text, DateTime, Date, Float, desc
 from sqlalchemy.orm import relationship, backref
 
 
@@ -30,17 +30,22 @@ user_buildings = Table(
 )
 
 
-class Region(db.Model):
-    """区域"""
-    __tablename__ = 'regions'
+class Area(db.Model):
+    """地区"""
+    __tablename__ = 'areas'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False, unique=True)  # 地区名称
+    name = Column(String(100), nullable=False)  # 地区名称
+    full_name = Column(String(100), nullable=False)  # 全路径名称
+    parent = Column(Integer, ForeignKey('areas.id'))  # 上级地区
+    tree_path = Column(String(100), nullable=False)
     order_num = Column(Integer, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
-    def __init__(self, name):
+    def __init__(self, name, full_name, tree_path):
         self.name = name
+        self.full_name = full_name
+        self.tree_path = tree_path
         self.create_date = datetime.datetime.now()
 
 
@@ -52,13 +57,13 @@ class User(db.Model, UserMixin):
     password = Column(String(64), nullable=False)
     _is_active = Column('is_active', Boolean, nullable=False, default=True)
     is_superuser = Column(Boolean, nullable=False, default=False)
-    region_id = Column(Integer, ForeignKey('regions.id'))
+    area_id = Column(Integer, ForeignKey('areas.id'))
     last_login = Column(DateTime, nullable=False)
     create_date = Column(DateTime, nullable=False)
 
     buildings = relationship('Building', secondary=user_buildings,
                              order_by='desc(Building.create_date)')
-    region = relationship('Region', backref=backref('users', order_by=desc(create_date)))
+    area = relationship('Area', backref=backref('users', order_by=desc(create_date)))
 
     def __init__(self, username, password):
         self.username = username
@@ -87,23 +92,6 @@ class User(db.Model, UserMixin):
         return Project.query.filter(Project.user_id == self.id, Project._status == Project.STATUS_DRAFT).all()
 
 
-class Area(db.Model):
-    """地区"""
-    __tablename__ = 'areas'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)  # 地区名称
-    full_name = Column(String(100), nullable=False)  # 全路径名称
-    parent_id = Column(Integer, ForeignKey('areas.id'))  # 上级地区
-    order_num = Column(Integer, nullable=False, default=0)
-    create_date = Column(DateTime, nullable=False)
-
-    def __init__(self, name, full_name):
-        self.name = name
-        self.full_name = full_name
-        self.create_date = datetime.datetime.now()
-
-
 class Building(db.Model):
     """楼盘"""
     __tablename__ = 'buildings'
@@ -112,10 +100,10 @@ class Building(db.Model):
     name = Column(String(100), nullable=False)  # 楼盘名称
     _logo = Column('logo', String(100), nullable=False)  # 楼盘logo图
     address = Column(String(100), nullable=False, default='')  # 楼盘地址
-    region_id = Column(Integer, ForeignKey('regions.id'), nullable=False)  # 楼盘所在地区
+    area_id = Column(Integer, ForeignKey('areas.id'), nullable=False)  # 楼盘所在地区
     create_date = Column(DateTime, nullable=False)
 
-    region = relationship('Region', backref=backref('buildings',
+    area = relationship('Area', backref=backref('buildings',
                                                     order_by='desc(Building.create_date)',
                                                     cascade="all, delete"))
     users = relationship('User', secondary=user_buildings, order_by='desc(User.create_date)')
@@ -231,7 +219,8 @@ class Project(db.Model):
     building_id = Column(Integer, ForeignKey('buildings.id'), nullable=False)  # 所属楼盘
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # 创建者
     type_id = Column(Integer, ForeignKey('business_scopes.id'), nullable=False)  # 项目类型
-    supplier_id = Column(Integer, ForeignKey('suppliers.id'))  # 中标供应商
+    supplier_id = Column(Integer)  # 中标供应商
+    bid_id = Column(Integer)  # 投标ID
     _status = Column('status', Integer, nullable=False)  # 项目状态
     due_date = Column(Date)  # 截止时间
     publish_date = Column(DateTime)  # 发布时间
@@ -288,6 +277,9 @@ class Project(db.Model):
     def publish(self):
         pass
 
+    def is_closure_period(self):
+        pass
+
 
 PROJECT_PRICE_RANGE_LIST = [
     Project.PRICE_RANGE_0_5W,
@@ -312,7 +304,7 @@ class Carousel(db.Model):
     __tablename__ = 'carousels'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)  # 标题
+    name = Column(String(100), nullable=False)  # 名称
     _image = Column('image', String(100), nullable=False)  # 轮播图
     url = Column(String(100), nullable=False, default='')  # 链接地址
     description = Column(Text)  # 描述
@@ -357,32 +349,70 @@ class StartPage(db.Model):
     image = property(get_image, set_image)
 
 
-# class Feed(db.Model):
-# """动态"""
-# __tablename__ = 'feeds'
-#
-# id = Column(Integer, primary_key=True)
-# content = Column(String(500), nullable=False)
-#
-#
-# class Comment(db.Model):
-#     """评价"""
-#     __tablename__ = 'comments'
-#
-#     id = Column(Integer, primary_key=True)
-#     content = Column(String(500), nullable=False)
-#     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-#     bid_id = Column(Integer, ForeignKey('bids.id'), nullable=False)
-#     cost_score = Column(Integer, nullable=False, default=0)
-#     quality_score = Column(Integer, nullable=False, default=0)
-#     time_score = Column(Integer, nullable=False, default=0)
-#     service_score = Column(Integer, nullable=False, default=0)
-#     create_date = Column(DateTime, nullable=False)
-#
-#
-# class Bid(db.Model):
-#     """投标"""
-#     __tablename__ = 'bids'
-#
-#     id = Column(Integer, primary_key=True)
-#     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False)
+class Message(db.Model):
+    """消息"""
+    __tablename__ = 'messages'
+
+    id = Column(Integer, primary_key=True)
+    content = Column(String(500), nullable=False)
+    sender_id = Column(Integer, ForeignKey('users.id'), default=None)
+    receiver_id = Column(Integer, ForeignKey('users.id'), default=None)
+    is_read = Column(Boolean, nullable=False, default=False)
+    read_date = Column(DateTime, nullable=False)
+    create_date = Column(DateTime, nullable=False)
+
+    def __init__(self, content):
+        self.content = content
+        self.create_date = datetime.datetime.now()
+
+    def read(self):
+        if not self.is_read:
+            self.is_read = True
+            self.read_date = datetime.datetime.now()
+            return True
+        return False
+
+    @staticmethod
+    def send_user_msg(sender_id, receiver_id, msg_tpl, **data):
+        content = msg_tpl % data
+        message = Message(content)
+        message.sender_id = sender_id
+        message.receiver_id = receiver_id
+        db.session.add(message)
+
+    @staticmethod
+    def send_system_msg(sender_id, receiver_id, msg_tpl, **data):
+        content = msg_tpl % data
+        message = Message(content)
+        message.sender_id = sender_id
+        message.receiver_id = receiver_id
+        db.session.add(message)
+
+
+class Comment(db.Model):
+    """评价"""
+    __tablename__ = 'comments'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    project_id = Column(Integer, ForeignKey('projects.id'), nullable=False)
+    content = Column(String(500), nullable=False)
+    cost_score = Column(Float, nullable=False, default=0)
+    quality_score = Column(Float, nullable=False, default=0)
+    time_score = Column(Float, nullable=False, default=0)
+    service_score = Column(Float, nullable=False, default=0)
+    create_date = Column(DateTime, nullable=False)
+
+
+class Bid(db.Model):
+    """投标"""
+    __tablename__ = 'bids'
+
+    id = Column(Integer, primary_key=True)
+    project_id = Column(Integer, ForeignKey('projects.id'), nullable=False)
+    supplier_id = Column(Integer, ForeignKey('suppliers.id'), nullable=False)
+    email = Column(String(100), nullable=False)
+    company_contact = Column(String(100))
+    company_contact_telephone = Column(String(100))
+    summary = Column(Text)
+    create_date = Column(DateTime, nullable=False)

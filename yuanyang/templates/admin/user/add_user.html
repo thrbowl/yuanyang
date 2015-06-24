@@ -11,17 +11,32 @@
     <script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
     <script src="{{ static('js/entity.js') }}"></script>
     <script>
-        $(function () {
-            $("#region").change(function () {
+        function updateBuildings($elem) {
+            var area_id = $elem.val();
+            if (area_id) {
                 $("#buildingsDiv").empty();
-                $.getJSON("{{ url_for('admin_user.region_buildings') }}/" + this.value, function (buildings) {
-                    $.each(buildings, function (id, name) {
-                        $("#buildingsDiv").append('<div><label><input type="checkbox" name="buildings" id="buildings" ' +
-                                'value="' + id + '"> ' + name + '</label></div>');
-                    });
+                $.getJSON("{{ url_for('api_building.building_list') }}?area_id=" + area_id, function (buildings) {
+                    if (buildings.length != 0) {
+                        $.each(buildings, function (idx, item) {
+                            $("#buildingsDiv").append('<div><label><input type="checkbox" name="buildings" id="buildings" ' +
+                                    'value="' + item.id + '"> ' + item.name + '</label></div>');
+                        });
+                    } else {
+                        $("#buildingsDiv").text("该地区还未添加楼盘");
+                    }
                 });
+            } else {
+                $("#buildingsDiv").text("请先选择所属地区");
+            }
+        }
+
+        $(function () {
+            $("#area_id").lSelect({
+                url: "{{ url_for('api_area.area_list') }}",
+                callback: updateBuildings
             });
 
+            $.validator.setDefaults({ignore: ""});
             $("#addForm").validate({
                 rules: {
                     username: {
@@ -32,6 +47,9 @@
                     password: {
                         required: true,
                         minlength: 6
+                    },
+                    area_id: {
+                        required: true
                     }
                 },
                 messages: {
@@ -44,8 +62,8 @@
                         required: "请输入密码",
                         minlength: "密码至少6个字符"
                     },
-                    buildings: {
-                        required: "请选择所属楼盘"
+                    area_id: {
+                        required: "请选择所属地区"
                     }
                 }
             });
@@ -71,32 +89,23 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="region" class="col-xs-2 control-label">所属地区：</label>
+                <label class="col-xs-2 control-label">所属地区：</label>
 
-                <div class="col-xs-6">
-                    <select class="form-control" name="region" id="region">
-                        {% for region in region_list %}
-                            <option value="{{ region.id }}">{{ region.name }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="col-xs-6" style="margin-top: 7px;">
+                    <div>
+                        <input type="hidden" id="area_id" name="area_id">
+                    </div>
+                    <label id="area_id-error" class="error" for="area_id" style="display: none"></label>
                 </div>
             </div>
             <div class="form-group">
-                <label for="region" class="col-xs-2 control-label">所属楼盘：</label>
+                <label class="col-xs-2 control-label">所属楼盘：</label>
 
                 <div class="col-xs-6">
-                    <label id="buildings-error" class="error" for="buildings" style="display: none"></label>
-
-                    <div id="buildingsDiv">
-                        {% for building in region_list[0].buildings %}
-                            <div>
-                                <label>
-                                    <input type="checkbox" value="{{ building.id }}" name="buildings" id="buildings">
-                                    {{ building.name }}
-                                </label>
-                            </div>
-                        {% endfor %}
+                    <div id="buildingsDiv" style="margin-top: 7px;">
+                        请先选择所属地区
                     </div>
+                    <label id="buildings-error" class="error" for="buildings" style="display: none"></label>
                 </div>
             </div>
             <div class="form-group">

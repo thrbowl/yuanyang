@@ -17,7 +17,7 @@
                     name: {
                         required: true,
                         minlength: 2,
-                        remote: "{{ url_for('admin_entity.check_region_unique') }}"
+                        remote: "{{ url_for('admin_entity.check_col-xs-10_unique') }}"
                     }
                 },
                 messages: {
@@ -36,7 +36,7 @@
     <div>
         <form id="addForm" class="form-horizontal" method="POST">
             {% from 'admin/macros/entity_switcher.html' import render_entity_add_switcher %}
-            {{ render_entity_add_switcher('region') }}
+            {{ render_entity_add_switcher('col-xs-10') }}
             <div class="form-group">
                 <label for="name" class="col-xs-2 control-label">名称：</label>
 

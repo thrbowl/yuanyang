@@ -8,7 +8,7 @@
 {% block js %}
     <script>
         $(function () {
-            $("#region").change(function () {
+            $("#area").change(function () {
                 location.href = "{{ url_for('admin_project.building_list') }}/" + this.value;
             })
         });
@@ -19,13 +19,13 @@
     <div>
         <form class="form-inline" method="GET" style="margin-bottom: 20px;">
             <div class="form-group" style="width: 400px;">
-                <label for="region">
+                <label for="area">
                     楼盘所在地区：
-                    <select class="form-control regionSelect" name="region" id="region"
+                    <select class="form-control" name="area" id="area"
                             style="width:200px; display: inline-block">
-                        {% for reg in region_list %}
-                            <option value="{{ reg.id }}" {% if region.id==reg.id %}selected{% endif %}>
-                                {{ reg.name }}
+                        {% for area1 in area_list %}
+                            <option value="{{ area1.id }}" {% if area.id==area1.id %}selected{% endif %}>
+                                {{ area1.name }}
                             </option>
                         {% endfor %}
                     </select>
@@ -38,7 +38,7 @@
         </form>
         <div class="clearfix"></div>
         <ul class="list-group">
-            {% for building in region.buildings %}
+            {% for building in area.buildings %}
                 <li class="list-group-item">
                     <div class="pull-left">
                         <a href="{{ url_for('admin_project.view_building', building_id=building.id) }}">

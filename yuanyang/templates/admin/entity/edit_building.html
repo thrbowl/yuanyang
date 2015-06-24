@@ -15,25 +15,46 @@
     <script src="{{ static('components/select2/select2_locale_zh-CN.js') }}"></script>
     <script src="{{ static('js/entity.js') }}"></script>
     <script>
-        var current_region_id = "{{ building.region_id }}";
         var current_building_name = "{{ building.name }}";
         var current_owner_ids = [];
         {% for user in building.users %}
             current_owner_ids.push({{ user.id }});
         {% endfor %}
 
-        $(function () {
-            $("#region").change(function () {
-                $("#owners").empty();
-                var elem = this;
-                $.getJSON("{{ url_for('admin_entity.region_users') }}/" + elem.value, function (users) {
-                    $.each(users, function (id, username) {
-                        $("#owners").append($("<option></option>").attr("value", id).text(username));
-                    });
-                    $("#owners").select2("val", current_owner_ids);
+        function initCheckedUsers() {
+            $("#ownersDiv").find(':checkbox[name="owners"]').each(function () {
+                var val = parseInt(this.value);
+                $(this).prop("checked", $.inArray(val, current_owner_ids) != -1);
+            });
+        }
+
+        function updateUsers($elem) {
+            var area_id = $elem.val();
+            if (area_id) {
+                $("#ownersDiv").empty();
+                $.getJSON("{{ url_for('api_user.user_list') }}?area_id=" + area_id, function (users) {
+                    if (users.length != 0) {
+                        $.each(users, function (idx, item) {
+                            $("#ownersDiv").append('<div><label><input type="checkbox" name="owners" id="owners" ' +
+                                    'value="' + item.id + '"> ' + item.name + '</label></div>');
+                        });
+                        initCheckedUsers();
+                    } else {
+                        $("#ownersDiv").text("该地区还未添加用户");
+                    }
                 });
-            }).val(current_region_id).trigger("change");
-            $("#owners").select2();
+            } else {
+                 $("#ownersDiv").text("请先选择地区");
+            }
+        }
+
+        $(function () {
+            initCheckedUsers();
+
+            $("#area_id").lSelect({
+                url: "{{ url_for('api_area.area_list') }}",
+                callback: updateUsers
+            });
 
             $("#logo").change(function () {
                 readURL(this, "#preview_building_logo");
@@ -50,6 +71,9 @@
                     logo: {
                         extension: "jpeg|jpg|png"
                     },
+                    area_id: {
+                        required: true
+                    },
                     owners: {
                         required: true
                     }
@@ -62,6 +86,9 @@
                     },
                     logo: {
                         extension: "请选择合法的Logo，后缀必须为jpeg,jpg,png"
+                    },
+                    area_id: {
+                        required: "请选择地区"
                     },
                     owners: {
                         required: "请选择楼盘负责人"
@@ -103,22 +130,31 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="region" class="col-xs-2 control-label">地区：</label>
+                <label class="col-xs-2 control-label">地区：</label>
 
                 <div class="col-xs-6">
-                    <select class="form-control" name="region" id="region">
-                        {% for region in region_list %}
-                            <option value="{{ region.id }}">{{ region.name }}</option>
-                        {% endfor %}
-                    </select>
+                    <div>
+                        <input type="hidden" id="area_id" name="area_id" value="{{ building.area_id }}"
+                               treePath="{{ building.area.tree_path }}">
+                    </div>
+                    <label id="area_id-error" class="error" for="area_id" style="display: none"></label>
                 </div>
             </div>
             <div class="form-group">
-                <label for="owners" class="col-xs-2 control-label">负责人：</label>
+                <label class="col-xs-2 control-label">负责人：</label>
 
                 <div class="col-xs-6">
-                    <select class="form-control" name="owners" id="owners" multiple>
-                    </select>
+                    <div id="ownersDiv" style="margin-top: 7px;">
+                        {% for user in building.users %}
+                            <div>
+                                <label>
+                                    <input type="checkbox" value="{{ user.id }}" name="owners" id="owners">
+                                    {{ user.username }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <label id="owners-error" class="error" for="owners" style="display: none"></label>
                 </div>
             </div>
             <div class="form-group">

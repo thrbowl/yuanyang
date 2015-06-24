@@ -117,24 +117,6 @@ def delete_startpage():
     return jsonify(SUCCESS_MESSAGE)
 
 
-@entity.route('/json/set_using', methods=['POST'])
-@login_required('admin')
-def set_using():
-    startpage_id = int(request.form['startpage_id'])
-
-    using_startpage_list = StartPage.query.filter(StartPage.is_active == True).all()
-    for sp in using_startpage_list:
-        sp.is_active = False
-
-    startpage = StartPage.query.get(startpage_id)
-    startpage.is_active = True
-
-    db.session.commit()
-
-    flash(u'设置成功')
-    return jsonify(SUCCESS_MESSAGE)
-
-
 ########################################################################################################################
 @entity.route('/building_manage', methods=['GET'])
 @login_required('admin')
@@ -153,7 +135,7 @@ def building_manage():
 def add_building():
     if request.method == 'POST':
         name = request.form['name'].strip()
-        region_id = int(request.form['region'])
+        area_id = int(request.form['area_id'])
         owners = request.form.getlist('owners')
 
         logo_file = request.files['logo']
@@ -170,7 +152,7 @@ def add_building():
 
         building = Building(name)
         building.logo = full_logo_url
-        building.region_id = region_id
+        building.area_id = area_id
         building.users = [User.query.get(user_id) for user_id in owners]
         db.session.add(building)
         db.session.commit()
@@ -183,8 +165,7 @@ def add_building():
 
     g.breadcrumbs = [u'信息管理', u'添加楼盘']
     g.menu = 'entity'
-    region_list = Region.query.order_by(Region.order_num.desc(), Region.create_date.desc()).all()
-    return render_template('admin/entity/add_building.html', region_list=region_list)
+    return render_template('admin/entity/add_building.html')
 
 
 @entity.route('/edit_building', methods=['GET', 'POST'])
@@ -194,11 +175,11 @@ def edit_building(building_id):
     building = Building.query.get(building_id)
     if request.method == 'POST':
         name = request.form['name'].strip()
-        region_id = int(request.form['region'])
+        area_id = int(request.form['area_id'])
         owners = request.form.getlist('owners')
 
         building.name = name
-        building.region_id = region_id
+        building.area_id = area_id
         building.users = [User.query.get(user_id) for user_id in owners]
 
         logo_file = request.files['logo']
@@ -219,8 +200,7 @@ def edit_building(building_id):
 
     g.breadcrumbs = [u'信息管理', u'编辑楼盘']
     g.menu = 'entity'
-    region_list = Region.query.order_by(Region.order_num.desc(), Region.create_date.desc()).all()
-    return render_template('admin/entity/edit_building.html', building=building, region_list=region_list)
+    return render_template('admin/entity/edit_building.html', building=building)
 
 
 @entity.route('/json/delete_building', methods=['POST'])
@@ -245,8 +225,8 @@ def carousel_manage():
 
     page = int(request.args.get('page', 1))
     per_page = 10
-    pager = Carousel.query.order_by(Carousel.order_num.desc(), Carousel.create_date.desc()).paginate(page, per_page,
-                                                                                                     False)
+    pager = Carousel.query.order_by(Carousel.order_num.desc(), Carousel.create_date.desc())\
+        .paginate(page, per_page, False)
     return render_template('admin/entity/carousel_list.html', pager=pager)
 
 
@@ -255,7 +235,7 @@ def carousel_manage():
 def add_carousel():
     carousel_num = Carousel.query.count()
     if carousel_num >= settings['CAROUSEL_NUM_LIMIT']:
-        flash(u'轮播最多为%d个，只有删除后才可以继续添加' % settings['CAROUSEL_NUM_LIMIT'])
+        flash(u'最多为%d个，只有删除后才可以继续添加' % settings['CAROUSEL_NUM_LIMIT'])
         return redirect(url_for('admin_entity.carousel_manage'))
 
     if request.method == 'POST':
@@ -281,7 +261,7 @@ def add_carousel():
         db.session.add(carousel)
         db.session.commit()
 
-        flash(u'轮播添加成功')
+        flash(u'添加成功')
         if request.form['_actionBtn'] == '1':
             return redirect(url_for('admin_entity.carousel_manage'))
         elif request.form['_actionBtn'] == '2':
@@ -315,7 +295,7 @@ def edit_carousel(carousel_id):
             carousel.image = full_image_url
         db.session.commit()
 
-        flash(u'轮播更新成功')
+        flash(u'更新成功')
         return redirect(url_for('admin_entity.carousel_manage'))
 
     g.breadcrumbs = [u'信息管理', u'编辑信息']
@@ -337,97 +317,6 @@ def delete_carousel():
 
 
 ########################################################################################################################
-@entity.route('/region_manage', methods=['GET'])
-@login_required('admin')
-def region_manage():
-    g.breadcrumbs = [u'信息管理', u'地区管理']
-    g.menu = 'entity'
-
-    page = int(request.args.get('page', 1))
-    per_page = 10
-    pager = Region.query.order_by(Region.order_num.desc(), Region.create_date.desc()).paginate(page, per_page, False)
-    return render_template('admin/entity/region_list.html', pager=pager)
-
-
-@entity.route('/add_region', methods=['GET', 'POST'])
-@login_required('admin')
-def add_region():
-    if request.method == 'POST':
-        name = request.form['name'].strip()
-
-        region = Region(name)
-        db.session.add(region)
-        db.session.commit()
-
-        flash(u'地区添加成功')
-        if request.form['_actionBtn'] == '1':
-            return redirect(url_for('admin_entity.region_manage'))
-        elif request.form['_actionBtn'] == '2':
-            return redirect(url_for('admin_entity.add_region'))
-
-    g.breadcrumbs = [u'信息管理', u'添加新信息']
-    g.menu = 'entity'
-    return render_template('admin/entity/add_region.html')
-
-
-@entity.route('/edit_region', methods=['GET', 'POST'])
-@entity.route('/edit_region/<int:region_id>', methods=['GET', 'POST'])
-@login_required('admin')
-def edit_region(region_id):
-    region = Region.query.get(region_id)
-    if request.method == 'POST':
-        name = request.form['name'].strip()
-
-        region.name = name
-        db.session.commit()
-
-        flash(u'地区更新成功')
-        return redirect(url_for('admin_entity.region_manage'))
-
-    g.breadcrumbs = [u'信息管理', u'编辑信息']
-    g.menu = 'entity'
-    return render_template('admin/entity/edit_region.html', region=region)
-
-
-@entity.route('/json/delete_region', methods=['POST'])
-@login_required('admin')
-def delete_region():
-    region_id = int(request.form['region_id'])
-
-    region = Region.query.get(region_id)
-    db.session.delete(region)
-    db.session.commit()
-    flash(u'地区删除成功')
-
-    return jsonify(SUCCESS_MESSAGE)
-
-
-########################################################################################################################
-@entity.route('/json/region_users', methods=['GET'])
-@entity.route('/json/region_users/<int:region_id>', methods=['GET'])
-@login_required('admin')
-def region_users(region_id=None):
-    data = {}
-    if region_id:
-        region = Region.query.get(region_id)
-        data = dict([(user.id, user.username) for user in region.users])
-
-    return jsonify(data)
-
-
-@entity.route('/json/check_region_unique', methods=['GET'])
-@login_required('admin')
-def check_region_unique():
-    name = request.args['name'].strip()
-    prev_name = request.args.get('prev_name')
-
-    is_unique = (prev_name == name)
-    if not is_unique:
-        is_unique = (Region.query.filter(Region.name == name).count() == 0)
-
-    return json.dumps(is_unique)
-
-
 @entity.route('/json/check_building_unique', methods=['GET'])
 @login_required('admin')
 def check_building_unique():
@@ -454,3 +343,21 @@ def exchange_carousel_pos():
         return jsonify(SUCCESS_MESSAGE)
     except:
         return jsonify(ERROR_MESSAGE)
+
+
+@entity.route('/json/set_using', methods=['POST'])
+@login_required('admin')
+def set_using():
+    startpage_id = int(request.form['startpage_id'])
+
+    using_startpage_list = StartPage.query.filter(StartPage.is_active == True).all()
+    for sp in using_startpage_list:
+        sp.is_active = False
+
+    startpage = StartPage.query.get(startpage_id)
+    startpage.is_active = True
+
+    db.session.commit()
+
+    flash(u'设置成功')
+    return jsonify(SUCCESS_MESSAGE)

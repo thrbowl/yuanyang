@@ -60,7 +60,7 @@
             {% for carousel in pager.items %}
                 <tr>
                     <td width=""><img src="{{ carousel.image }}" class="img-thumbnail carousel-img-thumbnail"/></td>
-                    <td width="">{{ carousel.title }}</td>
+                    <td width="">{{ carousel.name }}</td>
                     <td width="">
                         <a href="javascript:;" onclick="editCarousel({{ carousel.id }})">编辑</a>
                         <a href="javascript:;" onclick="deleteCarousel({{ carousel.id }})">删除</a>

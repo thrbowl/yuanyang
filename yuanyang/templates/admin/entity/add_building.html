@@ -15,21 +15,34 @@
     <script src="{{ static('components/select2/select2_locale_zh-CN.js') }}"></script>
     <script src="{{ static('js/entity.js') }}"></script>
     <script>
-        $(function () {
-            $("#region").change(function () {
-                $("#owners").empty();
-                $.getJSON("{{ url_for('admin_entity.region_users') }}/" + this.value, function (users) {
-                    $.each(users, function (id, username) {
-                        $("#owners").append($("<option></option>").attr("value", id).text(username));
-                    });
+        function updateUsers($elem) {
+            var area_id = $elem.val();
+            if (area_id) {
+                $("#ownersDiv").empty();
+                $.getJSON("{{ url_for('api_user.user_list') }}?area_id=" + area_id, function (users) {
+                    if (users.length != 0) {
+                        $.each(users, function (idx, item) {
+                            $("#ownersDiv").append('<div><label><input type="checkbox" name="owners" id="owners" ' +
+                                    'value="' + item.id + '"> ' + item.name + '</label></div>');
+                        });
+                    } else {
+                        $("#ownersDiv").text("该地区还未添加用户");
+                    }
                 });
-                $("#owners").select2();
-            });
-            $("#owners").select2();
+            } else {
+                 $("#ownersDiv").text("请先选择地区");
+            }
+        }
 
-            $("#logo").change(function(){
-                    readURL(this, "#preview_building_logo");
-                });
+        $(function () {
+            $("#area_id").lSelect({
+                url: "{{ url_for('api_area.area_list') }}",
+                callback: updateUsers
+            });
+
+            $("#logo").change(function () {
+                readURL(this, "#preview_building_logo");
+            });
 
             $.validator.setDefaults({ignore: ""});
             $("#addForm").validate({
@@ -41,6 +54,9 @@
                     },
                     logo: {
                         extension: "jpeg|jpg|png"
+                    },
+                    area_id: {
+                        required: true
                     },
                     owners: {
                         required: true
@@ -54,6 +70,9 @@
                     },
                     logo: {
                         extension: "请选择合法的Logo，后缀必须为jpeg,jpg,png"
+                    },
+                    area_id: {
+                        required: "请选择地区"
                     },
                     owners: {
                         required: "请选择负责人"
@@ -88,30 +107,29 @@
                     </div>
                     <div class="clearfix"></div>
                     <label id="logo-error" class="error" for="logo" style="display: none"></label>
+
                     <p class="help-block">请使用尺寸为169X172px，格式为jpg，jpeg，png的图片</p>
                     <input type="file" id="logo" name="logo" style="display: none">
                 </div>
             </div>
             <div class="form-group">
-                <label for="region" class="col-xs-2 control-label">地区：</label>
+                <label class="col-xs-2 control-label">地区：</label>
 
-                <div class="col-xs-6">
-                    <select class="form-control" name="region" id="region">
-                        {% for region in region_list %}
-                            <option value="{{ region.id }}">{{ region.name }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="col-xs-6" style="margin-top: 7px;">
+                    <div>
+                        <input type="hidden" id="area_id" name="area_id">
+                    </div>
+                    <label id="area_id-error" class="error" for="area_id" style="display: none"></label>
                 </div>
             </div>
             <div class="form-group">
-                <label for="owners" class="col-xs-2 control-label">负责人：</label>
+                <label class="col-xs-2 control-label">负责人：</label>
 
                 <div class="col-xs-6">
-                    <select class="form-control" name="owners" id="owners" multiple>
-                        {% for user in region_list[0].users %}
-                            <option value="{{ user.id }}">{{ user.username }}</option>
-                        {% endfor %}
-                    </select>
+                    <div id="ownersDiv" style="margin-top: 7px;">
+                        请先选择地区
+                    </div>
+                    <label id="owners-error" class="error" for="owners" style="display: none"></label>
                 </div>
             </div>
             <div class="form-group">

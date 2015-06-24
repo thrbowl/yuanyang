@@ -17,18 +17,18 @@ def index():
 
 
 @project.route('/building_list', methods=['GET'])
-@project.route('/building_list/<int:region_id>', methods=['GET'])
+@project.route('/building_list/<int:area_id>', methods=['GET'])
 @login_required
-def building_list(region_id=None):
+def building_list(area_id=None):
     g.breadcrumbs = [u'项目管理', u'楼盘列表']
     g.menu = 'project'
 
-    region_list = Region.query.all()
-    if region_id:
-        region = Region.query.get(region_id)
+    area_list = Area.query.join(Building).all()
+    if area_id:
+        area = Area.query.get(area_id)
     else:
-        region = region_list[0]
-    return render_template('admin/project/building_list.html', region=region, region_list=region_list)
+        area = area_list[0]
+    return render_template('admin/project/building_list.html', area=area, area_list=area_list)
 
 
 @project.route('/view_building', methods=['GET'])
@@ -36,7 +36,7 @@ def building_list(region_id=None):
 @login_required
 def view_building(building_id):
     building = Building.query.get(building_id)
-    g.breadcrumbs = [u'项目管理', u'楼盘列表', u'%s.%s' % (building.region.name, building.name)]
+    g.breadcrumbs = [u'项目管理', u'楼盘列表', u'%s.%s' % (building.area.name, building.name)]
     g.menu = 'project'
 
     if current_user.is_superuser:
@@ -63,7 +63,7 @@ def view_building(building_id):
 def view_project(project_id):
     projec = Project.query.get(project_id)
     building = projec.building
-    g.breadcrumbs = [u'项目管理', u'楼盘列表', u'%s.%s' % (building.region.name, building.name), projec.name]
+    g.breadcrumbs = [u'项目管理', u'楼盘列表', u'%s.%s' % (building.area.name, building.name), projec.name]
     g.menu = 'project'
 
 
