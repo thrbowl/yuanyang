@@ -1,14 +1,29 @@
 # -*- coding: utf-8 -*-
 import datetime
+from functools import wraps
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import UserMixin
-from flask import current_app
+from flask import current_app, jsonify
 from sqlalchemy import Table, Column, ForeignKey, Integer, String, Boolean, Text, DateTime, Date, Float, desc
 from sqlalchemy.orm import relationship, backref
+from ..message import ERROR_MESSAGE
 
 
 db = SQLAlchemy()
 settings = current_app.config
+
+
+def catch_db_error(func):
+    @wraps(func)
+    def _catch_db_error(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except:
+            db.session.rollback()
+            return jsonify(ERROR_MESSAGE)
+        finally:
+            db.session.remove()
+    return _catch_db_error
 
 
 class _CONS(int):
@@ -56,6 +71,7 @@ class User(db.Model, UserMixin):
     username = Column(String(32), nullable=False, unique=True)
     password = Column(String(64), nullable=False)
     _is_active = Column('is_active', Boolean, nullable=False, default=True)
+    is_backend = Column(Boolean, nullable=False, default=False)
     is_superuser = Column(Boolean, nullable=False, default=False)
     area_id = Column(Integer, ForeignKey('areas.id'))
     last_login = Column(DateTime, nullable=False)
@@ -70,6 +86,10 @@ class User(db.Model, UserMixin):
         self.password = password
         self.create_date = self.last_login = datetime.datetime.now()
         self._is_active = True
+
+    @property
+    def name(self):
+        return self.username
 
     def is_active(self):
         return self._is_active
@@ -104,8 +124,8 @@ class Building(db.Model):
     create_date = Column(DateTime, nullable=False)
 
     area = relationship('Area', backref=backref('buildings',
-                                                    order_by='desc(Building.create_date)',
-                                                    cascade="all, delete"))
+                                                order_by='desc(Building.create_date)',
+                                                cascade="all, delete"))
     users = relationship('User', secondary=user_buildings, order_by='desc(User.create_date)')
 
     def __init__(self, name):
@@ -157,10 +177,8 @@ class Supplier(db.Model):
     STATUS_PASS = _CONS(3, u'通过认证')
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(32), nullable=False, unique=True)  # 登录帐号
-    password = Column(String(64), nullable=False)  # 登录密码
-    salt = Column(String(8), nullable=False)  # 加密码
     email = Column(String(100), nullable=False)  # 邮箱地址
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     _status = Column('status', Integer, nullable=False, default=STATUS_NOTAUTH)  # 状态
     company_name = Column(String(100))  # 企业名称
     company_contact = Column(String(100))  # 企业联系人
@@ -174,10 +192,11 @@ class Supplier(db.Model):
     organization_code_certificate = Column(String(100))  # 组织结构代码证
     create_date = Column(DateTime, nullable=False)
 
-    def __init__(self, username, password, salt):
-        self.username = username
-        self.password = password
-        self.salt = salt
+    user = relationship('User', backref=backref('supplier', uselist=False, cascade="all, delete"))
+
+    def __init__(self, user, email):
+        self.email = email
+        self.user = user
         self.create_date = datetime.datetime.now()
 
     def get_status(self):

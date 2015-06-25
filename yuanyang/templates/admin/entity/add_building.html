@@ -19,7 +19,7 @@
             var area_id = $elem.val();
             if (area_id) {
                 $("#ownersDiv").empty();
-                $.getJSON("{{ url_for('api_user.user_list') }}?area_id=" + area_id, function (users) {
+                $.getJSON("{{ url_for('admin_user.area_users') }}?area_id=" + area_id, function (users) {
                     if (users.length != 0) {
                         $.each(users, function (idx, item) {
                             $("#ownersDiv").append('<div><label><input type="checkbox" name="owners" id="owners" ' +

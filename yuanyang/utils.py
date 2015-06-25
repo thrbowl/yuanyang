@@ -3,8 +3,11 @@ import hashlib
 import base64
 import random
 import string
+from functools import wraps
 from PIL import Image
-
+from flask import current_app, jsonify
+from flask.ext.login import current_user
+from .message import ERROR_MESSAGE
 
 SALT_CHARS = string.ascii_letters + string.digits
 
@@ -51,3 +54,12 @@ def check_image_size(filepath, width, height):
     im = Image.open(filepath)
     im.close()
     return im.size == (width, height)
+
+
+def login_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated():
+            return jsonify(ERROR_MESSAGE)
+        return func(*args, **kwargs)
+    return decorated_view

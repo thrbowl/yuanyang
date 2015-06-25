@@ -99,3 +99,19 @@ def check_user_unique():
         is_unique = (User.query.filter(User.username == username).count() == 0)
 
     return json.dumps(is_unique)
+
+
+@login_required('admin')
+@user.route('/json/area_users', methods=['GET'])
+def area_users():
+    try:
+        area_id = int(request.args['area_id'])
+
+        area = Area.query.get(area_id)
+        user_list = area.users
+    except:
+        user_list = User.query.all()
+
+    data = [{'id': user.id, 'name': user.username} for user in user_list]
+
+    return json.dumps(data)
