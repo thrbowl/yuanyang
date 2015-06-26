@@ -1,11 +1,33 @@
 {% extends "admin/base.html" %}
 
-{% block title %}楼盘详情{% endblock %}
+{% block title %} 草稿箱{% endblock %}
 
 {% block css %}
 {% endblock %}
 
 {% block js %}
+    <script>
+        function publishProjecgt(project_id) {
+            $.post("{{ url_for('admin_project.publish_project') }}/" + project_id, function () {
+                location.reload();
+            })
+        }
+
+        function editProjecgt(project_id) {
+            location.href = "{{ url_for('admin_project.edit_project') }}/" + project_id;
+        }
+
+        function deleteProjecgt(project_id) {
+            var data = {
+                project_id: project_id
+            };
+            $.post("{{ url_for('admin_project.delete_project') }}", data, function (message) {
+                if (message.type == 'success') {
+                    location.reload();
+                }
+            });
+        }
+    </script>
 {% endblock %}
 
 {% block body_content %}
@@ -14,8 +36,7 @@
             {% for project in project_list %}
                 <tr>
                     <td width="30%">
-                        <div class="row1"><a href="#" style="font-size: 18px;">{{ project.name|default('未填写', true) }}</a></div>
-                        <div class="row2">发布时间: {{ project.publish_date|default('未填写', true) }}</div>
+                        <a href="#" style="font-size: 16px;">{{ project.name }}</a>
                     </td>
                     <td>
                         <div class="row1">项目类型: {{ project.business_scope.name }}</div>
@@ -28,9 +49,9 @@
                     <td>
                         <div class="row1">&nbsp;</div>
                         <div class="row2">
-                            <a href=""> 发布 </a>
-                            <a href=""> 编辑 </a>
-                            <a href=""> 删除 </a>
+                            <a href="javascript:;" onclick="publishProjecgt({{ project.id }})"> 发布 </a>
+                            <a href="javascript:;" onclick="editProjecgt({{ project.id }})"> 编辑 </a>
+                            <a href="javascript:;" onclick="deleteProjecgt({{ project.id }})"> 删除 </a>
                         </div>
                     </td>
                 </tr>

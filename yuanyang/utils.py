@@ -4,10 +4,11 @@ import base64
 import random
 import string
 from functools import wraps
+from datetime import date, datetime, timedelta
 from PIL import Image
 from flask import current_app, jsonify
 from flask.ext.login import current_user
-from .message import ERROR_MESSAGE
+from .message import message
 
 SALT_CHARS = string.ascii_letters + string.digits
 
@@ -60,6 +61,10 @@ def login_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         if not current_user.is_authenticated():
-            return jsonify(ERROR_MESSAGE)
+            return jsonify(message.error(u'用户未登录'))
         return func(*args, **kwargs)
     return decorated_view
+
+
+def convert_to_timestamp(dt):
+    return dt.strftime("%s")

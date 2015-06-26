@@ -225,8 +225,7 @@ def carousel_manage():
 
     page = int(request.args.get('page', 1))
     per_page = 10
-    pager = Carousel.query.order_by(Carousel.order_num.desc(), Carousel.create_date.desc())\
-        .paginate(page, per_page, False)
+    pager = Carousel.query.order_by(Carousel.order_num.desc()).paginate(page, per_page, False)
     return render_template('admin/entity/carousel_list.html', pager=pager)
 
 
@@ -311,7 +310,7 @@ def delete_carousel():
     carousel = Carousel.query.get(carousel_id)
     db.session.delete(carousel)
     db.session.commit()
-    flash(u'轮播删除成功')
+    flash(u'删除成功')
 
     return jsonify(SUCCESS_MESSAGE)
 

@@ -54,6 +54,8 @@ def create_app(name=None, settings=None):
         db.init_app(app)
 
         logging.debug('Register blueprints')
+        from .views.api.main import main
+        app.register_blueprint(main, url_prefix='/api')
         from .views.api.auth import auth
         app.register_blueprint(auth, url_prefix='/api/auth')
         from .views.api.area import area

@@ -1,9 +1,9 @@
-{% macro render_pagination(pager, endpoint) %}
+{% macro render_pagination(pager, endpoint, exe_params=None) %}
     <nav class="text-center">
         <ul class="pagination">
             {% if pager.has_prev %}
                 <li>
-                    <a href="{{ url_for(endpoint) }}?page={{ pager.prev_num }}">
+                    <a href="{{ url_for(endpoint) }}?page={{ pager.prev_num }}{% if exe_params %}&{{ exe_params }}{% endif %}">
                         <span>&laquo;</span>
                     </a>
                 </li>
@@ -19,13 +19,13 @@
                 {% if pager.page==page %}
                     <li class="active"><a href="javascript:;">{{ page }}</a></li>
                 {% else %}
-                    <li><a href="{{ url_for(endpoint, page=page) }}">{{ page }}</a></li>
+                    <li><a href="{{ url_for(endpoint) }}?page={{ page }}{% if exe_params %}&{{ exe_params }}{% endif %}">{{ page }}</a></li>
                 {% endif %}
             {% endfor %}
 
             {% if pager.has_next %}
                 <li>
-                    <a href="{{ url_for(endpoint) }}?page={{ pager.next_num }}">
+                    <a href="{{ url_for(endpoint) }}?page={{ pager.next_num }}{% if exe_params %}&{{ exe_params }}{% endif %}">
                         <span>&raquo;</span>
                     </a>
                 </li>

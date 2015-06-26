@@ -7,8 +7,22 @@
 
 {% block js %}
     <script>
-        $("#building").change(function () {
-            location.href = "{{ url_for('admin_project.view_building') }}/" + this.value;
+        function search1() {
+            $("#filterForm").submit();
+        }
+
+        $(function () {
+            $("#building").change(function () {
+                location.href = "{{ url_for('admin_project.view_building') }}/" + this.value;
+            });
+
+            $("#publish_date_begin1,#publish_date_end1").datetimepicker({
+                format: "YYYY-MM-DD"
+            }).on("dp.change", function (e) {
+                search1();
+            });
+
+            $("#business_scope").change(search1);
         });
     </script>
 {% endblock %}
@@ -21,7 +35,7 @@
                     {% for building1 in building_list %}
                         <option value="{{ building1.id }}"
                                 {% if building1.id==building.id %}selected{% endif %}>
-                            {{ building1.name }}
+                            {{ building1.area.name }}·{{ building1.name }}
                         </option>
                     {% endfor %}
                 </select>
@@ -36,21 +50,23 @@
         <div class="clearfix"></div>
         <div class="panel panel-default">
             <div class="panel-body">
-                <form id="SearchForm" class="form-horizontal" method="GET">
+                <form id="filterForm" class="form-horizontal" method="GET">
                     <div class="form-group">
-                        <div for="lead_start_date" class="col-xs-2 control-label">发布时间：</div>
+                        <div class="col-xs-2 control-label">发布时间：</div>
 
                         <div class="col-xs-10 row">
-                            <div class="input-group pull-left" id="lead_start_date1" style="width: 230px;">
-                                <input type="text" class="form-control" id="lead_start_date" name="lead_start_date">
+                            <div class="input-group pull-left" id="publish_date_begin1" style="width: 230px;">
+                                <input type="text" class="form-control" id="publish_date_begin"
+                                       name="publish_date_begin" value="{{ publish_date_begin }}">
 
                                 <div class="input-group-addon">
                                     <i class="fa fa-calendar"></i>
                                 </div>
                             </div>
-                            <div class="input-group pull-left" id="lead_end_date1"
+                            <div class="input-group pull-left" id="publish_date_end1"
                                  style="width: 230px;;margin-left: 20px;">
-                                <input type="text" class="form-control" id="lead_end_date" name="lead_end_date">
+                                <input type="text" class="form-control" id="publish_date_end"
+                                       name="publish_date_end" value="{{ publish_date_end }}">
 
                                 <div class="input-group-addon">
                                     <i class="fa fa-calendar"></i>
@@ -60,15 +76,19 @@
                     </div>
                     <div class="clearfix"></div>
                     <div class="form-group">
-                        <div for="business_scope" class="col-xs-2 control-label">项目类型：</div>
+                        <div class="col-xs-2 control-label">项目类型：</div>
 
                         <div class="col-xs-10 row" style="padding-top: 7px">
                             <select class="form-control" id="business_scope" name="business_scope"
                                     style="width: 230px;">
+                                <option value="-1">全部</option>
                                 {% for bs1 in business_scope_list %}
                                     <optgroup label="{{ bs1.name }}">
                                         {% for bs2 in bs1.children %}
-                                            <option value="{{ bs2.id }}">{{ bs2.name }}</option>
+                                            <option value="{{ bs2.id }}"
+                                                    {% if business_scope==bs2.id %}selected{% endif %}>
+                                                {{ bs2.name }}
+                                            </option>
                                         {% endfor %}
                                     </optgroup>
                                 {% endfor %}
@@ -76,57 +96,92 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <div for="price_range" class="col-xs-2 control-label">报价区间：</div>
+                        <div class="col-xs-2 control-label">报价区间：</div>
 
                         <div class="col-xs-10 row" style="padding-top: 7px">
-                            <a href="#" style="margin-right: 20px;">全部</a>
-                            {% for price_range in price_range_list %}
-                                <a href="#" style="margin-right: 20px;">{{ price_range.get_display_name() }}</a>
+                            {% if price_range==-1 %}
+                                <span style="margin-right: 20px;">全部</span>
+                            {% else %}
+                                <a href="javascript:;" style="margin-right: 20px;"
+                                   onclick='$("#price_range").val(-1);search1();'>全部</a>
+                            {% endif %}
+                            {% for price_range1 in price_range_list %}
+                                {% if price_range==price_range1 %}
+                                    <span style="margin-right: 20px;">{{ price_range1.get_display_name() }}</span>
+                                {% else %}
+                                    <a href="javascript:;" style="margin-right: 20px;"
+                                       onclick='$("#price_range").val({{ price_range1 }});search1();'>
+                                        {{ price_range1.get_display_name() }}
+                                    </a>
+                                {% endif %}
                             {% endfor %}
+                            <input type="hidden" name="price_range" id="price_range" value="{{ price_range }}">
                         </div>
                     </div>
                     <div class="form-group">
-                        <div for="price_range" class="col-xs-2 control-label">发布状态：</div>
+                        <div class="col-xs-2 control-label">发布状态：</div>
 
                         <div class="col-xs-10 row" style="padding-top: 7px">
-                            <a href="#" style="margin-right: 20px;">全部</a>
-                            {% for status in status_list %}
-                                <a href="#" style="margin-right: 20px;">{{ status.get_display_name() }}</a>
+                            {% if status==-1 %}
+                                <span style="margin-right: 20px;">全部</span>
+                            {% else %}
+                                <a href="javascript:;" style="margin-right: 20px;"
+                                   onclick='$("#status").val(-1);search1();'>全部</a>
+                            {% endif %}
+                            {% for status1 in status_list %}
+                                {% if status==status1 %}
+                                    <span style="margin-right: 20px;">{{ status1.get_display_name() }}</span>
+                                {% else %}
+                                    <a href="javascript:;" style="margin-right: 20px;"
+                                       onclick='$("#status").val({{ status1 }});search1();'>
+                                        {{ status1.get_display_name() }}
+                                    </a>
+                                {% endif %}
                             {% endfor %}
+                            <input type="hidden" name="status" id="status" value="{{ status }}">
                         </div>
                     </div>
+                    <input type="hidden" name="building_id" id="building_id" value="{{ building.id }}">
                 </form>
             </div>
         </div>
-        {% if building.projects %}
+        {% if pager.total > 0 %}
+            <div class="text-right">
+                正在招商({{ building.bidding_project_total }})
+                &nbsp;&nbsp;&nbsp;
+                新供应商(x)
+            </div>
             <table class="table table-striped">
-            {% for project in building.projects %}
-                <tr>
-                    <td width="30%">
-                        <div class="row1"><a href="#" style="font-size: 18px;">{{ project.name }}</a></div>
-                        <div class="row2">发布时间: {{ project.publish_date.strftime('%Y-%m-%d') }}</div>
-                    </td>
-                    <td>
-                        <div class="row1">项目类型: {{ project.business_scope.name }}</div>
-                        <div class="row2">报价区间: {{ project.price_range.get_display_name() }}</div>
-                    </td>
-                    <td>
-                        <div class="row1">&nbsp;</div>
-                        <div class="row2">报名截止时间: {{ project.due_date }}</div>
-                    </td>
-                    <td>
-                        <div class="row1">最近投标（1）</div>
-                        <div class="row2">已投标（11）</div>
-                    </td>
-                    <td>
-                        <div class="row1">&nbsp;</div>
-                        <div class="row2">发布状态: {{ project.status.get_display_name() }}</div>
-                    </td>
-                </tr>
-            {% endfor %}
+                {% for project in pager.items %}
+                    {% if project.status != Project.STATUS_DRAFT %}
+                        <tr>
+                            <td width="30%">
+                                <div class="row1">
+                                    <a href="{{ url_for('admin_project.view_project') }}"
+                                       style="font-size: 16px;">{{ project.name }}</a>
+                                </div>
+                                <div class="row2">发布时间: {{ project.publish_date.strftime('%Y-%m-%d') }}</div>
+                            </td>
+                            <td>
+                                <div class="row1">项目类型: {{ project.business_scope.name }}</div>
+                                <div class="row2">报价区间: {{ project.price_range.get_display_name() }}</div>
+                            </td>
+                            <td>
+                                <div class="row1">&nbsp;</div>
+                                <div class="row2">报名截止时间: {{ project.due_date }}</div>
+                            </td>
+                            <td>
+                                <div class="row1">&nbsp;</div>
+                                <div class="row2">发布状态: {{ project.status.get_display_name() }}</div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
             </table>
+            {% from 'admin/macros/pagination.html' import render_pagination %}
+            {{ render_pagination(pager, 'admin_project.view_building', exe_params='building_id=%s&publish_date_begin=%s&publish_date_end=%s&business_scope=%s&price_range=%s&status=%s' % (building.id,publish_date_begin,publish_date_end,business_scope,price_range,status)) }}
         {% else %}
-            <p class="text-warning">该楼盘还没有项目</p>
+            <p class="text-warning">没有符合条件的项目</p>
         {% endif %}
     {% else %}
         <p class="text-warning">没有属于您的楼盘，请找管理员添加</p>

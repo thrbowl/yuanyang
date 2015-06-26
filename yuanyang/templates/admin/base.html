@@ -6,7 +6,7 @@
 <!--[if (gt IE 9)|!(IE)]><!-->
 <html class=""> <!--<![endif]-->
 <head>
-{#    <title>{% block title %}{% endblock %} | 远洋招标管理后台</title>#}
+    {#    <title>{% block title %}{% endblock %} | 远洋招标管理后台</title>#}
     <title>{% block title %}{% endblock %} | 远洋招标管理后台</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,7 +14,8 @@
     <link rel="icon" href="{{ static('img/favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ static('components/bootstrap/dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ static('components/font-awesome/css/font-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ static('components/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css') }}">
+    <link rel="stylesheet"
+          href="{{ static('components/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css') }}">
     <link rel="stylesheet" href="{{ static('css/custom_bootstrap.css') }}">
     <link rel="stylesheet" href="{{ static('css/non-responsive.css') }}">
     <link rel="stylesheet" href="{{ static('css/base.css') }}">
@@ -35,27 +36,29 @@
 </head>
 <body>
 {% block body_header %}
-{% include "admin/header.html" %}
+    {% include "admin/header.html" %}
 {% endblock %}
 {% block body_main %}
-{% if get_flashed_messages() %}
-<div class="alert alert-warning flash-message">{{ get_flashed_messages()[-1] }}</div>
-{% endif %}
-<ul class="breadcrumb">
-{% for crumb in g.breadcrumbs %}
-    <li>{{ crumb }}</li>
-{% endfor %}
-</ul>
-<div class="container">
-    {% block body_content %}{% endblock %}
-</div>
+    {% if get_flashed_messages() %}
+        <div class="alert alert-warning flash-message">{{ get_flashed_messages()[-1] }}</div>
+    {% endif %}
+    <ul class="breadcrumb">
+        {% for crumb, url in g.breadcrumbs %}
+            <li><a href="{{ url }}">{{ crumb }}</a></li>
+        {% endfor %}
+    </ul>
+    <div class="container">
+        {% block body_content %}{% endblock %}
+    </div>
 {% endblock %}
 {% include "admin/footer.html" %}
 <script src="{{ static('components/moment/moment.js') }}"></script>
 <script src="{{ static('components/moment/zh-cn.js') }}"></script>
 <script src="{{ static('components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
 <script src="{{ static('components/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js') }}"></script>
-{#<script src="{{ static('components/bootstrap-datetimepicker/build/js/locales/bootstrap-datetimepicker.zh-CN.js') }}"></script>#}
+<script src="{{ static('components/jquery-validation/jquery.validate.min.js') }}"></script>
+<script src="{{ static('components/jquery-validation/additional-methods.min.js') }}"></script>
+<script src="{{ static('components/jquery-validation/localization/messages_zh.js') }}"></script>
 <script src="{{ static('js/jquery.lSelect.js') }}"></script>
 <script src="{{ static('js/base.js') }}"></script>
 <!-- Ext JavaScript-->

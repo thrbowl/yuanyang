@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 def _message(func):
     def wrapper(self, content, **data):
         assert func.func_name in self.types, "Invalid method"
@@ -32,6 +34,6 @@ class _Message(object):
 
 
 message = _Message()
-SUCCESS_MESSAGE = message.success('Operate successful')
-ERROR_MESSAGE = message.error('Operate failure')
-OK_MESSAGE = message.ok('Operate ok')
+SUCCESS_MESSAGE = message.success(u'操作成功')
+ERROR_MESSAGE = message.error(u'操作失败')
+OK_MESSAGE = message.ok(u'操作成功')

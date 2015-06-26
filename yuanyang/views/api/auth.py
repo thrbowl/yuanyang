@@ -2,7 +2,7 @@
 from flask import Blueprint, request, json, jsonify
 from flask.ext.login import login_user, logout_user
 from ...models import db, User, Supplier, catch_db_error
-from ...message import OK_MESSAGE, ERROR_MESSAGE
+from ...message import message
 from ...utils import login_required
 
 auth = Blueprint('api_auth', __name__)
@@ -21,7 +21,7 @@ def register():
     db.session.add(supplier)
     db.session.commit()
 
-    return jsonify(OK_MESSAGE)
+    return jsonify(message.ok(u'注册成功'))
 
 
 @auth.route('/check_user_unique', methods=['GET'])
@@ -42,15 +42,17 @@ def login():
     password = request.form['passwd'].strip()
 
     user = User.get(username)
-    if user and user.password == password:
-        login_user(user)
-        return jsonify(OK_MESSAGE)
+    if not user:
+        return jsonify(message.ok(u'用户不存在'))
+    elif user.password != password:
+        return jsonify(message.ok(u'用户名与密码不匹配'))
 
-    return jsonify(ERROR_MESSAGE)
+    login_user(user)
+    return jsonify(message.ok(u'登录成功'))
 
 
 @auth.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
-    return jsonify(OK_MESSAGE)
+    return jsonify(message.ok(u'退出成功'))

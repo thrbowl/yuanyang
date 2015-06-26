@@ -45,6 +45,15 @@ user_buildings = Table(
 )
 
 
+supplier_business_scopes = Table(
+    'supplier_business_scopes',
+    db.metadata,
+    Column('id', Integer, primary_key=True),
+    Column('supplier_id', Integer, ForeignKey('suppliers.id'), nullable=False),
+    Column('business_scope_id', Integer, ForeignKey('business_scopes.id'), nullable=False)
+)
+
+
 class Area(db.Model):
     """地区"""
     __tablename__ = 'areas'
@@ -188,11 +197,16 @@ class Supplier(db.Model):
     deposit_bank = Column(String(100))  # 开户银行
     bank_account = Column(String(100))  # 银行帐号
     business_licence = Column(String(100))  # 营业执照
+    business_licence_image = Column(String(100))  # 营业执照图
     tax_registration_certificate = Column(String(100))  # 税务登记证
+    tax_registration_certificate_image = Column(String(100))  # 税务登记证图
     organization_code_certificate = Column(String(100))  # 组织结构代码证
+    organization_code_certificate_image = Column(String(100))  # 组织结构代码证图
     create_date = Column(DateTime, nullable=False)
 
     user = relationship('User', backref=backref('supplier', uselist=False, cascade="all, delete"))
+    business_scopes = relationship('BusinessScope', secondary=supplier_business_scopes,
+                                   order_by='desc(BusinessScope.order_num),desc(BusinessScope.create_date)')
 
     def __init__(self, user, email):
         self.email = email
@@ -294,7 +308,16 @@ class Project(db.Model):
     price_range = property(get_price_range, set_price_range)
 
     def publish(self):
-        pass
+        if self.status == Project.STATUS_DRAFT and self.is_completed():
+            self.status = Project.STATUS_BIDDING
+            self.publish_date = datetime.datetime.now()
+            return True
+        return False
+
+    def is_completed(self):
+        if self.name and self.due_date and self.lead_start_date and self.lead_end_date:
+            return True
+        return False
 
     def is_closure_period(self):
         pass
