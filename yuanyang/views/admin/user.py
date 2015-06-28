@@ -16,12 +16,16 @@ def index():
 @user.route('/user_list', methods=['GET'])
 @login_required('admin')
 def user_list():
-    g.breadcrumbs = [u'用户管理', u'用户列表']
+    g.breadcrumbs = [
+        (u'用户管理', url_for('admin_user.index')),
+        (u'用户列表', '#')
+    ]
     g.menu = 'user'
 
     page = int(request.args.get('page', 1))
     per_page = 10
-    pager = User.query.filter(User.is_superuser != True).order_by(User.id.desc()).paginate(page, per_page, False)
+    pager = User.query.filter(User.is_backend == True, User.is_superuser != True).order_by(User.id.desc()) \
+        .paginate(page, per_page, False)
     return render_template('admin/user/user_list.html', pager=pager)
 
 
@@ -37,6 +41,7 @@ def add_user():
         user = User(username, password)
         user.area_id = area_id
         user.buildings = [Building.query.get(building_id) for building_id in buildings]
+        user.is_backend = True
         db.session.add(user)
         db.session.commit()
 
@@ -46,7 +51,10 @@ def add_user():
         elif request.form['_actionBtn'] == '2':
             return redirect(url_for('admin_user.add_user'))
 
-    g.breadcrumbs = [u'用户管理', u'添加用户']
+    g.breadcrumbs = [
+        (u'用户管理', url_for('admin_user.index')),
+        (u'添加用户', '#')
+    ]
     g.menu = 'user'
     return render_template('admin/user/add_user.html')
 
@@ -69,7 +77,10 @@ def edit_user(user_id):
         flash(u'更新成功')
         return redirect(url_for('admin_user.user_list'))
 
-    g.breadcrumbs = [u'用户管理', u'编辑用户']
+    g.breadcrumbs = [
+       (u'用户管理', url_for('admin_user.index')),
+       (u'编辑用户', '#')
+    ]
     g.menu = 'user'
     return render_template('admin/user/edit_user.html', user=user)
 

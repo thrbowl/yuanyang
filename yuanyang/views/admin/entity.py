@@ -26,7 +26,10 @@ def index():
 @entity.route('/startpage_manage', methods=['GET'])
 @login_required('admin')
 def startpage_manage():
-    g.breadcrumbs = [u'信息管理', u'启动页管理']
+    g.breadcrumbs = [
+        (u'信息管理', url_for('admin_entity.index')),
+        (u'启动页管理', '#')
+    ]
     g.menu = 'entity'
 
     page = int(request.args.get('page', 1))
@@ -65,7 +68,10 @@ def add_startpage():
         elif request.form['_actionBtn'] == '2':
             return redirect(url_for('admin_entity.add_startpage'))
 
-    g.breadcrumbs = [u'信息管理', u'添加启动页']
+    g.breadcrumbs = [
+        (u'信息管理', url_for('admin_entity.index')),
+        (u'添加启动页', '#')
+    ]
     g.menu = 'entity'
     return render_template('admin/entity/add_startpage.html')
 
@@ -95,7 +101,10 @@ def edit_startpage(startpage_id):
         flash(u'更新成功')
         return redirect(url_for('admin_entity.startpage_manage'))
 
-    g.breadcrumbs = [u'信息管理', u'编辑启动页']
+    g.breadcrumbs = [
+        (u'信息管理', url_for('admin_entity.index')),
+        (u'编辑启动页', '#')
+    ]
     g.menu = 'entity'
     return render_template('admin/entity/edit_startpage.html', startpage=startpage)
 
@@ -121,7 +130,10 @@ def delete_startpage():
 @entity.route('/building_manage', methods=['GET'])
 @login_required('admin')
 def building_manage():
-    g.breadcrumbs = [u'信息管理', u'楼盘管理']
+    g.breadcrumbs = [
+        (u'信息管理', url_for('admin_entity.index')),
+        (u'楼盘管理', '#')
+    ]
     g.menu = 'entity'
 
     page = int(request.args.get('page', 1))
@@ -163,7 +175,10 @@ def add_building():
         elif request.form['_actionBtn'] == '2':
             return redirect(url_for('admin_entity.add_building'))
 
-    g.breadcrumbs = [u'信息管理', u'添加楼盘']
+    g.breadcrumbs = [
+        (u'信息管理', url_for('admin_entity.index')),
+        (u'添加楼盘', '#')
+    ]
     g.menu = 'entity'
     return render_template('admin/entity/add_building.html')
 
@@ -198,7 +213,10 @@ def edit_building(building_id):
         flash(u'更新成功')
         return redirect(url_for('admin_entity.building_manage'))
 
-    g.breadcrumbs = [u'信息管理', u'编辑楼盘']
+    g.breadcrumbs = [
+        (u'信息管理', url_for('admin_entity.index')),
+        (u'编辑楼盘', '#')
+    ]
     g.menu = 'entity'
     return render_template('admin/entity/edit_building.html', building=building)
 
@@ -220,7 +238,10 @@ def delete_building():
 @entity.route('/carousel_manage', methods=['GET'])
 @login_required('admin')
 def carousel_manage():
-    g.breadcrumbs = [u'信息管理', u'轮播管理']
+    g.breadcrumbs = [
+        (u'信息管理', url_for('admin_entity.index')),
+        (u'轮播管理', '#')
+    ]
     g.menu = 'entity'
 
     page = int(request.args.get('page', 1))
@@ -266,7 +287,10 @@ def add_carousel():
         elif request.form['_actionBtn'] == '2':
             return redirect(url_for('admin_entity.add_carousel'))
 
-    g.breadcrumbs = [u'信息管理', u'添加新信息']
+    g.breadcrumbs = [
+        (u'信息管理', url_for('admin_entity.index')),
+        (u'添加新信息', '#')
+    ]
     g.menu = 'entity'
     return render_template('admin/entity/add_carousel.html')
 
@@ -297,7 +321,10 @@ def edit_carousel(carousel_id):
         flash(u'更新成功')
         return redirect(url_for('admin_entity.carousel_manage'))
 
-    g.breadcrumbs = [u'信息管理', u'编辑信息']
+    g.breadcrumbs = [
+        (u'信息管理', url_for('admin_entity.index')),
+        (u'编辑信息', '#')
+    ]
     g.menu = 'entity'
     return render_template('admin/entity/edit_carousel.html', carousel=carousel)
 
