@@ -18,11 +18,12 @@ def catch_db_error(func):
     def _catch_db_error(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except:
+        except Exception, e:
             db.session.rollback()
             return jsonify(ERROR_MESSAGE)
         finally:
             db.session.remove()
+
     return _catch_db_error
 
 
@@ -43,7 +44,6 @@ user_buildings = Table(
     Column('user_id', Integer, ForeignKey('users.id'), nullable=False),
     Column('buildings_id', Integer, ForeignKey('buildings.id'), nullable=False)
 )
-
 
 supplier_business_scopes = Table(
     'supplier_business_scopes',
@@ -202,11 +202,18 @@ class Supplier(db.Model):
     tax_registration_certificate_image = Column(String(100))  # 税务登记证图
     organization_code_certificate = Column(String(100))  # 组织结构代码证
     organization_code_certificate_image = Column(String(100))  # 组织结构代码证图
+    cost_score = Column(Float, nullable=False, default=0)
+    quality_score = Column(Float, nullable=False, default=0)
+    time_score = Column(Float, nullable=False, default=0)
+    service_score = Column(Float, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
     user = relationship('User', backref=backref('supplier', uselist=False, cascade="all, delete"))
     business_scopes = relationship('BusinessScope', secondary=supplier_business_scopes,
                                    order_by='desc(BusinessScope.order_num),desc(BusinessScope.create_date)')
+    area = relationship('Area', backref=backref('suppliers',
+                                                order_by='desc(Supplier.create_date)',
+                                                cascade="all, delete"))
 
     def __init__(self, user, email):
         self.email = email
@@ -227,6 +234,9 @@ class Supplier(db.Model):
         self._status = status
 
     status = property(get_status, set_status)
+
+    def is_bid(self, project_id):
+        return Bid.query.filter(Bid.project_id == project_id, Bid.supplier_id == self.id).count() > 0
 
 
 class Project(db.Model):
@@ -254,7 +264,7 @@ class Project(db.Model):
     type_id = Column(Integer, ForeignKey('business_scopes.id'), nullable=False)  # 项目类型
     supplier_id = Column(Integer)  # 中标供应商
     bid_id = Column(Integer)  # 投标ID
-    _status = Column('status', Integer, nullable=False)  # 项目状态
+    _status = Column('status', Integer, nullable=False, default=STATUS_DRAFT)  # 项目状态
     due_date = Column(Date)  # 截止时间
     publish_date = Column(DateTime)  # 发布时间
     lead_start_date = Column(Date)  # 交付起始时间
@@ -458,3 +468,9 @@ class Bid(db.Model):
     company_contact_telephone = Column(String(100))
     summary = Column(Text)
     create_date = Column(DateTime, nullable=False)
+
+    project = relationship('Project', backref=backref('bids', order_by=create_date.desc(), cascade="all, delete"))
+    supplier = relationship('Supplier', backref=backref('bids', order_by=create_date.desc(), cascade="all, delete"))
+
+    def __init__(self):
+        self.create_date = datetime.datetime.now()

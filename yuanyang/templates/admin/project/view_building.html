@@ -157,7 +157,7 @@
                         <tr>
                             <td width="30%">
                                 <div class="row1">
-                                    <a href="{{ url_for('admin_project.view_project') }}"
+                                    <a href="{{ url_for('admin_project.view_project', project_id=project.id) }}"
                                        style="font-size: 16px;">{{ project.name }}</a>
                                 </div>
                                 <div class="row2">发布时间: {{ project.publish_date.strftime('%Y-%m-%d') }}</div>

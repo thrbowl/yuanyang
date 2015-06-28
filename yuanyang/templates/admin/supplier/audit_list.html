@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+
+{% block title %}新供应商审核{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block body_content %}
+    <div class="clearfix"></div>
+    {% if pager.total > 0 %}
+        <table class="table table-striped">
+            {% for supplier in pager.items %}
+                <tr>
+                    <td width="30%">
+                        <div style="font-size: 21px;font-weight: bold; float: left">{{ supplier.company_name }}</div>
+                        <div class="pull-left" style="margin-left: 20px;margin-top: 5px;color: gray;">经营范围:
+                            {% for bs in supplier.business_scopes %}{{ bs.name }}&nbsp;&nbsp;{% endfor %}</div>
+                        <div class="clearfix"></div>
+                        <div>
+                            <span>联系人: {{ supplier.company_contact }}</span>
+                            <span style="margin-left: 30px;">联系方式: {{ supplier.company_contact_telephone }}</span>
+                            <span style="margin-left: 30px;">所在地: {{ supplier.area.full_name }}</span>
+                            <span style="margin-left: 30px;">加入时间: {{ supplier.create_date }}</span>
+                            <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% from 'admin/macros/pagination.html' import render_pagination %}
+        {{ render_pagination(pager, 'admin_project.audit_list', exe_params='sort=%s&area=%s&business_scope=%s' % (sort,area,business_scope)) }}
+    {% else %}
+        <p class="text-warning">没有新申请的供应商</p>
+    {% endif %}
+{% endblock %}

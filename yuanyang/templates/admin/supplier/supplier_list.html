@@ -1,0 +1,111 @@
+{% extends "admin/base.html" %}
+
+{% block title %}供应商列表{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script>
+        function search1() {
+            $("#filterForm").submit();
+        }
+
+        $(function () {
+            $("#area").change(search1);
+            $("#business_scope").change(search1);
+        });
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    {% if current_user.is_superuser %}
+        <div class="pull-right"><a href="{{ url_for('admin_supplier.audit_list') }}">供应商信息审核>></a></div>
+    {% endif %}
+    <div class="clearfix"></div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form id="filterForm" class="form-horizontal" method="GET">
+                <div class="form-group">
+                    <div class="col-xs-2 control-label">服务分排序：</div>
+
+                    <div class="col-xs-10 row" style="padding-top: 7px">
+                        {% if sort==1 %}
+                            <span style="margin-right: 20px;">由高到低</span>
+                        {% else %}
+                            <a href="javascript:;" style="margin-right: 20px;"
+                               onclick='$("#sort").val(1);search1();'>由高到低</a>
+                        {% endif %}
+                        {% if sort==2 %}
+                            <span style="margin-right: 20px;">由低到高</span>
+                        {% else %}
+                            <a href="javascript:;" style="margin-right: 20px;"
+                               onclick='$("#sort").val(2);search1();'>由低到高</a>
+                        {% endif %}
+                        <input type="hidden" name="sort" id="sort" value="{{ sort }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-xs-2 control-label">地区：</div>
+
+                    <div class="col-xs-10 row" style="padding-top: 7px">
+                        <select class="form-control" id="area" name="area"
+                                style="width: 230px;">
+                            <option value="-1">全部</option>
+                            {% for area1 in area_list %}
+                                <option value="{{ area1.id }}"
+                                        {% if area1.id==area %}selected{% endif %}>{{ area1.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-xs-2 control-label">经营范围：</div>
+
+                    <div class="col-xs-10 row" style="padding-top: 7px">
+                        <select class="form-control" id="business_scope" name="business_scope"
+                                style="width: 230px;">
+                            <option value="-1">全部</option>
+                            {% for bs1 in business_scope_list %}
+                                <optgroup label="{{ bs1.name }}">
+                                    {% for bs2 in bs1.children %}
+                                        <option value="{{ bs2.id }}"
+                                                {% if business_scope==bs2.id %}selected{% endif %}>
+                                            {{ bs2.name }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% if pager.total > 0 %}
+        <table class="table table-striped">
+            {% for supplier in pager.items %}
+                <tr>
+                    <td width="30%">
+                        <div style="font-size: 21px;font-weight: bold; float: left">{{ supplier.company_name }}</div>
+                        <div class="pull-left" style="margin-left: 20px;margin-top: 5px;color: gray;">经营范围:
+                            {% for bs in supplier.business_scopes %}{{ bs.name }}&nbsp;&nbsp;{% endfor %}</div>
+                        <div class="clearfix"></div>
+                        <div>
+                            <span>联系人: {{ supplier.company_contact }}</span>
+                            <span style="margin-left: 30px;">联系方式: {{ supplier.company_contact_telephone }}</span>
+                            <span style="margin-left: 30px;">所在地: {{ supplier.area.full_name }}</span>
+                            <span style="margin-left: 30px;">加入时间: {{ supplier.create_date }}</span>
+                            <span style="margin-left: 30px;">服务评分: {{ '%0.1f' % supplier.service_score }}</span>
+                            <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% from 'admin/macros/pagination.html' import render_pagination %}
+        {{ render_pagination(pager, 'admin_project.supplier_list', exe_params='sort=%s&area=%s&business_scope=%s' % (sort,area,business_scope)) }}
+    {% else %}
+        <p class="text-warning">没有符合条件的供应商</p>
+    {% endif %}
+{% endblock %}

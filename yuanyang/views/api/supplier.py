@@ -52,7 +52,7 @@ def update_supplier_info():
     try:
         for bs in business_scope_list:
             bs = BusinessScope.query.filter(BusinessScope.name == bs).one()
-            supplier.business_scopes.add(bs)
+            supplier.business_scopes.append(bs)
     except:
         return jsonify(message.error(u'无效的经营范围'))
 

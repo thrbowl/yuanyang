@@ -105,20 +105,27 @@ def view_building(building_id=None):
 @project.route('/view_project/<int:project_id>', methods=['GET'])
 @login_required
 def view_project(project_id):
-    projec = Project.query.get(project_id)
-    building = projec.building
+    project1 = Project.query.get(project_id)
+    building = project1.building
     g.breadcrumbs = [
         (u'项目管理', url_for('admin_project.index')),
         (u'楼盘列表', url_for('admin_project.building_list')),
         (u'%s·%s' % (building.area.name, building.name),
          url_for('admin_project.view_building', building_id=building.id)),
-        (projec.name, url_for('admin_project.view_project', project_id=project_id))
+        (project1.name, '#')
     ]
     g.menu = 'project'
+
+    return render_template(
+        'admin/project/view_project.html',
+         project=project1,
+         Project=Project
+    )
 
 
 @project.route('/add_project', methods=['GET', 'POST'])
 @login_required
+@catch_db_error
 def add_project():
     if request.method == 'POST':
         building_id = int(request.form['building'])
@@ -145,15 +152,20 @@ def add_project():
             project.lead_end_date = lead_end_date
 
         if request.form['_actionBtn'] == '1':
-            project.status = Project.STATUS_BIDDING
-            project.publish_date = datetime.datetime.now()
-            db.session.add(project)
-            db.session.commit()
+            result = project.publish()
+            if result:
+                db.session.add(project)
+                db.session.commit()
 
-            flash(u'提交成功')
-            return redirect(url_for('admin_project.view_project', project_id=project.id))
+                flash(u'发布成功')
+                return redirect(url_for('admin_project.view_project', project_id=project.id))
+            else:
+                db.session.add(project)
+                db.session.commit()
+
+                flash(u'发布失败, 请修改数据后重新发布')
+                return redirect(url_for('admin_project.edit_project', project_id=project.id))
         elif request.form['_actionBtn'] == '2':
-            project.status = Project.STATUS_DRAFT
             db.session.add(project)
             db.session.commit()
 
@@ -198,22 +210,74 @@ def draft_list():
 @project.route('/edit_project', methods=['GET', 'POST'])
 @project.route('/edit_project/<int:project_id>', methods=['GET', 'POST'])
 @login_required
+@catch_db_error
 def edit_project(project_id):
     project = Project.query.get(project_id)
     if request.method == 'POST':
-        pass
-        db.session.commit()
+        building_id = int(request.form['building'])
+        business_scope_id = int(request.form['business_scope'])
+        name = request.form['name'].strip()
+        due_date = request.form['due_date'].strip()
+        lead_start_date = request.form['lead_start_date'].strip()
+        lead_end_date = request.form['lead_end_date'].strip()
+        price_range = int(request.form['price_range'])
+        requirements = request.form['requirements']
 
-        flash(u'更新成功')
-        return redirect(url_for('admin_entity.carousel_manage'))
+        project.name = name
+        project.user_id = current_user.id
+        project.building_id = building_id
+        project.type_id = business_scope_id
+        project.price_range = price_range
+        project.requirements = requirements
+        if due_date:
+            project.due_date = due_date
+        if lead_start_date:
+            project.lead_start_date = lead_start_date
+        if lead_end_date:
+            project.lead_end_date = lead_end_date
 
-    g.breadcrumbs = [u'信息管理', u'编辑项目']
-    g.menu = 'entity'
-    return render_template('admin/project/edit_project.html', project=project)
+        if request.form['_actionBtn'] == '1':
+            result = project.publish()
+            if result:
+                db.session.commit()
+
+                flash(u'发布成功')
+                return redirect(url_for('admin_project.view_project', project_id=project.id))
+            else:
+                db.session.commit()
+
+                flash(u'发布失败, 请修改数据后重新发布')
+                return redirect(url_for('admin_project.edit_project', project_id=project.id))
+        elif request.form['_actionBtn'] == '2':
+            db.session.commit()
+
+            flash(u'保存成功')
+            return redirect(url_for('admin_project.draft_list'))
+
+    g.breadcrumbs = [
+        (u'项目管理', url_for('admin_project.index')),
+        (u'编辑项目', '#')
+    ]
+    g.menu = 'project'
+    if current_user.is_superuser:
+        building_list = Building.query.join(Area).order_by(Area.order_num.desc(), Building.create_date.desc()).all()
+    else:
+        building_list = current_user.buildings
+
+    business_scope_list = BusinessScope.query.filter(BusinessScope.parent_id == None) \
+        .order_by(BusinessScope.order_num.desc(), BusinessScope.create_date.desc()).all()
+    return render_template(
+        'admin/project/edit_project.html',
+        project=project,
+        building_list=building_list,
+        business_scope_list=business_scope_list,
+        price_range_list=PROJECT_PRICE_RANGE_LIST
+    )
 
 
 @project.route('/json/delete_project', methods=['POST'])
 @login_required
+@catch_db_error
 def delete_project():
     project_id = int(request.form['project_id'])
 
@@ -228,6 +292,7 @@ def delete_project():
 @project.route('/json/publish_project', methods=['POST'])
 @project.route('/json/publish_project/<int:project_id>', methods=['POST'])
 @login_required
+@catch_db_error
 def publish_project(project_id):
     project = Project.query.get(project_id)
 
@@ -236,6 +301,7 @@ def publish_project(project_id):
         return json.dumps(False)
 
     result = project.publish()
+    db.session.commit()
     if result:
         flash(u'发布成功')
     else:

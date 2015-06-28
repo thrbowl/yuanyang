@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+
+{% block title %}项目详情{% endblock %}
+
+{% block css %}
+    <style type="text/css">
+        .requirements {
+            display: none;
+            background-color: #ffffff;
+            border: 1px #dcdcdc solid;
+            padding: 5px;
+        }
+
+    .summary {
+        margin-left: 5px;
+        padding: 5px;
+        border-top: 1px #dcdcdc solid;
+        display: none;
+    }
+    </style>
+{% endblock %}
+
+{% block js %}
+    <script>
+        function expandRequirements(elem) {
+            $(elem).hide();
+            $('#requirements').show();
+        }
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div>
+        <div style="margin-bottom: 20px;">
+            <div style="padding: 10px;">
+                <a href="#" class="btn btn-info">{{ project.business_scope.name }}</a>
+                <span style="margin-left: 30px;font-size: 18px;">{{ project.building.area.name }}·{{ project.building.name }}</span>
+                <span style="margin-left: 30px;">{{ project.name }}</span>
+                <select name="status" class="pull-right">
+                    <option>test</option>
+                </select>
+            </div>
+            <div class="clearfix"></div>
+            <div style="padding: 10px;">
+                <span><b>报价区间:</b>&nbsp;&nbsp;{{ project.price_range.get_display_name() }}</span>
+                <span style="margin-left: 30px;"><b>发布时间:</b>&nbsp;&nbsp;{{ project.publish_date.strftime('%Y-%m-%d') }}</span>
+                <span style="margin-left: 30px;"><b>截止时间:</b>&nbsp;&nbsp;{{ project.due_date }}</span>
+            </div>
+            <div style="padding: 10px;">
+                <span><b>项目交付周期:</b>&nbsp;&nbsp;{{ project.lead_start_date }} — {{ project.lead_end_date }}</span>
+            </div>
+            <div style="padding: 10px;">
+                <div>
+                    <b>项目需求:</b>&nbsp;&nbsp;<a href="javascript:;" onclick="expandRequirements(this);">展开</a>
+                </div>
+                <div class="requirements" id="requirements">
+                    {{ project.requirements.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}
+                </div>
+            </div>
+        </div>
+        {% if project.bids %}
+            <div class="text-right">
+                已报名列表({{ project.bids|length }})
+            </div>
+            <table class="table table-striped">
+                {% for bid in project.bids %}
+                    <tr>
+                        <td>
+                            <div style="margin-bottom: 10px;cursor:pointer" onclick="$('#summary{{ bid.id }}').show();">
+                                <div style="font-size: 21px;font-weight: bold">{{ bid.supplier.company_name }}</div>
+                                <div>
+                                    <span>联系人: {{ bid.supplier.company_contact }}</span>
+                                    <span style="margin-left: 30px;">联系方式: {{ bid.supplier.company_contact_telephone }}</span>
+                                    <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
+                                </div>
+                            </div>
+                            <div class="summary" id="summary{{ bid.id }}">
+                                <a href="javascript:;" class="pull-right btn btn-default btn-xs">查看供应商详细信息</a>
+                                <div>供应商陈述：</div>
+                                <div style="margin-top: 5px;">
+                                    {{ bid.summary.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}
+                                </div>
+                                {% if project.status==Project.STATUS_BIDDING %}
+                                    <a href="javascript:;" class="pull-right btn btn-default btn-xs">选择供应商</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p class="text-warning">该项目还没有供应商投标</p>
+        {% endif %}
+    </div>
+{% endblock %}

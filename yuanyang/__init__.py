@@ -66,6 +66,8 @@ def create_app(name=None, settings=None):
         app.register_blueprint(supplier, url_prefix='/api/supplier')
         from .views.api.business_scope import business_scope
         app.register_blueprint(business_scope, url_prefix='/api/business_scope')
+        from .views.api.project import project
+        app.register_blueprint(project, url_prefix='/api/project')
 
         from .views.admin.main import main
         app.register_blueprint(main, url_prefix='/admin')
