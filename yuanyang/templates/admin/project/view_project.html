@@ -36,9 +36,26 @@
                 <a href="#" class="btn btn-info">{{ project.business_scope.name }}</a>
                 <span style="margin-left: 30px;font-size: 18px;">{{ project.building.area.name }}·{{ project.building.name }}</span>
                 <span style="margin-left: 30px;">{{ project.name }}</span>
-                <select name="status" class="pull-right">
-                    <option>test</option>
-                </select>
+                {% if project_status_list %}
+                    <select name="status" id="status" class="pull-right">
+                        <option value="-1" style="color: grey;">--更改状态--</option>
+                        {% for status in project_status_list %}
+                            <option value="{{ status }}">{{ status.get_display_name() }}</option>
+                        {% endfor %}
+                    </select>
+                    <script>
+                        $("#status").change(function () {
+                            if (this.value != -1) {
+                                var data = {
+                                    status: this.value
+                                };
+                                $.post("{{ url_for('admin_project.set_status', project_id=project.id) }}", data, function() {
+                                    location.reload();
+                                });
+                            }
+                        })
+                    </script>
+                {% endif %}
             </div>
             <div class="clearfix"></div>
             <div style="padding: 10px;">

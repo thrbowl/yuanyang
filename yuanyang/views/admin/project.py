@@ -116,10 +116,17 @@ def view_project(project_id):
     ]
     g.menu = 'project'
 
+    project_status_list = None
+    if project1.status == Project.STATUS_BIDDING:
+        project_status_list = [Project.STATUS_ENDED, Project.STATUS_FAILURE]
+    if project1.status == Project.STATUS_ENDED:
+        project_status_list = [Project.STATUS_FAILURE]
+
     return render_template(
         'admin/project/view_project.html',
-         project=project1,
-         Project=Project
+        project=project1,
+        Project=Project,
+        project_status_list=project_status_list
     )
 
 
@@ -307,3 +314,30 @@ def publish_project(project_id):
     else:
         flash(u'发布失败')
     return json.dumps(result)
+
+
+@project.route('/json/set_status', methods=['POST'])
+@project.route('/json/set_status/<int:project_id>', methods=['POST'])
+@login_required
+@catch_db_error
+def set_status(project_id):
+    status = int(request.form['status'])
+
+    project1 = Project.query.get(project_id)
+    if project1.status == Project.STATUS_BIDDING and status in [Project.STATUS_ENDED, Project.STATUS_FAILURE]:
+        project1.status = status
+        if project1.status == Project.STATUS_ENDED:
+            project1.due_date = datetime.date.today()
+        db.session.commit()
+
+        flash(u'修改成功')
+        return jsonify(SUCCESS_MESSAGE)
+    elif project1.status == Project.STATUS_ENDED and status == Project.STATUS_FAILURE:
+        project1.status = status
+        db.session.commit()
+
+        flash(u'修改成功')
+        return jsonify(SUCCESS_MESSAGE)
+
+    flash(u'修改失败')
+    return jsonify(ERROR_MESSAGE)

@@ -266,6 +266,7 @@ class Project(db.Model):
     bid_id = Column(Integer)  # 投标ID
     _status = Column('status', Integer, nullable=False, default=STATUS_DRAFT)  # 项目状态
     due_date = Column(Date)  # 截止时间
+    completed_date = Column(Date)  # 完成时间
     publish_date = Column(DateTime)  # 发布时间
     lead_start_date = Column(Date)  # 交付起始时间
     lead_end_date = Column(Date)  # 交付完成时间
@@ -283,10 +284,19 @@ class Project(db.Model):
         if self._status == Project.STATUS_DRAFT:
             return Project.STATUS_DRAFT
         elif self._status == Project.STATUS_BIDDING:
+            today = datetime.date.today()
+            if today > self.due_date:
+                self.status = Project.STATUS_ENDED
+                db.session.commit()
+                return self.status
             return Project.STATUS_BIDDING
         elif self._status == Project.STATUS_ENDED:
             return Project.STATUS_ENDED
         elif self._status == Project.STATUS_COMPLETED:
+            if not self.is_closure_period():
+                self.status = Project.STATUS_COMMENTED
+                db.session.commit()
+                return self.status
             return Project.STATUS_COMPLETED
         elif self._status == Project.STATUS_COMMENTED:
             return Project.STATUS_COMMENTED
@@ -330,7 +340,9 @@ class Project(db.Model):
         return False
 
     def is_closure_period(self):
-        pass
+        today = datetime.date.today()
+        return self.status == self.STATUS_COMPLETED \
+               and today < self.due_date + datetime.timedelta(settings['CLOSURE_PERIOD'])
 
 
 PROJECT_PRICE_RANGE_LIST = [
