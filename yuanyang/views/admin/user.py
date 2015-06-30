@@ -24,7 +24,7 @@ def user_list():
 
     page = int(request.args.get('page', 1))
     per_page = 10
-    pager = User.query.filter(User.is_backend == True, User.is_superuser != True).order_by(User.id.desc()) \
+    pager = User.query.filter(User.is_backend == True, User.is_superuser != True).order_by(User.create_date.desc()) \
         .paginate(page, per_page, False)
     return render_template('admin/user/user_list.html', pager=pager)
 
@@ -121,7 +121,8 @@ def area_users():
         area = Area.query.get(area_id)
         user_list = area.users
     except:
-        user_list = User.query.all()
+        user_list = User.query.filter(User.is_backend == True, User.is_superuser != True) \
+            .order_by(User.create_date.desc()).all()
 
     data = [{'id': user.id, 'name': user.username} for user in user_list]
 

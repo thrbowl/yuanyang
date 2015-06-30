@@ -17,52 +17,56 @@
 
 {% block body_content %}
     <div>
-        <form class="form-inline" method="GET" style="margin-bottom: 20px;">
-            <div class="form-group" style="width: 400px;">
-                <label for="area">
-                    楼盘所在地区：
-                    <select class="form-control" name="area" id="area"
-                            style="width:200px; display: inline-block">
-                        {% for area1 in area_list %}
-                            <option value="{{ area1.id }}" {% if area.id==area1.id %}selected{% endif %}>
-                                {{ area1.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </label>
-            </div>
-            <a href="{{ url_for('admin_entity.add_building') }}" class="btn btn-default pull-right active"
-               style="width: 200px">
-                创建新楼盘
-            </a>
-        </form>
-        <div class="clearfix"></div>
-        <ul class="list-group">
-            {% for building in area.buildings %}
-                <li class="list-group-item">
-                    <div class="pull-left">
-                        <a href="{{ url_for('admin_project.view_building', building_id=building.id) }}">
-                            <img src="{{ building.logo }}" class="img-thumbnail building-logo-thumbnail"/>
-                        </a>
-                    </div>
-                    <div class="pull-left" style="height:60px;padding:20px;min-width: 500px">
-                        <h4 class="list-group-item-heading">
+        {% if area %}
+            <form class="form-inline" method="GET" style="margin-bottom: 20px;">
+                <div class="form-group" style="width: 400px;">
+                    <label for="area">
+                        楼盘所在地区：
+                        <select class="form-control" name="area" id="area"
+                                style="width:200px; display: inline-block">
+                            {% for area1 in area_list %}
+                                <option value="{{ area1.id }}" {% if area.id==area1.id %}selected{% endif %}>
+                                    {{ area1.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+                <a href="{{ url_for('admin_entity.add_building') }}" class="btn btn-default pull-right active"
+                   style="width: 200px">
+                    创建新楼盘
+                </a>
+            </form>
+            <div class="clearfix"></div>
+            <ul class="list-group">
+                {% for building in area.buildings %}
+                    <li class="list-group-item">
+                        <div class="pull-left">
                             <a href="{{ url_for('admin_project.view_building', building_id=building.id) }}">
-                                {{ building.name }}
+                                <img src="{{ building.logo }}" class="img-thumbnail building-logo-thumbnail"/>
                             </a>
-                        </h4>
-                    </div>
-                    <div class="pull-right" style="height: 60px;width:80px;position: relative;">
-                        <div style="position:absolute; bottom: 0;">楼盘项目({{ building.project_total }})</div>
-                    </div>
-                    <div class="pull-right" style="height: 60px;width:80px;position: relative;margin-right: 40px;">
-                        <div style="position:absolute; bottom: 0;">正在招商({{ building.bidding_project_total }})</div>
-                    </div>
-                    <div class="clearfix"></div>
-                </li>
-            {% else %}
-                <p class="text-warning">该地区没有楼盘</p>
-            {% endfor %}
-        </ul>
+                        </div>
+                        <div class="pull-left" style="height:60px;padding:20px;min-width: 500px">
+                            <h4 class="list-group-item-heading">
+                                <a href="{{ url_for('admin_project.view_building', building_id=building.id) }}">
+                                    {{ building.name }}
+                                </a>
+                            </h4>
+                        </div>
+                        <div class="pull-right" style="height: 60px;width:80px;position: relative;">
+                            <div style="position:absolute; bottom: 0;">楼盘项目({{ building.project_total }})</div>
+                        </div>
+                        <div class="pull-right" style="height: 60px;width:80px;position: relative;margin-right: 40px;">
+                            <div style="position:absolute; bottom: 0;">正在招商({{ building.bidding_project_total }})</div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </li>
+                {% else %}
+                    <p class="text-warning">该地区没有楼盘</p>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-warning">没有楼盘</p>
+        {% endif %}
     </div>
 {% endblock %}

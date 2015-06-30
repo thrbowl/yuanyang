@@ -11,7 +11,7 @@
             var data = {
                 building_id: building_id
             };
-            $.post("{{ url_for('admin_entity.delete_building') }}", data, function(message) {
+            $.post("{{ url_for('admin_entity.delete_building') }}", data, function (message) {
                 if (message.type == 'success') {
                     location.reload();
                 }
@@ -28,7 +28,7 @@
     <div>
         <div>
             <a href="{{ url_for('admin_entity.add_building') }}"
-               class="btn btn-default pull-right active" style="width: 200px">
+               class="btn btn-default pull-right active btn-create">
                 添加楼盘
             </a>
             {% from 'admin/macros/entity_switcher.html' import render_entity_manage_switcher %}
@@ -45,20 +45,30 @@
             </tr>
             </thead>
             <tbody>
-            {% for building in pager.items %}
+            {% if pager.total > 0 %}
+                {% for building in pager.items %}
+                    <tr>
+                        <td width="10%">
+                            <img src="{{ building.logo }}" class="img-thumbnail building-logo-thumbnail"/>
+                        </td>
+                        <td width="30%">{{ building.name }}</td>
+                        <td width="10%">{{ building.area.name }}</td>
+                        <td width="15%">
+                            <a href="javascript:;" onclick="editBuilding({{ building.id }})">编辑</a>
+                            <a href="javascript:;" onclick="deleteBuilding({{ building.id }})">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
                 <tr>
-                    <td width="10%"><img src="{{ building.logo }}" class="img-thumbnail building-logo-thumbnail"/></td>
-                    <td width="30%">{{ building.name }}</td>
-                    <td width="10%">{{ building.area.name }}</td>
-                    <td width="15%">
-                        <a href="javascript:;" onclick="editBuilding({{ building.id }})">编辑</a>
-                        <a href="javascript:;" onclick="deleteBuilding({{ building.id }})">删除</a>
-                    </td>
+                    <td colspan="4"><p class="text-warning">没有楼盘</p></td>
                 </tr>
-            {% endfor %}
+            {% endif %}
             </tbody>
         </table>
-        {% from 'admin/macros/pagination.html' import render_pagination %}
-        {{ render_pagination(pager, 'admin_entity.building_manage') }}
+        {% if pager.total > 0 %}
+            {% from 'admin/macros/pagination.html' import render_pagination %}
+            {{ render_pagination(pager, 'admin_entity.building_manage') }}
+        {% endif %}
     </div>
 {% endblock %}

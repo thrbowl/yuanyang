@@ -149,7 +149,7 @@
 
                 <div class="col-xs-6">
                     <div id="ownersDiv" style="margin-top: 7px;">
-                        {% for user in building.users %}
+                        {% for user in  building.area.users %}
                             <div>
                                 <label>
                                     <input type="checkbox" value="{{ user.id }}" name="owners" id="owners">

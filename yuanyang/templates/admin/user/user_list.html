@@ -28,7 +28,7 @@
     <div>
         <div>
             <a href="{{ url_for('admin_user.add_user') }}"
-               class="btn btn-default pull-right active" style="width: 200px">
+               class="btn btn-default pull-right active btn-create">
                 创建用户
             </a>
         </div>
@@ -44,8 +44,9 @@
             </tr>
             </thead>
             <tbody>
-            {% for user in pager.items %}
-                <tr>
+            {% if pager.total > 0 %}
+                {% for user in pager.items %}
+                    <tr>
                     <th scope="row">{{ user.id }}</th>
                     <td>{{ user.username }}</td>
                     <td>{{ user.password }}</td>
@@ -54,11 +55,17 @@
                         <a href="javascript:;" onclick="editUser({{ user.id }})">编辑</a>
                         <a href="javascript:;" onclick="deleteUser({{ user.id }})">删除</a>
                     </td>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5"><p class="text-warning">没有用户</p></td>
                 </tr>
-            {% endfor %}
+            {% endif %}
             </tbody>
         </table>
-        {% from 'admin/macros/pagination.html' import render_pagination %}
-        {{ render_pagination(pager, 'admin_user.user_list') }}
+        {% if pager.total > 0 %}
+            {% from 'admin/macros/pagination.html' import render_pagination %}
+            {{ render_pagination(pager, 'admin_user.user_list') }}
+        {% endif %}
     </div>
 {% endblock %}

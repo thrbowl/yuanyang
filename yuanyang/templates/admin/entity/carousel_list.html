@@ -33,7 +33,6 @@
                 }
             });
         }
-
     </script>
 {% endblock %}
 
@@ -57,20 +56,26 @@
             </tr>
             </thead>
             <tbody>
-            {% for carousel in pager.items %}
+            {% if pager.total > 0 %}
+                {% for carousel in pager.items %}
+                    <tr>
+                        <td><img src="{{ carousel.image }}" class="img-thumbnail carousel-img-thumbnail"/></td>
+                        <td>{{ carousel.name }}</td>
+                        <td>
+                            <a href="javascript:;" onclick="editCarousel({{ carousel.id }})">编辑</a>
+                            <a href="javascript:;" onclick="deleteCarousel({{ carousel.id }})">删除</a>
+                            {% if not loop.first %}
+                                <a href="javascript:;" onclick="moveUp({{ last_id }}, {{ carousel.id }} )">上升</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% set last_id=carousel.id %}
+                {% endfor %}
+            {% else %}
                 <tr>
-                    <td width=""><img src="{{ carousel.image }}" class="img-thumbnail carousel-img-thumbnail"/></td>
-                    <td width="">{{ carousel.name }}</td>
-                    <td width="">
-                        <a href="javascript:;" onclick="editCarousel({{ carousel.id }})">编辑</a>
-                        <a href="javascript:;" onclick="deleteCarousel({{ carousel.id }})">删除</a>
-                        {% if not loop.first %}
-                            <a href="javascript:;" onclick="moveUp({{ last_id }}, {{ carousel.id }} )">上升</a>
-                        {% endif %}
-                    </td>
+                    <td colspan="3"><p class="text-warning">没有轮播配置</p></td>
                 </tr>
-                {% set last_id=carousel.id %}
-            {% endfor %}
+            {% endif %}
             </tbody>
         </table>
     </div>

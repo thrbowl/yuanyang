@@ -55,25 +55,35 @@
             </tr>
             </thead>
             <tbody>
-            {% for startpage in pager.items %}
+            {% if pager.total > 0 %}
+                {% for startpage in pager.items %}
+                    <tr>
+                        <td>
+                            <img src="{{ startpage.image }}" class="img-thumbnail carousel-img-thumbnail"/>
+                        </td>
+                        <td>{{ startpage.name }}</td>
+                        <td>
+                            {% if not startpage.is_active %}
+                                <a href="javascript:;" onclick="setUsingStartPage({{ startpage.id }})">使用</a>
+                                <a href="javascript:;" onclick="editStartpage({{ startpage.id }})">编辑</a>
+                                <a href="javascript:;" onclick="deleteStartpage({{ startpage.id }})">删除</a>
+                            {% else %}
+                                使用中
+                                <a href="javascript:;" onclick="editStartpage({{ startpage.id }})">编辑</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
                 <tr>
-                    <td width=""><img src="{{ startpage.image }}" class="img-thumbnail carousel-img-thumbnail"/></td>
-                    <td width="">{{ startpage.name }}</td>
-                    <td width="">
-                        {% if not startpage.is_active %}
-                            <a href="javascript:;" onclick="setUsingStartPage({{ startpage.id }})">使用</a>
-                            <a href="javascript:;" onclick="editStartpage({{ startpage.id }})">编辑</a>
-                            <a href="javascript:;" onclick="deleteStartpage({{ startpage.id }})">删除</a>
-                        {% else %}
-                            使用中
-                            <a href="javascript:;" onclick="editStartpage({{ startpage.id }})">编辑</a>
-                        {% endif %}
-                    </td>
+                    <td colspan="3"><p class="text-warning">没有启动页配置</p></td>
                 </tr>
-            {% endfor %}
+            {% endif %}
             </tbody>
         </table>
-        {% from 'admin/macros/pagination.html' import render_pagination %}
-        {{ render_pagination(pager, 'admin_entity.startpage_manage') }}
+        {% if pager.total > 0 %}
+            {% from 'admin/macros/pagination.html' import render_pagination %}
+            {{ render_pagination(pager, 'admin_entity.startpage_manage') }}
+        {% endif %}
     </div>
 {% endblock %}

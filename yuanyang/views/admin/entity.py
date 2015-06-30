@@ -41,11 +41,12 @@ def startpage_manage():
 
 @entity.route('/add_startpage', methods=['GET', 'POST'])
 @login_required('admin')
+@catch_db_error
 def add_startpage():
     if request.method == 'POST':
         name = request.form['name'].strip()
         image_file = request.files['image']
-        if not image_file.filename:
+        if not image_file:
             flash(u'添加失败，必须有图片')
             return redirect(url_for('admin_entity.add_carousel'))
 
@@ -79,6 +80,7 @@ def add_startpage():
 @entity.route('/edit_startpage', methods=['GET', 'POST'])
 @entity.route('/edit_startpage/<int:startpage_id>', methods=['GET', 'POST'])
 @login_required('admin')
+@catch_db_error
 def edit_startpage(startpage_id):
     startpage = StartPage.query.get(startpage_id)
     if request.method == 'POST':
@@ -86,7 +88,7 @@ def edit_startpage(startpage_id):
         image_file = request.files['image']
 
         startpage.name = name
-        if image_file.filename:
+        if image_file:
             image_folder = time.strftime('%Y%m', time.localtime())
             image_name = str(uuid.uuid4()) + '.'
             image_name = media.save(image_file, folder=image_folder, name=image_name)
@@ -111,6 +113,7 @@ def edit_startpage(startpage_id):
 
 @entity.route('/json/delete_startpage', methods=['POST'])
 @login_required('admin')
+@catch_db_error
 def delete_startpage():
     startpage_id = int(request.form['startpage_id'])
 
@@ -144,6 +147,7 @@ def building_manage():
 
 @entity.route('/add_building', methods=['GET', 'POST'])
 @login_required('admin')
+@catch_db_error
 def add_building():
     if request.method == 'POST':
         address = request.form['address'].strip()
@@ -153,7 +157,7 @@ def add_building():
 
         logo_file = request.files['logo']
         full_logo_url = ''
-        if logo_file.name:
+        if logo_file:
             logo_folder = time.strftime('%Y%m', time.localtime())
             logo_name = str(uuid.uuid4()) + '.'
             logo_name = media.save(logo_file, folder=logo_folder, name=logo_name)
@@ -188,6 +192,7 @@ def add_building():
 @entity.route('/edit_building', methods=['GET', 'POST'])
 @entity.route('/edit_building/<int:building_id>', methods=['GET', 'POST'])
 @login_required('admin')
+@catch_db_error
 def edit_building(building_id):
     building = Building.query.get(building_id)
     if request.method == 'POST':
@@ -202,7 +207,7 @@ def edit_building(building_id):
         building.users = [User.query.get(user_id) for user_id in owners]
 
         logo_file = request.files['logo']
-        if logo_file.filename:
+        if logo_file:
             logo_folder = time.strftime('%Y%m', time.localtime())
             logo_name = str(uuid.uuid4()) + '.'
             logo_name = media.save(logo_file, folder=logo_folder, name=logo_name)
@@ -227,6 +232,7 @@ def edit_building(building_id):
 
 @entity.route('/json/delete_building', methods=['POST'])
 @login_required('admin')
+@catch_db_error
 def delete_building():
     building_id = int(request.form['building_id'])
 
@@ -267,7 +273,7 @@ def add_carousel():
 
         image_file = request.files['image']
         full_image_url = ''
-        if image_file.filename:
+        if image_file:
             image_folder = time.strftime('%Y%m', time.localtime())
             image_name = str(uuid.uuid4()) + '.'
             image_name = media.save(image_file, folder=image_folder, name=image_name)
@@ -310,7 +316,7 @@ def edit_carousel(carousel_id):
         carousel.name = name
 
         image_file = request.files['image']
-        if image_file.filename:
+        if image_file:
             image_folder = time.strftime('%Y%m', time.localtime())
             image_name = str(uuid.uuid4()) + '.'
             image_name = media.save(image_file, folder=image_folder, name=image_name)

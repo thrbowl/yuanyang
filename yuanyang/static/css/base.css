@@ -71,13 +71,17 @@ label.error {
     position: absolute;
     top: 44px;
     text-align: center;
-    margin:auto;
-    left:0;
-    right:0;
+    margin: auto;
+    left: 0;
+    right: 0;
     padding: 8px;
     width: 300px;
 }
 
 table td .row1 {
     margin-bottom: 8px;
+}
+
+.btn-create {
+    width: 200px;
 }

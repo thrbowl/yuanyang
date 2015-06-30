@@ -19,6 +19,7 @@ def catch_db_error(func):
         try:
             return func(*args, **kwargs)
         except Exception, e:
+            print 111, e
             db.session.rollback()
             return jsonify(ERROR_MESSAGE)
         finally:

@@ -34,6 +34,6 @@
         {% from 'admin/macros/pagination.html' import render_pagination %}
         {{ render_pagination(pager, 'admin_project.audit_list', exe_params='sort=%s&area=%s&business_scope=%s' % (sort,area,business_scope)) }}
     {% else %}
-        <p class="text-warning">没有新申请的供应商</p>
+        <p class="text-warning">没有新的申请</p>
     {% endif %}
 {% endblock %}

@@ -23,15 +23,17 @@ def index():
 def building_list(area_id=None):
     g.breadcrumbs = [
         (u'项目管理', url_for('admin_project.index')),
-        (u'楼盘列表', url_for('admin_project.building_list'))
+        (u'楼盘列表', '#')
     ]
     g.menu = 'project'
 
     area_list = Area.query.join(Building).order_by(Area.order_num.desc(), Area.create_date.desc()).all()
+    area = None
     if area_id:
         area = Area.query.get(area_id)
     else:
-        area = area_list[0]
+        if area_list:
+            area = area_list[0]
     return render_template('admin/project/building_list.html', area=area, area_list=area_list)
 
 
