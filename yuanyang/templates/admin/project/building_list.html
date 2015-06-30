@@ -32,9 +32,9 @@
                         </select>
                     </label>
                 </div>
-                <a href="{{ url_for('admin_entity.add_building') }}" class="btn btn-default pull-right active"
-                   style="width: 200px">
-                    创建新楼盘
+                <a href="{{ url_for('admin_entity.add_building') }}"
+                   class="btn btn-default pull-right active btn-create">
+                    创建楼盘
                 </a>
             </form>
             <div class="clearfix"></div>
@@ -61,8 +61,6 @@
                         </div>
                         <div class="clearfix"></div>
                     </li>
-                {% else %}
-                    <p class="text-warning">该地区没有楼盘</p>
                 {% endfor %}
             </ul>
         {% else %}

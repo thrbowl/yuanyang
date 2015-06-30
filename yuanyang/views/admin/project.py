@@ -53,9 +53,11 @@ def view_building(building_id=None):
     if not building_id:
         building_id = int(request.args['building_id'])
     building = Building.query.get(building_id)
+
+    url1 = current_user.is_superuser and url_for('admin_project.building_list') or '#'
     g.breadcrumbs = [
         (u'项目管理', url_for('admin_project.index')),
-        (u'楼盘列表', url_for('admin_project.building_list')),
+        (u'楼盘列表', url1),
         (u'%s·%s' % (building.area.name, building.name),
          url_for('admin_project.view_building', building_id=building_id))
     ]

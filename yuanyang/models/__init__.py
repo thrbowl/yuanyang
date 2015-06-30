@@ -283,6 +283,7 @@ class Project(db.Model):
     business_scope = relationship('BusinessScope')
 
     def __init__(self):
+        self.status = Project.STATUS_DRAFT
         self.create_date = datetime.datetime.now()
 
     def get_status(self):
