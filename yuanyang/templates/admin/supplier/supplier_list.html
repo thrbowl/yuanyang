@@ -97,7 +97,8 @@
                             <span style="margin-left: 30px;">所在地: {{ supplier.area.full_name }}</span>
                             <span style="margin-left: 30px;">加入时间: {{ supplier.create_date }}</span>
                             <span style="margin-left: 30px;">服务评分: {{ '%0.1f' % supplier.service_score }}</span>
-                            <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
+                            <a href="{{ url_for('admin_supplier.view_supplier', supplier_id=supplier.id) }}"
+                               class="pull-right btn btn-default btn-xs">详情</a>
                         </div>
                     </td>
                 </tr>

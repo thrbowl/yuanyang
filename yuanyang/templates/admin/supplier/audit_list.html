@@ -24,7 +24,8 @@
                             <span style="margin-left: 30px;">联系方式: {{ supplier.company_contact_telephone }}</span>
                             <span style="margin-left: 30px;">所在地: {{ supplier.area.full_name }}</span>
                             <span style="margin-left: 30px;">加入时间: {{ supplier.create_date }}</span>
-                            <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
+                            <a href="{{ url_for('admin_supplier.audit_supplier', supplier_id=supplier.id) }}"
+                               class="pull-right btn btn-default btn-xs">详情</a>
                         </div>
                     </td>
                 </tr>

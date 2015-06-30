@@ -341,3 +341,24 @@ def set_status(project_id):
 
     flash(u'修改失败')
     return jsonify(ERROR_MESSAGE)
+
+
+@project.route('/json/select_supplier', methods=['POST'])
+@project.route('/json/select_supplier/<int:bid_id>', methods=['POST'])
+@login_required
+@catch_db_error
+def select_supplier(bid_id):
+    bid = Bid.query.get(bid_id)
+    project = Project.query.get(bid.project_id)
+
+    if project.status != Project.STATUS_ENDED:
+        flash(u'状态不正确')
+        return jsonify(ERROR_MESSAGE)
+    else:
+        project.bid_id = bid.id
+        project.status = Project.STATUS_COMPLETED
+        project.completed_date = datetime.date.today()
+        db.session.commit()
+
+        flash(u'中标成功')
+        return jsonify(SUCCESS_MESSAGE)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint, render_template, url_for, request, redirect, g
 from flask.ext.login import login_required, current_user
-from ...models import db, Area, BusinessScope, Supplier
+from ...models import db, Area, BusinessScope, Supplier, Project
 
 supplier = Blueprint('admin_supplier', __name__)
 
@@ -73,3 +73,42 @@ def audit_list():
         'admin/supplier/audit_list.html',
         pager=pager
     )
+
+
+@supplier.route('/view_supplier', methods=['GET'])
+@supplier.route('/view_supplier/<int:supplier_id>', methods=['GET'])
+@login_required
+def view_supplier(supplier_id):
+    supplier = Supplier.query.get(supplier_id)
+    project_list = Project.query.filter(Project.supplier_id == supplier.id).all()
+
+    g.breadcrumbs = [
+        (u'供应商管理', url_for('admin_supplier.index')),
+        (u'供应商列表', url_for('admin_supplier.view_supplier')),
+        (u'%s' % supplier.company_name, '#'),
+    ]
+    g.menu = 'supplier'
+    return render_template(
+        'admin/supplier/view_supplier.html',
+        supplier=supplier,
+        project_list=project_list
+    )
+
+
+@supplier.route('/audit_supplier', methods=['GET'])
+@supplier.route('/audit_supplier/<int:supplier_id>', methods=['GET'])
+@login_required('admin')
+def audit_supplier(supplier_id):
+    supplier = Supplier.query.get(supplier_id)
+
+    g.breadcrumbs = [
+        (u'供应商管理', url_for('admin_supplier.index')),
+        (u'新供应商审核', url_for('admin_supplier.audit_list')),
+        (u'%s' % supplier.company_name, '#'),
+    ]
+    g.menu = 'supplier'
+    return render_template(
+        'admin/supplier/audit_supplier.html',
+        supplier=supplier
+    )
+

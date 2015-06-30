@@ -262,7 +262,7 @@ class Project(db.Model):
     building_id = Column(Integer, ForeignKey('buildings.id'), nullable=False)  # 所属楼盘
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # 创建者
     type_id = Column(Integer, ForeignKey('business_scopes.id'), nullable=False)  # 项目类型
-    supplier_id = Column(Integer)  # 中标供应商
+    supplier_id = Column(Integer)  # !中标供应商
     bid_id = Column(Integer)  # 投标ID
     _status = Column('status', Integer, nullable=False, default=STATUS_DRAFT)  # 项目状态
     due_date = Column(Date)  # 截止时间
@@ -272,6 +272,10 @@ class Project(db.Model):
     lead_end_date = Column(Date)  # 交付完成时间
     _price_range = Column('price_range', Integer, nullable=False)  # 报价区间
     requirements = Column(Text)  # 项目需求
+    cost_score = Column(Float, nullable=False, default=0)
+    quality_score = Column(Float, nullable=False, default=0)
+    time_score = Column(Float, nullable=False, default=0)
+    service_score = Column(Float, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
     building = relationship('Building', backref=backref('projects', order_by=due_date.desc(), cascade="all, delete"))
@@ -342,7 +346,7 @@ class Project(db.Model):
     def is_closure_period(self):
         today = datetime.date.today()
         return self.status == self.STATUS_COMPLETED \
-               and today < self.due_date + datetime.timedelta(settings['CLOSURE_PERIOD'])
+               and today < self.completed_date + datetime.timedelta(settings['CLOSURE_PERIOD'])
 
 
 PROJECT_PRICE_RANGE_LIST = [
@@ -436,22 +440,6 @@ class Message(db.Model):
             return True
         return False
 
-    @staticmethod
-    def send_user_msg(sender_id, receiver_id, msg_tpl, **data):
-        content = msg_tpl % data
-        message = Message(content)
-        message.sender_id = sender_id
-        message.receiver_id = receiver_id
-        db.session.add(message)
-
-    @staticmethod
-    def send_system_msg(sender_id, receiver_id, msg_tpl, **data):
-        content = msg_tpl % data
-        message = Message(content)
-        message.sender_id = sender_id
-        message.receiver_id = receiver_id
-        db.session.add(message)
-
 
 class Comment(db.Model):
     """评价"""
@@ -465,6 +453,8 @@ class Comment(db.Model):
     quality_score = Column(Float, nullable=False, default=0)
     time_score = Column(Float, nullable=False, default=0)
     service_score = Column(Float, nullable=False, default=0)
+    appeal = Column(String(500), nullable=False)
+    is_read = Column(Boolean, nullable=False, default=False)
     create_date = Column(DateTime, nullable=False)
 
 

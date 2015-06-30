@@ -1,0 +1,133 @@
+{% extends "admin/base.html" %}
+
+{% block title %}供应商详情{% endblock %}
+
+{% block css %}
+    <style type="text/css">
+        #supplier td {
+            padding: 15px;
+            font-size: 16px;
+        }
+
+        #supplier td img {
+            width: 50px;
+            height: 50px;
+        }
+
+        #supplier .property {
+            text-align: right;
+        }
+    </style>
+{% endblock %}
+
+{% block js %}
+    <script src="{{ static('components/jquery-raty/lib/jquery.raty.js') }}"></script>
+    <script>
+        $(function () {
+            $("#service_score").raty({score: 3});
+        });
+    </script>
+{% endblock %}
+
+{% block body_content %}
+    <div id="score" style="border: 1px #dcdcdc solid;padding: 30px;float: right">
+        <div style="font-size: 21px;">服务评分: <span id="service_score"></span>&nbsp;6分</div>
+        <div>成本: <span id="cost_score"></span></div>
+        <div>质量: <span id="quality_score"></span></div>
+        <div>时间: <span id="time_score"></span></div>
+    </div>
+    <table id="supplier">
+        <tr>
+            <td class="property">企业名称：</td>
+            <td>{{ supplier.company_name }}</td>
+        </tr>
+        <tr>
+            <td class="property">经营范围：</td>
+            <td>
+                {{ supplier.business_scopes[0].parent.name }}-
+                {% for bs in supplier.business_scopes %}
+                    {{ bs.name }}&nbsp;
+                {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <td class="property">企业联系人：</td>
+            <td>{{ supplier.company_contact }}</td>
+        </tr>
+        <tr>
+            <td class="property">公司电话：</td>
+            <td>{{ supplier.company_contact_telephone }}</td>
+        </tr>
+        <tr>
+            <td class="property">公司地址所在地：</td>
+            <td>{{ supplier.area.full_name }}</td>
+        </tr>
+        <tr>
+            <td class="property">银行账号：</td>
+            <td>{{ supplier.deposit_bank }}</td>
+        </tr>
+        <tr>
+            <td class="property">开户银行：</td>
+            <td>{{ supplier.bank_account }}</td>
+        </tr>
+        <tr>
+            <td class="property" style="vertical-align: top;">营业执照：</td>
+            <td>
+                {{ supplier.business_licence }}
+                <div style="position:relative;">
+                    <img src="{{ static('supplier.business_licence_image') }}">
+                    <a href="" style="position:absolute; bottom:0;">查看大图</a>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="property" style="vertical-align: top;">税务登记证：</td>
+            <td>
+                {{ supplier.tax_registration_certificate }}
+                <div style="position:relative;">
+                    <img src="{{ static('supplier.tax_registration_certificate_image') }}">
+                    <a href="" style="position:absolute; bottom:0;">查看大图</a>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="property" style="vertical-align: top;">组织机构代码证：</td>
+            <td>
+                {{ supplier.organization_code_certificate }}
+                <div style="position:relative;">
+                    <img src="{{ static('supplier.organization_code_certificate_image') }}">
+                    <a href="" style="position:absolute; bottom:0;">查看大图</a>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-striped">
+        {% for project in project_list %}
+            <tr>
+                <td width="30%">
+                    <div class="row1">
+                        <a href="{{ url_for('admin_project.view_project', project_id=project.id) }}"
+                           style="font-size: 16px;" target="_blank">{{ project.name }}</a>
+                    </div>
+                    <div class="row2">发布时间: {{ project.publish_date.strftime('%Y-%m-%d') }}</div>
+                </td>
+                <td>
+                    <div class="row1">项目类型: {{ project.business_scope.name }}</div>
+                    <div class="row2">报价区间: {{ project.price_range.get_display_name() }}</div>
+                </td>
+                <td>
+                    <div class="row1">&nbsp;</div>
+                    <div class="row2">报名截止时间: {{ project.due_date }}</div>
+                </td>
+                <td>
+                    <div class="row1">&nbsp;</div>
+                    <div class="row2">服务评分: {{ project.service_score }}</div>
+                </td>
+                <td>
+                    <div class="row1">&nbsp;</div>
+                    <div class="row2">评论(11)</div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
