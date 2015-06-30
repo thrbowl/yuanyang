@@ -146,6 +146,7 @@ def building_manage():
 @login_required('admin')
 def add_building():
     if request.method == 'POST':
+        address = request.form['address'].strip()
         name = request.form['name'].strip()
         area_id = int(request.form['area_id'])
         owners = request.form.getlist('owners')
@@ -165,6 +166,7 @@ def add_building():
         building = Building(name)
         building.logo = full_logo_url
         building.area_id = area_id
+        building.address = address
         building.users = [User.query.get(user_id) for user_id in owners]
         db.session.add(building)
         db.session.commit()
@@ -189,12 +191,14 @@ def add_building():
 def edit_building(building_id):
     building = Building.query.get(building_id)
     if request.method == 'POST':
+        address = request.form['address'].strip()
         name = request.form['name'].strip()
         area_id = int(request.form['area_id'])
         owners = request.form.getlist('owners')
 
         building.name = name
         building.area_id = area_id
+        building.address = address
         building.users = [User.query.get(user_id) for user_id in owners]
 
         logo_file = request.files['logo']
