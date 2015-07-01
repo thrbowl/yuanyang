@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, json, jsonify
+from flask import Blueprint, request, json, jsonify, Response
 from flask_login import login_required, current_user
 from ...models import db, catch_db_error, Area, Project, Building, BusinessScope, Bid
 from ...message import message
@@ -69,7 +69,7 @@ def project_list():
         }
         for project in project_list
     ]
-    return json.dumps(data)
+    return Response(json.dumps(data), mimetype='application/json')
 
 
 @project.route('/pro/<int:project_id>', methods=['GET'])
@@ -88,7 +88,7 @@ def project_info(project_id):
         'rangeFrom': convert_to_timestamp(project.lead_start_date),
         'rangeTo': convert_to_timestamp(project.lead_end_date)
     }
-    return json.dumps(data)
+    return Response(json.dumps(data), mimetype='application/json')
 
 
 @project.route('/pro/<int:project_id>', methods=['POST'])

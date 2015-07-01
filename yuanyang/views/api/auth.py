@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, json, jsonify
+from flask import Blueprint, request, json, jsonify, Response
 from flask.ext.login import login_user, logout_user
 from ...models import db, User, Supplier, catch_db_error
 from ...message import message
@@ -33,7 +33,7 @@ def check_user_unique():
     if not is_unique:
         is_unique = (User.query.filter(User.username == username).count() == 0)
 
-    return json.dumps(is_unique)
+    return Response(json.dumps(is_unique), mimetype='application/json')
 
 
 @auth.route('/login', methods=['POST'])

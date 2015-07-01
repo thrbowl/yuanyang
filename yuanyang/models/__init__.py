@@ -476,10 +476,10 @@ class Message(db.Model):
 
     id = Column(Integer, primary_key=True)
     content = Column(String(500), nullable=False)
-    sender_id = Column(Integer, ForeignKey('users.id'), default=None)
-    receiver_id = Column(Integer, ForeignKey('users.id'), default=None)
+    sender_id = Column(Integer, ForeignKey('users.id'))
+    receiver_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     is_read = Column(Boolean, nullable=False, default=False)
-    read_date = Column(DateTime, nullable=False)
+    read_date = Column(DateTime)
     _type = Column('type', Integer, nullable=False)
     create_date = Column(DateTime, nullable=False)
 

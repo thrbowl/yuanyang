@@ -15,7 +15,7 @@
             {% for supplier in pager.items %}
                 <tr>
                     <td width="30%">
-                        <div style="font-size: 21px;font-weight: bold; float: left">{{ supplier.company_name }}</div>
+                        <div style="font-size: 18px;font-weight: bold; float: left">{{ supplier.company_name }}</div>
                         <div class="pull-left" style="margin-left: 20px;margin-top: 5px;color: gray;">经营范围:
                             {% for bs in supplier.business_scopes %}{{ bs.name }}&nbsp;&nbsp;{% endfor %}</div>
                         <div class="clearfix"></div>

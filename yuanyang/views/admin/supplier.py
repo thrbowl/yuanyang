@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, render_template, url_for, request, redirect, g
+from flask import Blueprint, render_template, url_for, request, redirect, g, flash, jsonify, current_app
 from flask.ext.login import login_required, current_user
-from ...models import db, Area, BusinessScope, Supplier, Project
+from ...models import db, catch_db_error, Area, BusinessScope, Supplier, Project, Message
+from ...message import SUCCESS_MESSAGE, ERROR_MESSAGE
 
 supplier = Blueprint('admin_supplier', __name__)
+
+settings = current_app.config
 
 
 @supplier.route('/', methods=['GET'])
@@ -84,7 +87,7 @@ def view_supplier(supplier_id):
 
     g.breadcrumbs = [
         (u'供应商管理', url_for('admin_supplier.index')),
-        (u'供应商列表', url_for('admin_supplier.view_supplier')),
+        (u'供应商列表', url_for('admin_supplier.supplier_list')),
         (u'%s' % supplier.company_name, '#'),
     ]
     g.menu = 'supplier'
@@ -112,3 +115,51 @@ def audit_supplier(supplier_id):
         supplier=supplier
     )
 
+
+@supplier.route('/json/audit_pass', methods=['POST'])
+@login_required
+@catch_db_error
+def audit_pass():
+    supplier_id = int(request.form['supplier_id'])
+
+    supplier = Supplier.query.get(supplier_id)
+    supplier.status = Supplier.STATUS_PASS
+    db.session.commit()
+
+    try:
+        message = Message(settings['MESSAGE_AUDIT_PASS'])
+        message.type = Message.TYPE_SYSTEM
+        message.receiver_id = supplier.id
+        db.session.add(message)
+        db.session.commit()
+    except Exception, e:
+        print 111, e
+
+    flash(u'审核通过')
+    return jsonify(SUCCESS_MESSAGE)
+
+
+@supplier.route('/json/audit_reject', methods=['POST'])
+@login_required
+@catch_db_error
+def audit_reject():
+    supplier_id = int(request.form['supplier_id'])
+    reason = request.form['reason'].strip()
+    if not reason:
+        reason = u'无'
+
+    supplier = Supplier.query.get(supplier_id)
+    supplier.status = Supplier.STATUS_NOTAUTH
+    db.session.commit()
+
+    try:
+        message = Message(settings['MESSAGE_AUDIT_REJECT'])
+        message.type = Message.TYPE_SYSTEM
+        message.receiver_id = supplier.id
+        db.session.add(message)
+        db.session.commit()
+    except Exception, e:
+        print 111, e
+
+    flash(u'审核未通过')
+    return jsonify(SUCCESS_MESSAGE)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, json, jsonify
+from flask import Blueprint, request, json, jsonify, Response
 from ...models import Area, Building, BusinessScope, Project
 from ...message import message
 from ...utils import convert_to_timestamp
@@ -19,7 +19,7 @@ def building_list():
 
     data = [{'id': building.id, 'name': building.name} for building in building_list]
 
-    return json.dumps(data)
+    return Response(json.dumps(data), mimetype='application/json')
 
 
 @building.route('/pnList', methods=['GET'])

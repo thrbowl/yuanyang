@@ -5,8 +5,8 @@
 {% block css %}
     <style type="text/css">
         #supplier td {
-            padding: 15px;
-            font-size: 16px;
+            padding: 10px;
+            font-size: 15px;
         }
 
         #supplier td img {
@@ -25,19 +25,38 @@
     <script>
         $(function () {
             $("#service_score").raty({score: 3});
+
+            $("#passBtn").click(function () {
+                var data = {
+                    supplier_id: {{ supplier.id }}
+                };
+                $.post("{{ url_for('admin_supplier.audit_pass') }}", data, function () {
+                    location.href = "{{ url_for('admin_supplier.audit_list') }}";
+                })
+            });
+
+            $("#rejectBtn").click(function () {
+                var data = {
+                    supplier_id: {{ supplier.id }},
+                    reason: $("#reason").val()
+                };
+                $.post("{{ url_for('admin_supplier.audit_reject') }}", data, function () {
+                    location.href = "{{ url_for('admin_supplier.audit_list') }}";
+                })
+            });
         });
     </script>
 {% endblock %}
 
 {% block body_content %}
-    <table id="supplier">
+    <table id="supplier" width="100%">
         <tr>
-            <td class="property">企业名称：</td>
-            <td>{{ supplier.company_name }}</td>
+            <td class="property" width="30%">企业名称：</td>
+            <td colspan="3" width="70%">{{ supplier.company_name }}</td>
         </tr>
         <tr>
             <td class="property">经营范围：</td>
-            <td>
+            <td colspan="3">
                 {{ supplier.business_scopes[0].parent.name }}-
                 {% for bs in supplier.business_scopes %}
                     {{ bs.name }}&nbsp;
@@ -47,26 +66,22 @@
         <tr>
             <td class="property">企业联系人：</td>
             <td>{{ supplier.company_contact }}</td>
-        </tr>
-        <tr>
             <td class="property">公司电话：</td>
             <td>{{ supplier.company_contact_telephone }}</td>
         </tr>
         <tr>
             <td class="property">公司地址所在地：</td>
-            <td>{{ supplier.area.full_name }}</td>
+            <td colspan="3">{{ supplier.area.full_name }}</td>
         </tr>
         <tr>
             <td class="property">银行账号：</td>
             <td>{{ supplier.deposit_bank }}</td>
-        </tr>
-        <tr>
             <td class="property">开户银行：</td>
             <td>{{ supplier.bank_account }}</td>
         </tr>
         <tr>
             <td class="property" style="vertical-align: top;">营业执照：</td>
-            <td>
+            <td colspan="3">
                 {{ supplier.business_licence }}
                 <div style="position:relative;">
                     <img src="{{ static('supplier.business_licence_image') }}">
@@ -77,7 +92,7 @@
         </tr>
         <tr>
             <td class="property" style="vertical-align: top;">税务登记证：</td>
-            <td>
+            <td colspan="3">
                 {{ supplier.tax_registration_certificate }}
                 <div style="position:relative;">
                     <img src="{{ static('supplier.tax_registration_certificate_image') }}">
@@ -88,7 +103,7 @@
         </tr>
         <tr>
             <td class="property" style="vertical-align: top;">组织机构代码证：</td>
-            <td>
+            <td colspan="3">
                 {{ supplier.organization_code_certificate }}
                 <div style="position:relative;">
                     <img src="{{ static('supplier.organization_code_certificate_image') }}">
@@ -98,4 +113,13 @@
             </td>
         </tr>
     </table>
+    <hr>
+    <div class="pull-right">
+        <button type="button" class="btn btn-success" id="passBtn">通过审核</button>
+    </div>
+    <div class="clearfix"></div>
+    <div class="pull-right" style="margin: 20px 0;">
+        <button type="button" class="btn btn-danger pull-right" id="rejectBtn">驳回申请</button>
+        <input type="text" class="pull-right" style="margin-right: 10px;width: 600px;" id="reason">
+    </div>
 {% endblock %}

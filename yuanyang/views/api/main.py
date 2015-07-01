@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, json, jsonify
+from flask import Blueprint, request, json, jsonify, Response
 from flask.ext.login import login_user, logout_user
 from ...models import db, catch_db_error, Carousel
 from ...message import OK_MESSAGE, ERROR_MESSAGE
@@ -14,5 +14,4 @@ def carousel_list():
     data = {
         'data': [{'title': carousel.name, 'imgUrl': carousel.image} for carousel in carousel_list1]
     }
-
-    return json.dumps(data)
+    return Response(json.dumps(data), mimetype='application/json')
