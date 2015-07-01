@@ -75,6 +75,9 @@ class Area(db.Model):
     order_num = Column(Integer, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
+    children = relationship('Area', cascade="all, delete-orphan", backref=backref('parent1', remote_side=[id]),
+                            order_by='desc(Area.order_num),desc(Area.create_date)')
+
     def __init__(self, name, full_name, tree_path):
         self.name = name
         self.full_name = full_name
@@ -309,9 +312,10 @@ class Project(db.Model):
 
     building = relationship('Building', backref=backref('projects', order_by=due_date.desc(), cascade="all, delete"))
     business_scope = relationship('BusinessScope')
+    bid = relationship('Bid')
 
     def __init__(self):
-        self.status = Project.STATUS_DRAFT
+        self._status = Project.STATUS_DRAFT
         self.create_date = datetime.datetime.now()
 
     def get_status(self):
@@ -320,17 +324,17 @@ class Project(db.Model):
         elif self._status == Project.STATUS_BIDDING:
             today = datetime.date.today()
             if today > self.due_date:
-                self.status = Project.STATUS_ENDED
+                self._status = Project.STATUS_FAILURE
                 db.session.commit()
-                return self.status
+                return Project.STATUS_FAILURE
             return Project.STATUS_BIDDING
         elif self._status == Project.STATUS_ENDED:
             return Project.STATUS_ENDED
         elif self._status == Project.STATUS_COMPLETED:
             if not self.is_closure_period():
-                self.status = Project.STATUS_COMMENTED
+                self._status = Project.STATUS_COMMENTED
                 db.session.commit()
-                return self.status
+                return Project.STATUS_COMMENTED
             return Project.STATUS_COMPLETED
         elif self._status == Project.STATUS_COMMENTED:
             return Project.STATUS_COMMENTED
@@ -362,8 +366,8 @@ class Project(db.Model):
     price_range = property(get_price_range, set_price_range)
 
     def publish(self):
-        if self.status == Project.STATUS_DRAFT and self.is_completed():
-            self.status = Project.STATUS_BIDDING
+        if self._status == Project.STATUS_DRAFT and self.is_completed():
+            self._status = Project.STATUS_BIDDING
             self.publish_date = datetime.datetime.now()
             return True
         return False
@@ -375,7 +379,7 @@ class Project(db.Model):
 
     def is_closure_period(self):
         today = datetime.date.today()
-        return self.status == self.STATUS_COMPLETED \
+        return self._status == self.STATUS_COMPLETED \
                and today < self.completed_date + datetime.timedelta(settings['CLOSURE_PERIOD'])
 
     @property
@@ -476,8 +480,7 @@ class Message(db.Model):
 
     id = Column(Integer, primary_key=True)
     content = Column(String(500), nullable=False)
-    sender_id = Column(Integer, ForeignKey('users.id'))
-    receiver_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    receiver_id = Column(Integer, ForeignKey('suppliers.id'), nullable=False)
     is_read = Column(Boolean, nullable=False, default=False)
     read_date = Column(DateTime)
     _type = Column('type', Integer, nullable=False)

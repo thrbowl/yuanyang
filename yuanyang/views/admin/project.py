@@ -122,9 +122,9 @@ def view_project(project_id):
 
     project_status_list = None
     if project1.status == Project.STATUS_BIDDING:
-        project_status_list = [Project.STATUS_ENDED, Project.STATUS_FAILURE]
-    if project1.status == Project.STATUS_ENDED:
         project_status_list = [Project.STATUS_FAILURE]
+    if project1.status == Project.STATUS_ENDED:
+        project_status_list = [Project.STATUS_COMPLETED]
 
     return render_template(
         'admin/project/view_project.html',
@@ -169,9 +169,12 @@ def add_project():
                 db.session.commit()
 
                 try:
-                    supplier_set = set(project.area.suppliers)
-                    for area1 in project.area.children:
-                        supplier_set += set(area1.suppliers)
+                    area = project.building.area
+                    supplier_set = set(area.suppliers)
+                    for area1 in area.children:
+                        supplier_set = supplier_set & set(area1.suppliers)
+                    supplier_set = [supplier for supplier in supplier_set
+                                    if project.business_scope in supplier.business_scopes]
                     for receiver in supplier_set:
                         message = Message(settings['MESSAGE_ADD_PROJECT'])
                         message.type = Message.TYPE_SYSTEM
@@ -327,6 +330,23 @@ def publish_project(project_id):
     result = project.publish()
     db.session.commit()
     if result:
+
+        try:
+            area = project.building.area
+            supplier_set = set(area.suppliers)
+            for area1 in area.children:
+                supplier_set = supplier_set & set(area1.suppliers)
+            supplier_set = [supplier for supplier in supplier_set
+                            if project.business_scope in supplier.business_scopes]
+            for receiver in supplier_set:
+                message = Message(settings['MESSAGE_ADD_PROJECT'])
+                message.type = Message.TYPE_SYSTEM
+                message.receiver_id = receiver.id
+                db.session.add(message)
+            db.session.commit()
+        except Exception, e:
+            print 111, e
+
         flash(u'发布成功')
     else:
         flash(u'发布失败')
@@ -341,7 +361,7 @@ def set_status(project_id):
     status = int(request.form['status'])
 
     project1 = Project.query.get(project_id)
-    if project1.status == Project.STATUS_BIDDING and status in [Project.STATUS_ENDED, Project.STATUS_FAILURE]:
+    if project1.status == Project.STATUS_BIDDING and status == Project.STATUS_FAILURE:
         project1.status = status
         if project1.status == Project.STATUS_ENDED:
             project1.due_date = datetime.date.today()
@@ -349,7 +369,7 @@ def set_status(project_id):
 
         flash(u'修改成功')
         return jsonify(SUCCESS_MESSAGE)
-    elif project1.status == Project.STATUS_ENDED and status == Project.STATUS_FAILURE:
+    elif project1.status == Project.STATUS_ENDED and status == Project.STATUS_COMPLETED:
         project1.status = status
         db.session.commit()
 
@@ -368,14 +388,24 @@ def select_supplier(bid_id):
     bid = Bid.query.get(bid_id)
     project = Project.query.get(bid.project_id)
 
-    if project.status != Project.STATUS_ENDED:
+    if project.status != Project.STATUS_BIDDING:
         flash(u'状态不正确')
         return jsonify(ERROR_MESSAGE)
     else:
+        project.supplier_id = bid.supplier_id
         project.bid_id = bid.id
         project.status = Project.STATUS_COMPLETED
         project.completed_date = datetime.date.today()
         db.session.commit()
+
+        try:
+            message = Message(settings['MESSAGE_PROJECT_BIDDING'])
+            message.type = Message.TYPE_PROJECT
+            message.receiver_id = project.supplier_id
+            db.session.add(message)
+            db.session.commit()
+        except Exception, e:
+            print 111, e
 
         flash(u'中标成功')
         return jsonify(SUCCESS_MESSAGE)

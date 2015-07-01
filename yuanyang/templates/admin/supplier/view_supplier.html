@@ -5,8 +5,8 @@
 {% block css %}
     <style type="text/css">
         #supplier td {
-            padding: 15px;
-            font-size: 16px;
+            padding: 10px;
+            font-size: 15px;
         }
 
         #supplier td img {
@@ -36,71 +36,72 @@
         <div>质量: <span id="quality_score"></span></div>
         <div>时间: <span id="time_score"></span></div>
     </div>
-    <table id="supplier">
-        <tr>
-            <td class="property">企业名称：</td>
-            <td>{{ supplier.company_name }}</td>
-        </tr>
-        <tr>
-            <td class="property">经营范围：</td>
-            <td>
-                {{ supplier.business_scopes[0].parent.name }}-
-                {% for bs in supplier.business_scopes %}
-                    {{ bs.name }}&nbsp;
-                {% endfor %}
-            </td>
-        </tr>
-        <tr>
-            <td class="property">企业联系人：</td>
-            <td>{{ supplier.company_contact }}</td>
-        </tr>
-        <tr>
-            <td class="property">公司电话：</td>
-            <td>{{ supplier.company_contact_telephone }}</td>
-        </tr>
-        <tr>
-            <td class="property">公司地址所在地：</td>
-            <td>{{ supplier.area.full_name }}</td>
-        </tr>
-        <tr>
-            <td class="property">银行账号：</td>
-            <td>{{ supplier.deposit_bank }}</td>
-        </tr>
-        <tr>
-            <td class="property">开户银行：</td>
-            <td>{{ supplier.bank_account }}</td>
-        </tr>
-        <tr>
-            <td class="property" style="vertical-align: top;">营业执照：</td>
-            <td>
-                {{ supplier.business_licence }}
-                <div style="position:relative;">
-                    <img src="{{ static('supplier.business_licence_image') }}">
-                    <a href="" style="position:absolute; bottom:0;">查看大图</a>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="property" style="vertical-align: top;">税务登记证：</td>
-            <td>
-                {{ supplier.tax_registration_certificate }}
-                <div style="position:relative;">
-                    <img src="{{ static('supplier.tax_registration_certificate_image') }}">
-                    <a href="" style="position:absolute; bottom:0;">查看大图</a>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="property" style="vertical-align: top;">组织机构代码证：</td>
-            <td>
-                {{ supplier.organization_code_certificate }}
-                <div style="position:relative;">
-                    <img src="{{ static('supplier.organization_code_certificate_image') }}">
-                    <a href="" style="position:absolute; bottom:0;">查看大图</a>
-                </div>
-            </td>
-        </tr>
-    </table>
+    <div>
+        <table id="supplier" width="100%">
+            <tr>
+                <td class="property" width="30%">企业名称：</td>
+                <td colspan="3" width="70%">{{ supplier.company_name }}</td>
+            </tr>
+            <tr>
+                <td class="property">经营范围：</td>
+                <td>
+                    {{ supplier.business_scopes[0].parent.name }}-
+                    {% for bs in supplier.business_scopes %}
+                        {{ bs.name }}&nbsp;
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td class="property">企业联系人：</td>
+                <td>{{ supplier.company_contact }}</td>
+
+            </tr>
+            <tr>
+                <td class="property">公司电话：</td>
+                <td>{{ supplier.company_contact_telephone }}</td>
+            </tr>
+            <tr>
+                <td class="property">公司地址所在地：</td>
+                <td colspan="3">{{ supplier.area.full_name }}</td>
+            </tr>
+            <tr>
+                <td class="property">银行账号：</td>
+                <td>{{ supplier.deposit_bank }}</td>
+                <td class="property">开户银行：</td>
+                <td>{{ supplier.bank_account }}</td>
+            </tr>
+            <tr>
+                <td class="property" style="vertical-align: top;">营业执照：</td>
+                <td colspan="3">
+                    {{ supplier.business_licence }}
+                    <div style="position:relative;">
+                        <img src="{{ static('supplier.business_licence_image') }}">
+                        <a href="" style="position:absolute; bottom:0;">查看大图</a>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="property" style="vertical-align: top;">税务登记证：</td>
+                <td colspan="3">
+                    {{ supplier.tax_registration_certificate }}
+                    <div style="position:relative;">
+                        <img src="{{ static('supplier.tax_registration_certificate_image') }}">
+                        <a href="" style="position:absolute; bottom:0;">查看大图</a>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="property" style="vertical-align: top;">组织机构代码证：</td>
+                <td colspan="3">
+                    {{ supplier.organization_code_certificate }}
+                    <div style="position:relative;">
+                        <img src="{{ static('supplier.organization_code_certificate_image') }}">
+                        <a href="" style="position:absolute; bottom:0;">查看大图</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
     <table class="table table-striped">
         {% for project in project_list %}
             <tr>

@@ -26,6 +26,12 @@
             $(elem).hide();
             $('#requirements').show();
         }
+
+        function selectSupplier(bid_id) {
+            $.post("{{ url_for('admin_project.select_supplier') }}/" + bid_id, function() {
+                location.reload();
+            });
+        }
     </script>
 {% endblock %}
 
@@ -82,9 +88,9 @@
             <table class="table table-striped">
                 {% for bid in project.bids %}
                     <tr>
-                        <td>
+                        <td {% if project.bid_id==bid.id %}style="background-color: lightgreen;"{% endif %}>
                             <div style="margin-bottom: 10px;cursor:pointer" onclick="$('#summary{{ bid.id }}').show();">
-                                <div style="font-size: 21px;font-weight: bold">{{ bid.supplier.company_name }}</div>
+                                <div style="font-size: 18px;font-weight: bold">{{ bid.supplier.company_name }}</div>
                                 <div>
                                     <span>联系人: {{ bid.supplier.company_contact }}</span>
                                     <span style="margin-left: 30px;">联系方式: {{ bid.supplier.company_contact_telephone }}</span>
@@ -92,13 +98,15 @@
                                 </div>
                             </div>
                             <div class="summary" id="summary{{ bid.id }}">
-                                <a href="javascript:;" class="pull-right btn btn-default btn-xs">查看供应商详细信息</a>
+                                <a target="_blank" href="{{ url_for('admin_supplier.view_supplier', supplier_id=bid.supplier.id) }}"
+                                   class="pull-right btn btn-default btn-xs">查看供应商详细信息</a>
                                 <div>供应商陈述：</div>
                                 <div style="margin-top: 5px;">
                                     {{ bid.summary.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}
                                 </div>
                                 {% if project.status==Project.STATUS_BIDDING %}
-                                    <a href="javascript:;" class="pull-right btn btn-default btn-xs">选择供应商</a>
+                                    <a href="javascript:;" onclick="selectSupplier({{ bid.id }})"
+                                       class="pull-right btn btn-default btn-xs">选择供应商</a>
                                 {% endif %}
                             </div>
                         </td>
