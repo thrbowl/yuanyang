@@ -168,6 +168,19 @@ def add_project():
                 db.session.add(project)
                 db.session.commit()
 
+                try:
+                    supplier_set = set(project.area.suppliers)
+                    for area1 in project.area.children:
+                        supplier_set += set(area1.suppliers)
+                    for receiver in supplier_set:
+                        message = Message(settings['MESSAGE_ADD_PROJECT'])
+                        message.type = Message.TYPE_SYSTEM
+                        message.receiver_id = receiver.id
+                        db.session.add(message)
+                    db.session.commit()
+                except Exception, e:
+                    print 111, e
+
                 flash(u'发布成功')
                 return redirect(url_for('admin_project.view_project', project_id=project.id))
             else:

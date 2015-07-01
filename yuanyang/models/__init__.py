@@ -54,6 +54,14 @@ supplier_business_scopes = Table(
     Column('business_scope_id', Integer, ForeignKey('business_scopes.id'), nullable=False)
 )
 
+bid_viewer = Table(
+    'bid_viewers',
+    db.metadata,
+    Column('id', Integer, primary_key=True),
+    Column('bid_id', Integer, ForeignKey('bids.id'), nullable=False),
+    Column('viewer_id', Integer, ForeignKey('users.id'), nullable=False)
+)
+
 
 class Area(db.Model):
     """地区"""
@@ -239,6 +247,26 @@ class Supplier(db.Model):
     def is_bid(self, project_id):
         return Bid.query.filter(Bid.project_id == project_id, Bid.supplier_id == self.id).count() > 0
 
+    @property
+    def comments_count(self):
+        return len(self.comments)
+
+    @property
+    def cost_score_total(self):
+        return sum([comment.cost_score for comment in self.comments])
+
+    @property
+    def quality_score_total(self):
+        return sum([comment.quality_score for comment in self.comments])
+
+    @property
+    def time_score_total(self):
+        return sum([comment.time_score for comment in self.comments])
+
+    @property
+    def service_score_total(self):
+        return sum([comment.service_score for comment in self.comments])
+
 
 class Project(db.Model):
     """项目"""
@@ -350,6 +378,26 @@ class Project(db.Model):
         return self.status == self.STATUS_COMPLETED \
                and today < self.completed_date + datetime.timedelta(settings['CLOSURE_PERIOD'])
 
+    @property
+    def comments_count(self):
+        return len(self.comments)
+
+    @property
+    def cost_score_total(self):
+        return sum([comment.cost_score for comment in self.comments])
+
+    @property
+    def quality_score_total(self):
+        return sum([comment.quality_score for comment in self.comments])
+
+    @property
+    def time_score_total(self):
+        return sum([comment.time_score for comment in self.comments])
+
+    @property
+    def service_score_total(self):
+        return sum([comment.service_score for comment in self.comments])
+
 
 PROJECT_PRICE_RANGE_LIST = [
     Project.PRICE_RANGE_0_5W,
@@ -423,12 +471,16 @@ class Message(db.Model):
     """消息"""
     __tablename__ = 'messages'
 
+    TYPE_SYSTEM = _CONS(1, u'系统消息')
+    TYPE_PROJECT = _CONS(2, u'项目消息')
+
     id = Column(Integer, primary_key=True)
     content = Column(String(500), nullable=False)
     sender_id = Column(Integer, ForeignKey('users.id'), default=None)
     receiver_id = Column(Integer, ForeignKey('users.id'), default=None)
     is_read = Column(Boolean, nullable=False, default=False)
     read_date = Column(DateTime, nullable=False)
+    _type = Column('type', Integer, nullable=False)
     create_date = Column(DateTime, nullable=False)
 
     def __init__(self, content):
@@ -442,6 +494,27 @@ class Message(db.Model):
             return True
         return False
 
+    def get_type(self):
+        if self._type == Project.TYPE_SYSTEM:
+            return Project.TYPE_SYSTEM
+        elif self._type == Project.TYPE_PROJECT:
+            return Project.TYPE_PROJECT
+
+    def set_type(self, type):
+        self._type = type
+
+    type = property(get_type, set_type)
+
+
+def _re_computer_score(score):
+    score1 = int(score)
+    if score - score1 < 0.5:
+        return score1 + 0.5
+    elif score - score1 > 0.5:
+        return score1 + 1
+    else:
+        return score
+
 
 class Comment(db.Model):
     """评价"""
@@ -450,14 +523,69 @@ class Comment(db.Model):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False)
+    supplier_id = Column(Integer, ForeignKey('suppliers.id'), nullable=False)
     content = Column(String(500), nullable=False)
-    cost_score = Column(Float, nullable=False, default=0)
-    quality_score = Column(Float, nullable=False, default=0)
-    time_score = Column(Float, nullable=False, default=0)
-    service_score = Column(Float, nullable=False, default=0)
+    _cost_score = Column('cost_score', Float, nullable=False, default=0)
+    _quality_score = Column('quality_score', Float, nullable=False, default=0)
+    _time_score = Column('time_score', Float, nullable=False, default=0)
+    _service_score = Column('service_score', Float, nullable=False, default=0)
     appeal = Column(String(500), nullable=False)
     is_read = Column(Boolean, nullable=False, default=False)
     create_date = Column(DateTime, nullable=False)
+
+    project = relationship('Project', backref=backref('comments', order_by=create_date.desc(), cascade="all, delete"))
+    supplier = relationship('Supplier', backref=backref('comments', order_by=create_date.desc(), cascade="all, delete"))
+
+    def __init__(self):
+        self.create_date = datetime.datetime.now()
+
+    def get_cost_score(self):
+        return self._cost_score
+
+    def set_cost_score(self, cost_score):
+        self._cost_score = cost_score
+        self.project.cost_score = _re_computer_score(
+            (self.project.cost_score_total + cost_score) / (self.project.comments_count + 1))
+        self.supplier.cost_score = _re_computer_score(
+            (self.supplier.cost_score_total + cost_score) / (self.supplier.comments_count + 1))
+
+    cost_score = property(get_cost_score, set_cost_score)
+    
+    def get_quality_score(self):
+        return self._quality_score
+
+    def set_quality_score(self, quality_score):
+        self._quality_score = quality_score
+        self.project.quality_score = _re_computer_score(
+            (self.project.quality_score_total + quality_score) / (self.project.comments_count + 1))
+        self.supplier.quality_score = _re_computer_score(
+            (self.supplier.quality_score_total + quality_score) / (self.supplier.comments_count + 1))
+
+    quality_score = property(get_quality_score, set_quality_score)
+    
+    def get_time_score(self):
+        return self._time_score
+
+    def set_time_score(self, time_score):
+        self._time_score = time_score
+        self.project.time_score = _re_computer_score(
+            (self.project.time_score_total + time_score) / (self.project.comments_count + 1))
+        self.supplier.time_score = _re_computer_score(
+            (self.supplier.time_score_total + time_score) / (self.supplier.comments_count + 1))
+
+    time_score = property(get_time_score, set_time_score)
+    
+    def get_service_score(self):
+        return self._service_score
+
+    def set_service_score(self, service_score):
+        self._service_score = service_score
+        self.project.service_score = _re_computer_score(
+            (self.project.service_score_total + service_score) / (self.project.comments_count + 1))
+        self.supplier.service_score = _re_computer_score(
+            (self.supplier.service_score_total + service_score) / (self.supplier.comments_count + 1))
+
+    service_score = property(get_service_score, set_service_score)
 
 
 class Bid(db.Model):
@@ -475,6 +603,7 @@ class Bid(db.Model):
 
     project = relationship('Project', backref=backref('bids', order_by=create_date.desc(), cascade="all, delete"))
     supplier = relationship('Supplier', backref=backref('bids', order_by=create_date.desc(), cascade="all, delete"))
+    viewers = relationship('User', secondary=bid_viewer)
 
     def __init__(self):
         self.create_date = datetime.datetime.now()
