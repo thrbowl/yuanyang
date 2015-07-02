@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, json, jsonify, Response
-from flask.ext.login import login_user, logout_user
-from ...models import db, catch_db_error, Carousel
-from ...message import OK_MESSAGE, ERROR_MESSAGE
-from ...utils import login_required
+from flask import Blueprint, request
+from flask.json import dumps
+from ...models import db, catch_db_error, Carousel, Area
+from ...message import message, OK_MESSAGE, ERROR_MESSAGE
+from ...utils import login_required, jsonify
 
 main = Blueprint('api_main', __name__)
 
@@ -14,4 +14,16 @@ def carousel_list():
     data = {
         'data': [{'title': carousel.name, 'imgUrl': carousel.image} for carousel in carousel_list1]
     }
-    return Response(json.dumps(data), mimetype='application/json')
+    return jsonify(data)
+
+
+@main.route('/province', methods=['GET'])
+def province_list():
+    province_list1 = Area.query.filter(Area.parent == None)\
+        .order_by(Area.order_num.desc(), Area.create_date.desc).all()
+    data = [province.name for province in province_list1]
+
+
+@main.route('/city', methods=['GET'])
+def city_list():
+    province = request.args['province']

@@ -4,9 +4,8 @@ import base64
 import random
 import string
 from functools import wraps
-from datetime import date, datetime, timedelta
 from PIL import Image
-from flask import current_app, jsonify
+from flask import json, Response
 from flask.ext.login import current_user
 from .message import message
 
@@ -68,3 +67,7 @@ def login_required(func):
 
 def convert_to_timestamp(dt):
     return dt.strftime("%s")
+
+
+def jsonify(data):
+    return Response(json.dumps(data), mimetype='application/json')

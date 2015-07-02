@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, json, jsonify, Response
+from flask import Blueprint, request
 from flask.ext.login import login_user, logout_user
 from ...models import db, User, Supplier, catch_db_error
 from ...message import message
-from ...utils import login_required
+from ...utils import login_required, jsonify
 
 auth = Blueprint('api_auth', __name__)
 
@@ -33,7 +33,7 @@ def check_user_unique():
     if not is_unique:
         is_unique = (User.query.filter(User.username == username).count() == 0)
 
-    return Response(json.dumps(is_unique), mimetype='application/json')
+    return jsonify(is_unique)
 
 
 @auth.route('/login', methods=['POST'])
@@ -43,9 +43,9 @@ def login():
 
     user = User.get(username)
     if not user:
-        return jsonify(message.ok(u'用户不存在'))
+        return jsonify(message.error(u'用户不存在'))
     elif user.password != password:
-        return jsonify(message.ok(u'用户名与密码不匹配'))
+        return jsonify(message.error(u'用户名与密码不匹配'))
 
     login_user(user)
     return jsonify(message.ok(u'登录成功'))
@@ -56,3 +56,8 @@ def login():
 def logout():
     logout_user()
     return jsonify(message.ok(u'退出成功'))
+
+
+@auth.route('/forget', methods=['POST'])
+def forget_pwd():
+    pass
