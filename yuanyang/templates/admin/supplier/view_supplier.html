@@ -24,17 +24,36 @@
     <script src="{{ static('components/jquery-raty/lib/jquery.raty.js') }}"></script>
     <script>
         $(function () {
-            $("#service_score").raty({score: 3});
+            $("#service_score").raty({
+                readOnly: true,
+                round: { down: .26, full: .6, up: .76 },
+                score: {{ supplier.service_score/2.0 }}
+            });
+            $("#cost_score").raty({
+                readOnly: true,
+                round: { down: .26, full: .6, up: .76 },
+                score: {{ supplier.cost_score/2.0 }}
+            });
+            $("#quality_score").raty({
+                readOnly: true,
+                round: { down: .26, full: .6, up: .76 },
+                score: {{ supplier.quality_score/2.0 }}
+            });
+            $("#time_score").raty({
+                readOnly: true,
+                round: { down: .26, full: .6, up: .76 },
+                score: {{ supplier.time_score/2.0 }}
+            });
         });
     </script>
 {% endblock %}
 
 {% block body_content %}
     <div id="score" style="border: 1px #dcdcdc solid;padding: 30px;float: right">
-        <div style="font-size: 21px;">服务评分: <span id="service_score"></span>&nbsp;6分</div>
-        <div>成本: <span id="cost_score"></span></div>
-        <div>质量: <span id="quality_score"></span></div>
-        <div>时间: <span id="time_score"></span></div>
+        <div style="font-size: 21px;">服务评分: <span id="service_score"></span>&nbsp;{{ supplier.service_score }}分</div>
+        <div>成本: <span id="cost_score"></span>&nbsp;{{ supplier.cost_score }}分</div>
+        <div>质量: <span id="quality_score"></span>&nbsp;{{ supplier.quality_score }}分</div>
+        <div>时间: <span id="time_score"></span>&nbsp;{{ supplier.time_score }}分</div>
     </div>
     <div>
         <table id="supplier" width="100%">
@@ -102,33 +121,38 @@
             </tr>
         </table>
     </div>
-    <table class="table table-striped">
-        {% for project in project_list %}
-            <tr>
-                <td width="30%">
-                    <div class="row1">
-                        <a href="{{ url_for('admin_project.view_project', project_id=project.id) }}"
-                           style="font-size: 16px;" target="_blank">{{ project.name }}</a>
-                    </div>
-                    <div class="row2">发布时间: {{ project.publish_date.strftime('%Y-%m-%d') }}</div>
-                </td>
-                <td>
-                    <div class="row1">项目类型: {{ project.business_scope.name }}</div>
-                    <div class="row2">报价区间: {{ project.price_range.get_display_name() }}</div>
-                </td>
-                <td>
-                    <div class="row1">&nbsp;</div>
-                    <div class="row2">报名截止时间: {{ project.due_date }}</div>
-                </td>
-                <td>
-                    <div class="row1">&nbsp;</div>
-                    <div class="row2">服务评分: {{ project.service_score }}</div>
-                </td>
-                <td>
-                    <div class="row1">&nbsp;</div>
-                    <div class="row2">评论(11)</div>
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
+    {% if project_list %}
+        <h3>项目历史</h3>
+        <table class="table table-striped">
+            {% for project in project_list %}
+                <tr>
+                    <td width="30%">
+                        <div class="row1">
+                            <a href="{{ url_for('admin_project.view_project', project_id=project.id) }}"
+                               style="font-size: 16px;" target="_blank">{{ project.name }}</a>
+                        </div>
+                        <div class="row2">发布时间: {{ project.publish_date.strftime('%Y-%m-%d') }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">项目类型: {{ project.business_scope.name }}</div>
+                        <div class="row2">报价区间: {{ project.price_range.get_display_name() }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">&nbsp;</div>
+                        <div class="row2">报名截止时间: {{ project.due_date }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">&nbsp;</div>
+                        <div class="row2">服务评分: {{ project.service_score }}</div>
+                    </td>
+                    <td>
+                        <div class="row1">&nbsp;</div>
+                        <div class="row2">评论(11)</div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p class="text-warning">没有项目历史</p>
+    {% endif %}
 {% endblock %}

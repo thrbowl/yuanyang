@@ -88,6 +88,12 @@ def view_building(building_id=None):
         query = query.filter(Project.publish_date <= publish_date_end)
     pager = query.order_by(Project.due_date.desc()).paginate(page, per_page, False)
 
+    new_supplier_count = 0
+    for project in building.projects:
+        for bid in project.bids:
+            if current_user not in bid.viewers:
+                new_supplier_count += 1
+
     return render_template(
         'admin/project/view_building.html',
         price_range=price_range,
@@ -101,7 +107,8 @@ def view_building(building_id=None):
         status_list=PROJECT_STATUS_LIST,
         business_scope_list=business_scope_list,
         pager=pager,
-        Project=Project
+        Project=Project,
+        new_supplier_count=new_supplier_count
     )
 
 
@@ -120,17 +127,25 @@ def view_project(project_id):
     ]
     g.menu = 'project'
 
+    bid = project1.bid_id and Project.query.get(project1.bid_id)
+
     project_status_list = None
     if project1.status == Project.STATUS_BIDDING:
         project_status_list = [Project.STATUS_FAILURE]
     if project1.status == Project.STATUS_ENDED:
         project_status_list = [Project.STATUS_COMPLETED]
 
+    for bid in project1.bids:
+        if current_user not in bid.viewers:
+            bid.viewers.append(current_user)
+    db.session.commit()
+
     return render_template(
         'admin/project/view_project.html',
         project=project1,
         Project=Project,
-        project_status_list=project_status_list
+        project_status_list=project_status_list,
+        bid=bid,
     )
 
 
@@ -394,7 +409,7 @@ def select_supplier(bid_id):
     else:
         project.supplier_id = bid.supplier_id
         project.bid_id = bid.id
-        project.status = Project.STATUS_COMPLETED
+        project.status = Project.STATUS_ENDED
         project.completed_date = datetime.date.today()
         db.session.commit()
 

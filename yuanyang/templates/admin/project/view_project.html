@@ -11,12 +11,20 @@
             padding: 5px;
         }
 
-    .summary {
-        margin-left: 5px;
-        padding: 5px;
-        border-top: 1px #dcdcdc solid;
-        display: none;
-    }
+        .summary {
+            margin-left: 5px;
+            padding: 5px;
+            border-top: 1px #dcdcdc solid;
+        }
+
+        .panel-title {
+            background-color: #a9a9a9;
+            height: 50px;
+            line-height: 50px;
+            color: white;
+            font-size: 20px;
+            padding-left: 20px;
+        }
     </style>
 {% endblock %}
 
@@ -82,37 +90,118 @@
             </div>
         </div>
         {% if project.bids %}
-            <div class="text-right">
-                已报名列表({{ project.bids|length }})
-            </div>
-            <table class="table table-striped">
-                {% for bid in project.bids %}
-                    <tr>
-                        <td {% if project.bid_id==bid.id %}style="background-color: lightgreen;"{% endif %}>
-                            <div style="margin-bottom: 10px;cursor:pointer" onclick="$('#summary{{ bid.id }}').show();">
-                                <div style="font-size: 18px;font-weight: bold">{{ bid.supplier.company_name }}</div>
-                                <div>
-                                    <span>联系人: {{ bid.supplier.company_contact }}</span>
-                                    <span style="margin-left: 30px;">联系方式: {{ bid.supplier.company_contact_telephone }}</span>
-                                    <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
+            {% if project.status==Project.STATUS_BIDDING %}
+                <div class="text-right">
+                    已报名列表({{ project.bids|length }})
+                </div>
+                <table class="table table-striped">
+                    {% for bid1 in project.bids %}
+                        <tr>
+                            <td>
+                                <div style="margin-bottom: 10px;cursor:pointer" onclick="$('#summary{{ bid1.id }}').show();">
+                                    <div style="font-size: 18px;font-weight: bold">{{ bid1.supplier.company_name }}</div>
+                                    <div>
+                                        <span>联系人: {{ bid1.supplier.company_contact }}</span>
+                                        <span style="margin-left: 30px;">联系方式: {{ bid1.supplier.company_contact_telephone }}</span>
+                                        <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="summary" id="summary{{ bid.id }}">
-                                <a target="_blank" href="{{ url_for('admin_supplier.view_supplier', supplier_id=bid.supplier.id) }}"
-                                   class="pull-right btn btn-default btn-xs">查看供应商详细信息</a>
-                                <div>供应商陈述：</div>
-                                <div style="margin-top: 5px;">
-                                    {{ bid.summary.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}
-                                </div>
-                                {% if project.status==Project.STATUS_BIDDING %}
-                                    <a href="javascript:;" onclick="selectSupplier({{ bid.id }})"
+                                <div class="summary" id="summary{{ bid1.id }}" style="display: none;">
+                                    <a target="_blank"
+                                       href="{{ url_for('admin_supplier.view_supplier', supplier_id=bid1.supplier.id) }}"
+                                       class="pull-right btn btn-default btn-xs">查看供应商详细信息</a>
+                                    <div>供应商陈述：</div>
+                                    <div style="margin-top: 5px;">
+                                        {{ bid1.summary.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}
+                                    </div>
+                                    <a href="javascript:;" onclick="selectSupplier({{ bid1.id }})"
                                        class="pull-right btn btn-default btn-xs">选择供应商</a>
-                                {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% elif project.status==Project.STATUS_ENDED %}
+                <div style="border: 1px #a9a9a9 solid;margin-bottom: 30px;">
+                    <div class="panel-title">已选中</div>
+                    <div style="padding: 5px;">
+                        <div style="margin-bottom: 10px;cursor:pointer">
+                            <div style="font-size: 18px;font-weight: bold">{{ bid.supplier.company_name }}</div>
+                            <div>
+                                <span>联系人: {{ bid.supplier.company_contact }}</span>
+                                <span style="margin-left: 30px;">联系方式: {{ bid.supplier.company_contact_telephone }}</span>
+                                <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
                             </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
+                        </div>
+                        <div class="summary">
+                            <a target="_blank"
+                               href="{{ url_for('admin_supplier.view_supplier', supplier_id=bid.supplier.id) }}"
+                               class="pull-right btn btn-default btn-xs">查看供应商详细信息</a>
+
+                            <div>供应商陈述：</div>
+                            <div style="margin-top: 5px;">
+                                {{ bid.summary.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-title">已报名列表</div>
+                    <table class="table table-striped">
+                        {% for bid1 in project.bids %}
+                            {% if bid1.id!=bid.id %}
+                                <tr>
+                                    <td>
+                                        <div style="margin-bottom: 10px;cursor:pointer"
+                                             onclick="$('#summary{{ bid1.id }}').show();">
+                                            <div style="font-size: 18px;font-weight: bold">{{ bid1.supplier.company_name }}</div>
+                                            <div>
+                                                <span>联系人: {{ bid1.supplier.company_contact }}</span>
+                                                <span style="margin-left: 30px;">联系方式: {{ bid1.supplier.company_contact_telephone }}</span>
+                                                <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
+                                            </div>
+                                        </div>
+                                        <div class="summary" id="summary{{ bid1.id }}" style="display: none;">
+                                            <a target="_blank"
+                                               href="{{ url_for('admin_supplier.view_supplier', supplier_id=bid1.supplier.id) }}"
+                                               class="pull-right btn btn-default btn-xs">查看供应商详细信息</a>
+
+                                            <div>供应商陈述：</div>
+                                            <div style="margin-top: 5px;">
+                                                {{ bid1.summary.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                </div>
+            {% elif project.status==Project.STATUS_COMPLETED %}
+                <div style="border: 1px #a9a9a9 solid;margin-bottom: 30px;">
+                    <div class="panel-title">已完成</div>
+                    <div style="padding: 5px;">
+                        <div style="margin-bottom: 10px;cursor:pointer">
+                            <div style="font-size: 18px;font-weight: bold">{{ bid.supplier.company_name }}</div>
+                            <div>
+                                <span>联系人: {{ bid.supplier.company_contact }}</span>
+                                <span style="margin-left: 30px;">联系方式: {{ bid.supplier.company_contact_telephone }}</span>
+                                <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
+                            </div>
+                        </div>
+                        <div class="summary">
+                            <a target="_blank"
+                               href="{{ url_for('admin_supplier.view_supplier', supplier_id=bid.supplier.id) }}"
+                               class="pull-right btn btn-default btn-xs">查看供应商详细信息</a>
+
+                            <div>供应商陈述：</div>
+                            <div style="margin-top: 5px;">
+                                {{ bid.summary.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-title">封闭评价期</div>
+                    <div></div>
+                </div>
+            {% endif %}
         {% else %}
             <p class="text-warning">该项目还没有供应商投标</p>
         {% endif %}

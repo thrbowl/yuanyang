@@ -83,7 +83,8 @@ def audit_list():
 @login_required
 def view_supplier(supplier_id):
     supplier = Supplier.query.get(supplier_id)
-    project_list = Project.query.filter(Project.supplier_id == supplier.id).all()
+    project_list = Project.query.filter(Project.supplier_id == supplier.id,
+                                        Project._status == Project.STATUS_COMMENTED).all()
 
     g.breadcrumbs = [
         (u'供应商管理', url_for('admin_supplier.index')),
