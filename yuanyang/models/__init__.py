@@ -334,6 +334,16 @@ class Project(db.Model):
             if not self.is_closure_period():
                 self._status = Project.STATUS_COMMENTED
                 db.session.commit()
+
+                try:
+                    message = Message(settings['MESSAGE_PROJECT_COMMENTED'])
+                    message.type = Message.TYPE_PROJECT
+                    message.receiver_id = self.supplier_id
+                    db.session.add(message)
+                    db.session.commit()
+                except Exception, e:
+                    print 111, e
+
                 return Project.STATUS_COMMENTED
             return Project.STATUS_COMPLETED
         elif self._status == Project.STATUS_COMMENTED:

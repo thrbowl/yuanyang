@@ -132,7 +132,7 @@ def view_project(project_id):
         project_status_list = [Project.STATUS_FAILURE]
     elif project1.status == Project.STATUS_ENDED:
         project_status_list = [Project.STATUS_COMPLETED]
-        bid = Project.query.get(project1.bid_id)
+        bid = Bid.query.get(project1.bid_id)
     elif project1.status == Project.STATUS_COMPLETED:
         supplier = Supplier.query.get(project1.supplier_id)
         try:
@@ -399,6 +399,15 @@ def set_status(project_id):
         project1.status = status
         db.session.commit()
 
+        try:
+            message = Message(settings['MESSAGE_PROJECT_COMPLETED'])
+            message.type = Message.TYPE_PROJECT
+            message.receiver_id = project1.supplier_id
+            db.session.add(message)
+            db.session.commit()
+        except Exception, e:
+            print 111, e
+
         flash(u'修改成功')
         return jsonify(SUCCESS_MESSAGE)
 
@@ -425,7 +434,7 @@ def select_supplier(bid_id):
         db.session.commit()
 
         try:
-            message = Message(settings['MESSAGE_PROJECT_BIDDING'])
+            message = Message(settings['MESSAGE_PROJECT_ENDED'])
             message.type = Message.TYPE_PROJECT
             message.receiver_id = project.supplier_id
             db.session.add(message)
