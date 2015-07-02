@@ -127,13 +127,21 @@ def view_project(project_id):
     ]
     g.menu = 'project'
 
-    bid = project1.bid_id and Project.query.get(project1.bid_id)
-
-    project_status_list = None
+    bid = supplier = comment = project_status_list = comment_list = None
     if project1.status == Project.STATUS_BIDDING:
         project_status_list = [Project.STATUS_FAILURE]
-    if project1.status == Project.STATUS_ENDED:
+    elif project1.status == Project.STATUS_ENDED:
         project_status_list = [Project.STATUS_COMPLETED]
+        bid = Project.query.get(project1.bid_id)
+    elif project1.status == Project.STATUS_COMPLETED:
+        supplier = Supplier.query.get(project1.supplier_id)
+        try:
+            comment = Comment.query.filter(Comment.project_id == project1.id, Comment.user_id == current_user.id).one()
+        except:
+            pass
+    elif project1.status == Project.STATUS_COMMENTED:
+        supplier = Supplier.query.get(project1.supplier_id)
+        comment_list = Comment.query.filter(Comment.project_id == project1.id).all()
 
     for bid in project1.bids:
         if current_user not in bid.viewers:
@@ -145,7 +153,10 @@ def view_project(project_id):
         project=project1,
         Project=Project,
         project_status_list=project_status_list,
+        comment_list=comment_list,
         bid=bid,
+        supplier=supplier,
+        comment=comment,
     )
 
 
@@ -424,3 +435,34 @@ def select_supplier(bid_id):
 
         flash(u'中标成功')
         return jsonify(SUCCESS_MESSAGE)
+
+
+@project.route('/json/project_score', methods=['POST'])
+@project.route('/json/project_score/<int:project_id>', methods=['POST'])
+@login_required
+@catch_db_error
+def project_score(project_id):
+    service_score = float(request.form['service_score'])
+    cost_score = float(request.form['cost_score'])
+    quality_score = float(request.form['quality_score'])
+    time_score = float(request.form['time_score'])
+    content = request.form['content'].strip()
+
+    project = Project.query.get(project_id)
+
+    comment = Comment()
+    comment.user_id = current_user.id
+    comment.project_id = project.id
+    comment.supplier_id = project.supplier_id
+    comment.content = content
+    db.session.add(comment)
+    db.session.commit()
+
+    comment.service_score = int(service_score*2)
+    comment.cost_score = int(cost_score*2)
+    comment.quality_score = int(quality_score*2)
+    comment.time_score = int(time_score*2)
+    db.session.commit()
+
+    flash(u'评论成功')
+    return jsonify(SUCCESS_MESSAGE)

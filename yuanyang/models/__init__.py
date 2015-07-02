@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import traceback
 from functools import wraps
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import UserMixin
@@ -18,8 +19,8 @@ def catch_db_error(func):
     def _catch_db_error(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except Exception, e:
-            print 111, e
+        except:
+            print 111, traceback.print_exc()
             db.session.rollback()
             return jsonify(ERROR_MESSAGE)
         finally:
@@ -312,7 +313,6 @@ class Project(db.Model):
 
     building = relationship('Building', backref=backref('projects', order_by=due_date.desc(), cascade="all, delete"))
     business_scope = relationship('BusinessScope')
-    bid = relationship('Bid')
 
     def __init__(self):
         self._status = Project.STATUS_DRAFT
@@ -511,9 +511,9 @@ class Message(db.Model):
 
 def _re_computer_score(score):
     score1 = int(score)
-    if score - score1 < 0.5:
+    if 0 < score - score1 <= 0.5:
         return score1 + 0.5
-    elif score - score1 > 0.5:
+    elif 0.5 < score - score1:
         return score1 + 1
     else:
         return score
@@ -532,11 +532,12 @@ class Comment(db.Model):
     _quality_score = Column('quality_score', Float, nullable=False, default=0)
     _time_score = Column('time_score', Float, nullable=False, default=0)
     _service_score = Column('service_score', Float, nullable=False, default=0)
-    appeal = Column(String(500), nullable=False)
+    appeal = Column(String(500))
     is_read = Column(Boolean, nullable=False, default=False)
     create_date = Column(DateTime, nullable=False)
 
     project = relationship('Project', backref=backref('comments', order_by=create_date.desc(), cascade="all, delete"))
+    user = relationship('User', backref=backref('comments', order_by=create_date.desc(), cascade="all, delete"))
     supplier = relationship('Supplier', backref=backref('comments', order_by=create_date.desc(), cascade="all, delete"))
 
     def __init__(self):
@@ -547,10 +548,12 @@ class Comment(db.Model):
 
     def set_cost_score(self, cost_score):
         self._cost_score = cost_score
-        self.project.cost_score = _re_computer_score(
-            (self.project.cost_score_total + cost_score) / (self.project.comments_count + 1))
-        self.supplier.cost_score = _re_computer_score(
-            (self.supplier.cost_score_total + cost_score) / (self.supplier.comments_count + 1))
+        project = self.project
+        project.cost_score = _re_computer_score(
+            (project.cost_score_total + cost_score) / (project.comments_count + 1))
+        supplier = self.supplier
+        supplier.cost_score = _re_computer_score(
+            (supplier.cost_score_total + cost_score) / (supplier.comments_count + 1))
 
     cost_score = property(get_cost_score, set_cost_score)
     
@@ -559,10 +562,12 @@ class Comment(db.Model):
 
     def set_quality_score(self, quality_score):
         self._quality_score = quality_score
-        self.project.quality_score = _re_computer_score(
-            (self.project.quality_score_total + quality_score) / (self.project.comments_count + 1))
-        self.supplier.quality_score = _re_computer_score(
-            (self.supplier.quality_score_total + quality_score) / (self.supplier.comments_count + 1))
+        project = self.project
+        project.quality_score = _re_computer_score(
+            (project.quality_score_total + quality_score) / (project.comments_count + 1))
+        supplier = self.supplier
+        supplier.quality_score = _re_computer_score(
+            (supplier.quality_score_total + quality_score) / (supplier.comments_count + 1))
 
     quality_score = property(get_quality_score, set_quality_score)
     
@@ -571,10 +576,12 @@ class Comment(db.Model):
 
     def set_time_score(self, time_score):
         self._time_score = time_score
-        self.project.time_score = _re_computer_score(
-            (self.project.time_score_total + time_score) / (self.project.comments_count + 1))
-        self.supplier.time_score = _re_computer_score(
-            (self.supplier.time_score_total + time_score) / (self.supplier.comments_count + 1))
+        project = self.project
+        project.time_score = _re_computer_score(
+            (project.time_score_total + time_score) / (project.comments_count + 1))
+        supplier = self.supplier
+        supplier.time_score = _re_computer_score(
+            (supplier.time_score_total + time_score) / (supplier.comments_count + 1))
 
     time_score = property(get_time_score, set_time_score)
     
@@ -583,10 +590,12 @@ class Comment(db.Model):
 
     def set_service_score(self, service_score):
         self._service_score = service_score
-        self.project.service_score = _re_computer_score(
-            (self.project.service_score_total + service_score) / (self.project.comments_count + 1))
-        self.supplier.service_score = _re_computer_score(
-            (self.supplier.service_score_total + service_score) / (self.supplier.comments_count + 1))
+        project = self.project
+        project.service_score = _re_computer_score(
+            (project.service_score_total + service_score) / (project.comments_count + 1))
+        supplier = self.supplier
+        supplier.service_score = _re_computer_score(
+            (supplier.service_score_total + service_score) / (supplier.comments_count + 1))
 
     service_score = property(get_service_score, set_service_score)
 

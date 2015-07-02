@@ -29,6 +29,7 @@
 {% endblock %}
 
 {% block js %}
+    <script src="{{ static('components/jquery-raty/lib/jquery.raty.js') }}"></script>
     <script>
         function expandRequirements(elem) {
             $(elem).hide();
@@ -198,8 +199,150 @@
                             </div>
                         </div>
                     </div>
-                    <div class="panel-title">封闭评价期</div>
-                    <div></div>
+                    {% if comment %}
+                        <div class="panel-title">已评价（封闭评价期）</div>
+                        <div style="padding: 50px;">
+                            <div style="font-size: 18px;font-weight: bold">中标单位: {{ supplier.company_name }}</div>
+                            <div>
+                                <div>成本: <span id="cost_score"></span>&nbsp;{{ comment.cost_score }}分</div>
+                                <div>质量: <span id="quality_score"></span>&nbsp;{{ comment.quality_score }}分</div>
+                                <div>时间: <span id="time_score"></span>&nbsp;{{ comment.time_score }}分</div>
+                                <div style="font-size: 16px;">服务评分: <span id="service_score"></span>&nbsp;{{ comment.service_score }}分</div>
+                                <div style="margin-top: 10px;">您的评价:</div>
+                                <div>
+                                    {{ comment.content.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}
+                                    <div class="pull-right">{{ comment.create_date }}</div>
+                                </div>
+                                <script>
+                                    $(function () {
+                                        $("#service_score").raty({
+                                            scoreName: "service_score",
+                                            score: {{ comment.service_score/2.0 }},
+                                            half: true,
+                                            readOnly: true
+                                        });
+                                        $("#cost_score").raty({
+                                            scoreName: "cost_score",
+                                            score: {{ comment.cost_score/2.0 }},
+                                            half: true,
+                                            readOnly: true
+                                        });
+                                        $("#quality_score").raty({
+                                            scoreName: "quality_score",
+                                            score: {{ comment.quality_score/2.0 }},
+                                            half: true,
+                                            readOnly: true
+                                        });
+                                        $("#time_score").raty({
+                                            scoreName: "time_score",
+                                            score: {{ comment.time_score/2.0 }},
+                                            half: true,
+                                            readOnly: true
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="panel-title">封闭评价期</div>
+                        <div style="padding: 50px;">
+                            <div style="font-size: 18px;font-weight: bold">中标单位: {{ supplier.company_name }}</div>
+                            <div>
+                                <form id="scoreForm" method="POST">
+                                    <div>成本: <span id="cost_score"></span></div>
+                                    <div>质量: <span id="quality_score"></span></div>
+                                    <div>时间: <span id="time_score"></span></div>
+                                    <div style="font-size: 16px;">服务评分: <span id="service_score"></span></div>
+                                    <textarea style="width: 100%;height: 180px;" name="content"></textarea>
+                                    <button type="button" class="btn btn-default" id="scoreBtn">提交</button>
+                                </form>
+                                <script>
+                                    $(function () {
+                                        $("#service_score").raty({
+                                            scoreName: "service_score",
+                                            score:0,
+                                            half:true
+                                        });
+                                        $("#cost_score").raty({
+                                            scoreName: "cost_score",
+                                            score:0,
+                                            half:true
+                                        });
+                                        $("#quality_score").raty({
+                                            scoreName: "quality_score",
+                                            score:0,
+                                            half:true
+                                        });
+                                        $("#time_score").raty({
+                                            scoreName: "time_score",
+                                            score:0,
+                                            half:true
+                                        });
+
+                                        $("#scoreBtn").click(function() {
+                                            var data = $("#scoreForm").serialize();
+                                            $.post("{{ url_for('admin_project.project_score') }}/{{ project.id }}", data, function(){
+                                                location.reload();
+                                            });
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% elif project.status==Project.STATUS_COMMENTED %}
+                <div style="border: 1px #a9a9a9 solid;margin-bottom: 30px;">
+                    <div class="panel-title">已评价（评价公示期）</div>
+                    <div style="padding: 50px;">
+                        <div style="font-size: 18px;font-weight: bold">中标单位: {{ supplier.company_name }}</div>
+                        <div>
+                            <div>成本: <span id="cost_score"></span>&nbsp;{{ project.cost_score }}分</div>
+                            <div>质量: <span id="quality_score"></span>&nbsp;{{ project.quality_score }}分</div>
+                            <div>时间: <span id="time_score"></span>&nbsp;{{ project.time_score }}分</div>
+                            <div style="font-size: 16px;">服务评分: <span
+                                    id="service_score"></span>&nbsp;{{ project.service_score }}分
+                            </div>
+                            <script>
+                                $(function () {
+                                    $("#service_score").raty({
+                                        scoreName: "service_score",
+                                        score: {{ project.service_score/2.0 }},
+                                        half: true,
+                                        readOnly: true
+                                    });
+                                    $("#cost_score").raty({
+                                        scoreName: "cost_score",
+                                        score: {{ project.cost_score/2.0 }},
+                                        half: true,
+                                        readOnly: true
+                                    });
+                                    $("#quality_score").raty({
+                                        scoreName: "quality_score",
+                                        score: {{ project.quality_score/2.0 }},
+                                        half: true,
+                                        readOnly: true
+                                    });
+                                    $("#time_score").raty({
+                                        scoreName: "time_score",
+                                        score: {{ project.time_score/2.0 }},
+                                        half: true,
+                                        readOnly: true
+                                    });
+                                });
+                            </script>
+                        </div>
+                        <br><br>
+                        <div>评论 ({{ comment_list|length }})</div>
+                        <table class="table">
+                            {% for comment in comment_list %}
+                                <tr>
+                                    <td>{{ comment.content.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}</td>
+                                    <td>{{ comment.create_date }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
                 </div>
             {% endif %}
         {% else %}
