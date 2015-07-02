@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint, request, json, jsonify, Response
-from flask_login import login_required, current_user
+from flask_login import current_user
 from ...models import db, catch_db_error, Area, Project, Building, BusinessScope, Bid
 from ...message import message
-from ...utils import convert_to_timestamp
+from ...utils import convert_to_timestamp, login_required
 
 project = Blueprint('api_project', __name__)
 
@@ -86,7 +86,9 @@ def project_info(project_id):
         'deadline': convert_to_timestamp(project.due_date),
         'id': project.id,
         'rangeFrom': convert_to_timestamp(project.lead_start_date),
-        'rangeTo': convert_to_timestamp(project.lead_end_date)
+        'rangeTo': convert_to_timestamp(project.lead_end_date),
+        'baseInfo': project.requirements,
+        'publishTime': convert_to_timestamp(project.publish_date),
     }
     return Response(json.dumps(data), mimetype='application/json')
 

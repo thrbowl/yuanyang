@@ -14,49 +14,79 @@ media = UploadSet(name='media', extensions=settings['UPLOADS_ALLOWED_EXTENSIONS'
 configure_uploads(current_app, media)
 
 
+@supplier.route('/enterInfo', methods=['GET'])
+@login_required
+def get_supplier_info():
+    type = request.args['type'].strip()
+
+    supplier = current_user.supplier
+
+    if type == 'auth':
+        data = {
+            'bl': supplier.business_licence,
+            'blImgUrl': supplier.business_licence_image,
+            'trc': supplier.tax_registration_certificate,
+            'trcImgUrl': supplier.tax_registration_certificate_image,
+            'occ': supplier.organization_code_certificate,
+            'occImgUrl': supplier.organization_code_certificate_image,
+        }
+        return jsonify(data)
+    elif type == 'base':
+        data = {
+            'companyName': supplier.company_name,
+            'contactName': supplier.company_contact,
+            'tel': supplier.company_contact_telephone,
+            'position': supplier.area and supplier.area.full_name,
+            'addrSpec': supplier.company_address,
+            'bank': supplier.deposit_bank,
+            'account': supplier.bank_account,
+        }
+        return jsonify(data)
+    else:
+        return jsonify(message.error(u'类型不正确'))
+
+
 @supplier.route('/enterInfo', methods=['POST'])
 @login_required
 @catch_db_error
 def update_supplier_info():
-    company_name = request.form['companyName']
-    company_contact = request.form['contactName']
-    company_contact_telephone = request.form['tel']
-    company_address = request.form['addrSpec']
-    deposit_bank = request.form['bank']
-    bank_account = request.form['account']
-    business_licence = request.form['bl']
-    tax_registration_certificate = request.form['trc']
-    organization_code_certificate = request.form['occ']
+    company_name = request.form.get('companyName')
+    company_contact = request.form.get('contactName')
+    company_contact_telephone = request.form.get('tel')
+    company_address = request.form.get('addrSpec')
+    deposit_bank = request.form.get('bank')
+    bank_account = request.form.get('account')
+    business_licence = request.form.get('bl')
+    tax_registration_certificate = request.form.get('trc')
+    organization_code_certificate = request.form.get('occ')
 
-    province = request.form['province']
-    city = request.form['city']
-    business_scope_list = request.form.getlist('bs')
+    city = int(request.form.get('city', 0))
+    business_scope_list = map(int, request.form.getlist('bs'))
 
     supplier = current_user.supplier
-    supplier.company_name = company_name
-    supplier.company_contact = company_contact
-    supplier.company_contact_telephone = company_contact_telephone
-    supplier.company_address = company_address
-    supplier.deposit_bank = deposit_bank
-    supplier.bank_account = bank_account
-    supplier.business_licence = business_licence
-    supplier.tax_registration_certificate = tax_registration_certificate
-    supplier.organization_code_certificate = organization_code_certificate
-    try:
-        province = Area.query.filter(Area.name == province).one()
-        city = Area.query.filter(Area.parent == province.id, Area.name == city).one()
-        supplier.company_area_id = city.id
-    except:
-        return jsonify(message.error(u'找不到该城市'))
+    if company_name:
+        supplier.company_name = company_name
+    if company_contact:
+        supplier.company_contact = company_contact
+    if company_contact_telephone:
+        supplier.company_contact_telephone = company_contact_telephone
+    if company_address:
+        supplier.company_address = company_address
+    if deposit_bank:
+        supplier.deposit_bank = deposit_bank
+    if bank_account:
+        supplier.bank_account = bank_account
+    if business_licence:
+        supplier.business_licence = business_licence
+    if tax_registration_certificate:
+        supplier.tax_registration_certificate = tax_registration_certificate
+    if organization_code_certificate:
+        supplier.organization_code_certificate = organization_code_certificate
+    if city:
+        supplier.company_area_id = city
+    if business_scope_list:
+        supplier.business_scopes = [BusinessScope.query.get(bs_id) for bs_id in business_scope_list]
 
-    try:
-        for bs in business_scope_list:
-            bs = BusinessScope.query.filter(BusinessScope.name == bs).one()
-            supplier.business_scopes.append(bs)
-    except:
-        return jsonify(message.error(u'无效的经营范围'))
-
-    db.session.add(supplier)
     db.session.commit()
 
     return jsonify(message.ok(u'更新成功'))

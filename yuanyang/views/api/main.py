@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request
-from flask.json import dumps
-from ...models import db, catch_db_error, Carousel, Area
+import os
+from flask import Blueprint, current_app, request, send_file
+from flask_login import current_user
+from ...models import db, catch_db_error, Area, Carousel, Project, StartPage, Supplier
 from ...message import message, OK_MESSAGE, ERROR_MESSAGE
-from ...utils import login_required, jsonify
+from ...utils import login_required, jsonify, remove_if_startwith
 
 main = Blueprint('api_main', __name__)
+
+settings = current_app.config
+
+@main.route('/enter.jpg', methods=['GET'])
+def first_img():
+    startpage = StartPage.query.filter(StartPage.is_active == True).one()
+    img_path = os.path.join(settings['STATIC_BASE_ROOT'], remove_if_startwith(startpage.image, '/static/'))
+    return send_file(img_path, mimetype='image/jpeg')
 
 
 @main.route('/carousel', methods=['GET'])
@@ -19,11 +28,35 @@ def carousel_list():
 
 @main.route('/province', methods=['GET'])
 def province_list():
-    province_list1 = Area.query.filter(Area.parent == None)\
+    area_list = Area.query.filter(Area.parent == None)\
         .order_by(Area.order_num.desc(), Area.create_date.desc).all()
-    data = [province.name for province in province_list1]
+    data = [{'id': area.id, 'name': area.name} for area in area_list]
+    return jsonify(data)
 
 
 @main.route('/city', methods=['GET'])
 def city_list():
-    province = request.args['province']
+    province_id = int(request.args['province_id'])
+    area_list = Area.query.filter(Area.parent == province_id)\
+        .order_by(Area.order_num.desc(), Area.create_date.desc).all()
+    data = [{'id': area.id, 'name': area.name} for area in area_list]
+    return jsonify(data)
+
+
+@main.route('/me', methods=['GET'])
+@login_required
+def my_info():
+    supplier = current_user.supplier
+
+    winCount = Project.query.filter(Project.supplier_id==supplier.id).count()
+    data = {
+        'imgUrl': '',
+        'companyName': supplier.company_name,
+        'mail': supplier.email,
+        'authenticated': supplier.status == Supplier.STATUS_PASS,
+        'mark': supplier.service_score,
+        'bidCount': len(supplier.bids),
+        'winCount': winCount,
+        'id': supplier.id,
+    }
+    return jsonify(data)

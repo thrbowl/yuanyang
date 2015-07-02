@@ -66,7 +66,7 @@ def login_required(func):
 
 
 def convert_to_timestamp(dt):
-    return dt.strftime("%s")
+    return dt.strftime("%s000")
 
 
 def jsonify(data):
