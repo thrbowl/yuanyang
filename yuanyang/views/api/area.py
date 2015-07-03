@@ -12,7 +12,7 @@ def area_list():
     except:
         parent_id = None
 
-    area_list = Area.query.filter(Area.parent == parent_id).all()
+    area_list = Area.query.filter(Area.parent_id == parent_id).all()
     data = dict([(area.id, area.name) for area in area_list])
 
     return jsonify(data)

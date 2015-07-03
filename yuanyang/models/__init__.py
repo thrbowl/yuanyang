@@ -71,12 +71,12 @@ class Area(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)  # 地区名称
     full_name = Column(String(100), nullable=False)  # 全路径名称
-    parent = Column(Integer, ForeignKey('areas.id'))  # 上级地区
+    parent_id = Column('parent', Integer, ForeignKey('areas.id'))  # 上级地区
     tree_path = Column(String(100), nullable=False)
     order_num = Column(Integer, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
-    children = relationship('Area', cascade="all, delete-orphan", backref=backref('parent1', remote_side=[id]),
+    children = relationship('Area', backref=backref('parent', remote_side=[id]),
                             order_by='desc(Area.order_num),desc(Area.create_date)')
 
     def __init__(self, name, full_name, tree_path):
@@ -87,6 +87,7 @@ class Area(db.Model):
 
 
 class User(db.Model, UserMixin):
+    """用户"""
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
@@ -131,7 +132,8 @@ class User(db.Model, UserMixin):
         self._is_active = True
 
     def get_project_drafts(self):
-        return Project.query.filter(Project.user_id == self.id, Project._status == Project.STATUS_DRAFT).all()
+        return Project.query.filter(Project._status == Project.STATUS_DRAFT, Project.user_id == self.id) \
+            .order_by(Project.create_date.desc()).all()
 
 
 class Building(db.Model):
@@ -336,7 +338,7 @@ class Project(db.Model):
                 db.session.commit()
 
                 try:
-                    message = Message(settings['MESSAGE_PROJECT_COMMENTED'])
+                    message = Message(settings['MESSAGE_PROJECT_COMMENTED'] % self.name)
                     message.type = Message.TYPE_PROJECT
                     message.receiver_id = self.supplier_id
                     db.session.add(message)

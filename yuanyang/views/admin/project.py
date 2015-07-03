@@ -399,15 +399,6 @@ def set_status(project_id):
         project1.status = status
         db.session.commit()
 
-        try:
-            message = Message(settings['MESSAGE_PROJECT_COMPLETED'])
-            message.type = Message.TYPE_PROJECT
-            message.receiver_id = project1.supplier_id
-            db.session.add(message)
-            db.session.commit()
-        except Exception, e:
-            print 111, e
-
         flash(u'修改成功')
         return jsonify(SUCCESS_MESSAGE)
 
@@ -434,10 +425,17 @@ def select_supplier(bid_id):
         db.session.commit()
 
         try:
-            message = Message(settings['MESSAGE_PROJECT_ENDED'])
+            message = Message(settings['MESSAGE_PROJECT_BID'] % project.name)
             message.type = Message.TYPE_PROJECT
             message.receiver_id = project.supplier_id
             db.session.add(message)
+
+            for bid in project.bids:
+                message = Message(settings['MESSAGE_PROJECT_NOT_BID'] % project.name)
+                message.type = Message.TYPE_PROJECT
+                message.receiver_id = bid.supplier_id
+                db.session.add(message)
+
             db.session.commit()
         except Exception, e:
             print 111, e
