@@ -44,7 +44,7 @@ def supplier_list():
 
     g.breadcrumbs = [
         (u'供应商管理', url_for('admin_supplier.index')),
-        (u'供应商列表', url_for('admin_supplier.supplier_list'))
+        (u'供应商列表', '#')
     ]
     g.menu = 'supplier'
     return render_template(

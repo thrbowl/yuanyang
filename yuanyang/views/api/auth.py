@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint, request
-from flask.ext.login import login_user, logout_user
+from flask.ext.login import login_user, logout_user, current_user
 from ...models import db, User, Supplier, catch_db_error
 from ...message import message
 from ...utils import login_required, jsonify
@@ -61,3 +61,8 @@ def logout():
 @auth.route('/forget', methods=['POST'])
 def forget_pwd():
     pass
+
+
+@auth.route('/checkLogin', methods=['GET'])
+def check_login():
+    return jsonify(current_user.is_authenticated())

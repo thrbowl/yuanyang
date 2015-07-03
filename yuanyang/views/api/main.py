@@ -29,7 +29,7 @@ def carousel_list():
 @main.route('/province', methods=['GET'])
 def province_list():
     area_list = Area.query.filter(Area.parent_id == None)\
-        .order_by(Area.order_num.desc(), Area.create_date.desc).all()
+        .order_by(Area.order_num.desc(), Area.create_date.desc()).all()
     data = [{'id': area.id, 'name': area.name} for area in area_list]
     return jsonify(data)
 
@@ -38,7 +38,7 @@ def province_list():
 def city_list():
     province_id = int(request.args['province_id'])
     area_list = Area.query.filter(Area.parent_id == province_id)\
-        .order_by(Area.order_num.desc(), Area.create_date.desc).all()
+        .order_by(Area.order_num.desc(), Area.create_date.desc()).all()
     data = [{'id': area.id, 'name': area.name} for area in area_list]
     return jsonify(data)
 

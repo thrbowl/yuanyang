@@ -44,7 +44,11 @@
     {% endif %}
     <ul class="breadcrumb">
         {% for crumb, url in g.breadcrumbs %}
-            <li><a href="{{ url }}">{{ crumb }}</a></li>
+            {% if url=='#' %}
+                <li>{{ crumb }}</li>
+            {% else %}
+                <li><a href="{{ url }}">{{ crumb }}</a></li>
+            {% endif %}
         {% endfor %}
     </ul>
     <div class="container">

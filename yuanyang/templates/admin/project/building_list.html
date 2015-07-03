@@ -32,9 +32,9 @@
                         </select>
                     </label>
                 </div>
-                <a href="{{ url_for('admin_entity.add_building') }}"
+                <a href="{{ url_for('admin_project.add_project') }}"
                    class="btn btn-default pull-right active btn-create">
-                    创建楼盘
+                    创建新项目
                 </a>
             </form>
             <div class="clearfix"></div>
@@ -53,10 +53,10 @@
                                 </a>
                             </h4>
                         </div>
-                        <div class="pull-right" style="height: 60px;width:80px;position: relative;">
+                        <div class="pull-right" style="height: 60px;width:100px;position: relative;">
                             <div style="position:absolute; bottom: 0;">楼盘项目({{ building.project_total }})</div>
                         </div>
-                        <div class="pull-right" style="height: 60px;width:80px;position: relative;margin-right: 40px;">
+                        <div class="pull-right" style="height: 60px;width:100px;position: relative;margin-right: 40px;">
                             <div style="position:absolute; bottom: 0;">正在招商({{ building.bidding_project_total }})</div>
                         </div>
                         <div class="clearfix"></div>

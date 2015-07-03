@@ -54,13 +54,12 @@ def view_building(building_id=None):
         building_id = int(request.args['building_id'])
     building = Building.query.get(building_id)
 
-    url1 = current_user.is_superuser and url_for('admin_project.building_list') or '#'
     g.breadcrumbs = [
         (u'项目管理', url_for('admin_project.index')),
-        (u'楼盘列表', url1),
-        (u'%s·%s' % (building.area.name, building.name),
-         url_for('admin_project.view_building', building_id=building_id))
     ]
+    if current_user.is_superuser:
+        g.breadcrumbs.append((u'楼盘列表', url_for('admin_project.building_list')),)
+    g.breadcrumbs.append((u'%s·%s' % (building.area.name, building.name), '#'))
     g.menu = 'project'
 
     if current_user.is_superuser:
@@ -227,7 +226,7 @@ def add_project():
 
     g.breadcrumbs = [
         (u'项目管理', url_for('admin_project.index')),
-        (u'创建新项目', url_for('admin_project.add_project'))
+        (u'创建新项目', '#')
     ]
     g.menu = 'project'
     if current_user.is_superuser:
@@ -252,7 +251,7 @@ def draft_list():
     g.breadcrumbs = [
         (u'项目管理', url_for('admin_project.index')),
         (u'创建新项目', url_for('admin_project.add_project')),
-        (u'项目草稿箱', url_for('admin_project.draft_list'))
+        (u'项目草稿箱', '#')
     ]
     g.menu = 'project'
 
