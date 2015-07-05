@@ -26,7 +26,8 @@ def user_list():
     per_page = 10
     pager = User.query.filter(User.is_backend == True, User.is_superuser != True).order_by(User.create_date.desc()) \
         .paginate(page, per_page, False)
-    return render_template('admin/user/user_list.html', pager=pager)
+    user_total = User.query.count()
+    return render_template('admin/user/user_list.html', pager=pager, user_total=user_total)
 
 
 @user.route('/add_user', methods=['GET', 'POST'])

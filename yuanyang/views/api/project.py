@@ -48,10 +48,10 @@ def project_list():
     if business_scope:
         query = query.filter(Project.type_id == business_scope.id)
 
-    if sort == u'发布时间':
-        query = query.order_by(Project.publish_date.desc())
-    elif sort == u'结束时间':
+    if sort == u'结束时间':
         query = query.order_by(Project.due_date.desc())
+    else:
+        query = query.order_by(Project.publish_date.desc())
 
     project_list = query.offset(start).limit(10).all()
 

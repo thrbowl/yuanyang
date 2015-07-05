@@ -226,6 +226,7 @@ class Supplier(db.Model):
     organization_code_certificate_image = Column(String(100))  # 组织结构代码证图
     cost_score = Column(Float, nullable=False, default=0)
     quality_score = Column(Float, nullable=False, default=0)
+    service_score = Column(Float, nullable=False, default=0)
     time_score = Column(Float, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
@@ -275,10 +276,6 @@ class Supplier(db.Model):
     def time_score_total(self):
         return sum([comment.time_score for comment in self.comments])
 
-    @property
-    def service_score(self):
-        return _re_computer_score((self.cost_score + self.quality_score + self.time_score) / 3.0)
-
 
 class Project(db.Model):
     """项目"""
@@ -316,6 +313,7 @@ class Project(db.Model):
     cost_score = Column(Float, nullable=False, default=0)
     quality_score = Column(Float, nullable=False, default=0)
     time_score = Column(Float, nullable=False, default=0)
+    service_score = Column(Float, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
     building = relationship('Building', backref=backref('projects', order_by=due_date.desc(), cascade="all, delete"))
@@ -414,10 +412,6 @@ class Project(db.Model):
     @property
     def time_score_total(self):
         return sum([comment.time_score for comment in self.comments])
-
-    @property
-    def service_score(self):
-        return _re_computer_score((self.cost_score + self.quality_score + self.time_score) / 3.0)
 
 
 PROJECT_PRICE_RANGE_LIST = [
@@ -567,9 +561,13 @@ class Comment(db.Model):
         project = self.project
         project.cost_score = _re_computer_score(
             (project.cost_score_total + cost_score) / (project.comments_count + 1))
+        project.service_score = _re_computer_score(
+            (project.cost_score + project.quality_score + project.time_score) / 3.0)
         supplier = self.supplier
         supplier.cost_score = _re_computer_score(
             (supplier.cost_score_total + cost_score) / (supplier.comments_count + 1))
+        supplier.service_score = _re_computer_score(
+            (supplier.cost_score + supplier.quality_score + supplier.time_score) / 3.0)
 
     cost_score = property(get_cost_score, set_cost_score)
     
@@ -581,9 +579,13 @@ class Comment(db.Model):
         project = self.project
         project.quality_score = _re_computer_score(
             (project.quality_score_total + quality_score) / (project.comments_count + 1))
+        project.service_score = _re_computer_score(
+            (project.cost_score + project.quality_score + project.time_score) / 3.0)
         supplier = self.supplier
         supplier.quality_score = _re_computer_score(
             (supplier.quality_score_total + quality_score) / (supplier.comments_count + 1))
+        supplier.service_score = _re_computer_score(
+            (supplier.cost_score + supplier.quality_score + supplier.time_score) / 3.0)
 
     quality_score = property(get_quality_score, set_quality_score)
     
@@ -595,9 +597,13 @@ class Comment(db.Model):
         project = self.project
         project.time_score = _re_computer_score(
             (project.time_score_total + time_score) / (project.comments_count + 1))
+        project.service_score = _re_computer_score(
+            (project.cost_score + project.quality_score + project.time_score) / 3.0)
         supplier = self.supplier
         supplier.time_score = _re_computer_score(
             (supplier.time_score_total + time_score) / (supplier.comments_count + 1))
+        supplier.service_score = _re_computer_score(
+            (supplier.cost_score + supplier.quality_score + supplier.time_score) / 3.0)
 
     time_score = property(get_time_score, set_time_score)
 
