@@ -32,8 +32,13 @@
     <script src="{{ static('components/jquery-raty/lib/jquery.raty.js') }}"></script>
     <script>
         function expandRequirements(elem) {
-            $(elem).hide();
-            $('#requirements').show();
+            if ($("#requirements").is(":hidden")) {
+                $(elem).html('收起 <i class="fa fa-caret-down"></i>');
+                $('#requirements').show();
+            } else {
+                $(elem).html('展开 <i class="fa fa-caret-down"></i>');
+                $('#requirements').hide();
+            }
         }
 
         function selectSupplier(bid_id) {
@@ -48,9 +53,10 @@
     <div>
         <div style="margin-bottom: 20px;">
             <div style="padding: 10px;">
-                <a href="#" class="btn btn-info">{{ project.business_scope.name }}</a>
+                <span class="label label-default" style="font-size: 14px;">{{ project.business_scope.name }}</span>
                 <span style="margin-left: 30px;font-size: 18px;">{{ project.building.area.name }}·{{ project.building.name }}</span>
-                <span style="margin-left: 30px;">{{ project.name }}</span>
+                <span style="margin-left: 30px;font-size: 16px;">{{ project.name }}</span>
+                <span style="margin-left: 30px;"><b>发布时间:</b>&nbsp;&nbsp;{{ project.publish_date.strftime('%Y-%m-%d') }}</span>
                 {% if project_status_list %}
                     <select name="status" id="status" class="pull-right">
                         <option value="-1" style="color: grey;">--更改状态--</option>
@@ -75,7 +81,6 @@
             <div class="clearfix"></div>
             <div style="padding: 10px;">
                 <span><b>报价区间:</b>&nbsp;&nbsp;{{ project.price_range.get_display_name() }}</span>
-                <span style="margin-left: 30px;"><b>发布时间:</b>&nbsp;&nbsp;{{ project.publish_date.strftime('%Y-%m-%d') }}</span>
                 <span style="margin-left: 30px;"><b>截止时间:</b>&nbsp;&nbsp;{{ project.due_date }}</span>
             </div>
             <div style="padding: 10px;">
@@ -83,7 +88,9 @@
             </div>
             <div style="padding: 10px;">
                 <div>
-                    <b>项目需求:</b>&nbsp;&nbsp;<a href="javascript:;" onclick="expandRequirements(this);">展开</a>
+                    <b>项目需求:</b>&nbsp;&nbsp;<a href="javascript:;" onclick="expandRequirements(this);">
+                    展开 <i class="fa fa-caret-down"></i>
+                </a>
                 </div>
                 <div class="requirements" id="requirements">
                     {{ project.requirements.replace('\r','<br>').replace('\r\n','<br>')|default('未填写', true)|safe }}

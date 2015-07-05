@@ -76,7 +76,12 @@ def view_building(building_id=None):
         Project.building_id == building.id
     )
     if business_scope != -1:
-        query = query.filter(Project.type_id == business_scope)
+        _obj = BusinessScope.query.get(business_scope)
+        if _obj.parent:
+            business_scope_ids = [_obj.id]
+        else:
+            business_scope_ids = [bs.id for bs in _obj.children]
+        query = query.filter(Project.type_id.in_(business_scope_ids))
     if status in PROJECT_STATUS_LIST:
         query = query.filter(Project._status == status)
     if price_range in PROJECT_PRICE_RANGE_LIST:
