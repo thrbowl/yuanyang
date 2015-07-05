@@ -57,16 +57,18 @@ def generate_hash_salt(password, method='sha1', hash_encoding='base64', salt_len
     return enc_method(hash), salt
 
 
-def upload_image(fs, width, height):
+def upload_image(fs, width=None, height=None):
     image_folder = time.strftime('%Y%m', time.localtime())
     image_name = str(uuid.uuid4()) + '.'
     image_name = media.save(fs, folder=image_folder, name=image_name)
     full_image_url = media.url(image_name)
     full_image_root = media.path(image_name)
 
-    with Image.open(full_image_root) as img:
-        img.thumbnail((width, height), Image.ANTIALIAS)
-        img.save(full_image_root)
+    if width and height:
+        with Image.open(full_image_root) as img:
+            img.thumbnail((width, height), Image.ANTIALIAS)
+            img.save(full_image_root)
+
     return full_image_url
 
 

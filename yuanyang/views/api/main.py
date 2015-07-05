@@ -38,6 +38,9 @@ def city_list():
     province_id = int(request.args['province_id'])
     area_list = Area.query.filter(Area.parent_id == province_id)\
         .order_by(Area.order_num.desc(), Area.create_date.desc()).all()
+    if not area_list:
+        area = Area.query.get(province_id)
+        area_list = [area]
     data = [{'id': area.id, 'name': area.name} for area in area_list]
     return jsonify(data)
 

@@ -6,7 +6,7 @@ from flask.ext.login import current_user
 from flask.ext.uploads import configure_uploads, UploadSet
 from ...message import message
 from ...models import *
-from ...utils import jsonify, login_required
+from ...utils import jsonify, login_required, upload_image
 
 
 supplier = Blueprint('api_supplier', __name__)
@@ -98,28 +98,21 @@ def update_supplier_info():
 @login_required
 @catch_db_error
 def update_supplier_pic():
-    business_licence_image = request.files['blFile']
-    tax_registration_certificate_image = request.files['trcFile']
-    organization_code_certificate_image = request.files['occFile']
+    business_licence_image = request.files.get('blFile')
+    tax_registration_certificate_image = request.files.get('trcFile')
+    organization_code_certificate_image = request.files.get('occFile')
 
     supplier = current_user.supplier
 
-    image_folder = time.strftime('%Y%m', time.localtime())
-    image_name = str(uuid.uuid4()) + '.'
-    if business_licence_image.filename:
-        image_name = media.save(business_licence_image, folder=image_folder, name=image_name)
-        full_image_url = media.url(image_name)
+    if business_licence_image:
+        full_image_url = upload_image(business_licence_image)
         supplier.business_licence_image = full_image_url
-
-    if tax_registration_certificate_image.filename:
-        image_name = media.save(tax_registration_certificate_image, folder=image_folder, name=image_name)
-        full_image_url = media.url(image_name)
-        supplier.business_licence_image = full_image_url
-
-    if organization_code_certificate_image.filename:
-        image_name = media.save(organization_code_certificate_image, folder=image_folder, name=image_name)
-        full_image_url = media.url(image_name)
-        supplier.business_licence_image = full_image_url
+    if tax_registration_certificate_image:
+        full_image_url = upload_image(tax_registration_certificate_image)
+        supplier.tax_registration_certificate_image = full_image_url
+    if organization_code_certificate_image:
+        full_image_url = upload_image(organization_code_certificate_image)
+        supplier.organization_code_certificate_image = full_image_url
 
     db.session.commit()
 
