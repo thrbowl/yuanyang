@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-import time, uuid
-from flask import current_app, Blueprint, request, json, jsonify
-from flask_login import current_user
-from flask.ext.uploads import UploadSet, configure_uploads
-from ...models import db, catch_db_error, Supplier, Area, BusinessScope
-from ...utils import login_required
+import time
+import uuid
+from flask import Blueprint, request
+from flask.ext.login import current_user
+from flask.ext.uploads import configure_uploads, UploadSet
 from ...message import message
+from ...models import *
+from ...utils import jsonify, login_required
+
 
 supplier = Blueprint('api_supplier', __name__)
 

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-from flask import Blueprint, current_app, request, send_file
-from flask_login import current_user
-from ...models import db, catch_db_error, Area, Carousel, Project, StartPage, Supplier
-from ...message import message, OK_MESSAGE, ERROR_MESSAGE
-from ...utils import login_required, jsonify, remove_if_startwith
+from flask import Blueprint, request, send_file
+from flask.ext.login import current_user
+from ...models import *
+from ...utils import jsonify, login_required, remove_if_startwith
 
 main = Blueprint('api_main', __name__)
 

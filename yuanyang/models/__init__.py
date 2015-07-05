@@ -227,7 +227,6 @@ class Supplier(db.Model):
     cost_score = Column(Float, nullable=False, default=0)
     quality_score = Column(Float, nullable=False, default=0)
     time_score = Column(Float, nullable=False, default=0)
-    service_score = Column(Float, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
     user = relationship('User', backref=backref('supplier', uselist=False, cascade="all, delete"))
@@ -277,8 +276,8 @@ class Supplier(db.Model):
         return sum([comment.time_score for comment in self.comments])
 
     @property
-    def service_score_total(self):
-        return sum([comment.service_score for comment in self.comments])
+    def service_score(self):
+        return _re_computer_score((self.cost_score + self.quality_score + self.time_score) / 3.0)
 
 
 class Project(db.Model):
@@ -317,7 +316,6 @@ class Project(db.Model):
     cost_score = Column(Float, nullable=False, default=0)
     quality_score = Column(Float, nullable=False, default=0)
     time_score = Column(Float, nullable=False, default=0)
-    service_score = Column(Float, nullable=False, default=0)
     create_date = Column(DateTime, nullable=False)
 
     building = relationship('Building', backref=backref('projects', order_by=due_date.desc(), cascade="all, delete"))
@@ -418,8 +416,8 @@ class Project(db.Model):
         return sum([comment.time_score for comment in self.comments])
 
     @property
-    def service_score_total(self):
-        return sum([comment.service_score for comment in self.comments])
+    def service_score(self):
+        return _re_computer_score((self.cost_score + self.quality_score + self.time_score) / 3.0)
 
 
 PROJECT_PRICE_RANGE_LIST = [
@@ -550,7 +548,6 @@ class Comment(db.Model):
     _cost_score = Column('cost_score', Float, nullable=False, default=0)
     _quality_score = Column('quality_score', Float, nullable=False, default=0)
     _time_score = Column('time_score', Float, nullable=False, default=0)
-    _service_score = Column('service_score', Float, nullable=False, default=0)
     appeal = Column(String(500))
     is_read = Column(Boolean, nullable=False, default=False)
     create_date = Column(DateTime, nullable=False)
@@ -603,20 +600,10 @@ class Comment(db.Model):
             (supplier.time_score_total + time_score) / (supplier.comments_count + 1))
 
     time_score = property(get_time_score, set_time_score)
-    
-    def get_service_score(self):
-        return self._service_score
 
-    def set_service_score(self, service_score):
-        self._service_score = service_score
-        project = self.project
-        project.service_score = _re_computer_score(
-            (project.service_score_total + service_score) / (project.comments_count + 1))
-        supplier = self.supplier
-        supplier.service_score = _re_computer_score(
-            (supplier.service_score_total + service_score) / (supplier.comments_count + 1))
-
-    service_score = property(get_service_score, set_service_score)
+    @property
+    def service_score(self):
+        return _re_computer_score((self.cost_score + self.quality_score + self.time_score) / 3.0)
 
 
 class Bid(db.Model):

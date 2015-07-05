@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint, request
-from flask.ext.login import login_user, logout_user, current_user
-from ...models import db, User, Supplier, catch_db_error
+from flask.ext.login import current_user, login_user, logout_user
+from ...models import *
 from ...message import message
-from ...utils import login_required, jsonify
+from ...utils import jsonify, login_required
 
 auth = Blueprint('api_auth', __name__)
 

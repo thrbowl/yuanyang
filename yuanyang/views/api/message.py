@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, json, jsonify, Response
+from flask import Blueprint, request
 from flask.ext.login import current_user
-from ...models import *
 from ...message import message as msgutil
-from ...utils import login_required
+from ...models import *
+from ...utils import jsonify, login_required
 
 message = Blueprint('api_message', __name__)
 
@@ -35,7 +35,7 @@ def message_list():
         }
         for msg in message_list
     ]
-    return Response(json.dumps(data), mimetype='application/json')
+    return jsonify(data)
 
 
 @message.route('/myMsg/<int:msgId>', methods=['POST'])

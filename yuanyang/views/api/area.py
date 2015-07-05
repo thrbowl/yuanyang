@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, json, jsonify
-from ...models import Area
+from flask import Blueprint, request
+from ...models import *
+from ...utils import jsonify
 
 area = Blueprint('api_area', __name__)
 

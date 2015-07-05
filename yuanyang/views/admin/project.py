@@ -460,7 +460,6 @@ def select_supplier(bid_id):
 @login_required
 @catch_db_error
 def project_score(project_id):
-    service_score = float(request.form['service_score'])
     cost_score = float(request.form['cost_score'])
     quality_score = float(request.form['quality_score'])
     time_score = float(request.form['time_score'])
@@ -476,7 +475,6 @@ def project_score(project_id):
     db.session.add(comment)
     db.session.commit()
 
-    comment.service_score = int(service_score*2)
     comment.cost_score = int(cost_score*2)
     comment.quality_score = int(quality_score*2)
     comment.time_score = int(time_score*2)

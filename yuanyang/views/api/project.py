@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, json, jsonify, Response
-from flask_login import current_user
-from ...models import db, catch_db_error, Area, Project, Building, BusinessScope, Bid
+from flask import Blueprint, request
+from flask.ext.login import current_user
 from ...message import message
-from ...utils import convert_to_timestamp, login_required
+from ...models import *
+from ...utils import convert_to_timestamp, jsonify, login_required
 
 project = Blueprint('api_project', __name__)
 
@@ -49,9 +49,9 @@ def project_list():
         query = query.filter(Project.type_id == business_scope.id)
 
     if sort == u'发布时间':
-        query = query.order_by(Project.publish_date)
+        query = query.order_by(Project.publish_date.desc())
     elif sort == u'结束时间':
-        query = query.order_by(Project.due_date)
+        query = query.order_by(Project.due_date.desc())
 
     project_list = query.offset(start).limit(10).all()
 
@@ -69,7 +69,7 @@ def project_list():
         }
         for project in project_list
     ]
-    return Response(json.dumps(data), mimetype='application/json')
+    return jsonify(data)
 
 
 @project.route('/pro/<int:project_id>', methods=['GET'])
@@ -90,7 +90,7 @@ def project_info(project_id):
         'baseInfo': project.requirements,
         'publishTime': convert_to_timestamp(project.publish_date),
     }
-    return Response(json.dumps(data), mimetype='application/json')
+    return jsonify(data)
 
 
 @project.route('/pro/<int:project_id>', methods=['POST'])
