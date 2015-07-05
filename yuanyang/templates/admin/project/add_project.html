@@ -39,11 +39,12 @@
     </script>
 {% endblock %}
 
+{% block cc %}
+    <a href="{{ url_for('admin_project.draft_list') }}">草稿箱>></a>
+{% endblock %}
+
 {% block body_content %}
     <div>
-        <div class="pull-right">
-            <a href="{{ url_for('admin_project.draft_list') }}">草稿箱>></a>
-        </div>
         <form id="addForm" class="form-horizontal" method="POST">
             <div class="form-group">
                 <label for="building" class="col-xs-2 control-label">所属楼盘：</label>

@@ -259,6 +259,13 @@ def draft_list():
     return render_template('admin/project/draft_list.html', project_list=project_list)
 
 
+@project.route('/json/clear_draft', methods=['POST'])
+@login_required
+def clear_draft():
+    result = current_user.clear_drafts()
+    return json.dumps(result)
+
+
 @project.route('/edit_project', methods=['GET', 'POST'])
 @project.route('/edit_project/<int:project_id>', methods=['GET', 'POST'])
 @login_required

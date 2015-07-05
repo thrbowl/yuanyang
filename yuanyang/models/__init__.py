@@ -135,6 +135,13 @@ class User(db.Model, UserMixin):
         return Project.query.filter(Project._status == Project.STATUS_DRAFT, Project.user_id == self.id) \
             .order_by(Project.create_date.desc()).all()
 
+    def clear_drafts(self):
+        try:
+            Project.query.filter(Project._status == Project.STATUS_DRAFT, Project.user_id == self.id).delete()
+            return True
+        except:
+            return False
+
 
 class Building(db.Model):
     """楼盘"""

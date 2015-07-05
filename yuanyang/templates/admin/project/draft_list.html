@@ -27,7 +27,21 @@
                 }
             });
         }
+
+        function clearDrafts() {
+            if (confirm("你确定要删除所有的项目草稿么？此操作是不可恢复的。")) {
+                $.post("{{ url_for('admin_project.clear_draft') }}", function (result) {
+                    if (result) {
+                        location.reload();
+                    }
+                });
+            }
+        }
     </script>
+{% endblock %}
+
+{% block cc %}
+    <a href="javascript:;" onclick="clearDrafts()">清空</a>
 {% endblock %}
 
 {% block body_content %}

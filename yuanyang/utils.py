@@ -3,13 +3,20 @@ import hashlib
 import base64
 import random
 import string
+import time
+import uuid
 from functools import wraps
 from PIL import Image
-from flask import json, Response
+from flask import json, Response, current_app
 from flask.ext.login import current_user
+from flask.ext.uploads import UploadSet, configure_uploads
 from .message import message
 
 SALT_CHARS = string.ascii_letters + string.digits
+
+settings = current_app.config
+media = UploadSet(name='media', extensions=settings['UPLOADS_ALLOWED_EXTENSIONS'])
+configure_uploads(current_app, media)
 
 
 def remove_if_endswith(str, *args):
@@ -50,10 +57,17 @@ def generate_hash_salt(password, method='sha1', hash_encoding='base64', salt_len
     return enc_method(hash), salt
 
 
-def check_image_size(filepath, width, height):
-    im = Image.open(filepath)
-    im.close()
-    return im.size == (width, height)
+def upload_image(fs, width, height):
+    image_folder = time.strftime('%Y%m', time.localtime())
+    image_name = str(uuid.uuid4()) + '.'
+    image_name = media.save(fs, folder=image_folder, name=image_name)
+    full_image_url = media.url(image_name)
+    full_image_root = media.path(image_name)
+
+    with Image.open(full_image_root) as img:
+        img.thumbnail((width, height), Image.ANTIALIAS)
+        img.save(full_image_root)
+    return full_image_url
 
 
 def login_required(func):

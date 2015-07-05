@@ -50,7 +50,9 @@
                 <li><a href="{{ url }}">{{ crumb }}</a></li>
             {% endif %}
         {% endfor %}
+        <div class="pull-right">{% block cc %}{% endblock %}</div>
     </ul>
+
     <div class="container">
         {% block body_content %}{% endblock %}
     </div>

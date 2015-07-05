@@ -3,17 +3,14 @@ import time
 import uuid
 from flask import Blueprint, render_template, url_for, request, redirect, g, jsonify, flash, json, current_app
 from flask.ext.login import login_required
-from flask.ext.uploads import UploadSet, configure_uploads
 from sqlalchemy import func
 from ...models import *
-from ...utils import check_image_size
+from ...utils import upload_image
 from ...message import SUCCESS_MESSAGE, ERROR_MESSAGE
 
 entity = Blueprint('admin_entity', __name__)
 
 settings = current_app.config
-media = UploadSet(name='media', extensions=settings['UPLOADS_ALLOWED_EXTENSIONS'])
-configure_uploads(current_app, media)
 
 
 @entity.route('/', methods=['GET'])
@@ -50,15 +47,7 @@ def add_startpage():
             flash(u'添加失败，必须有图片')
             return redirect(url_for('admin_entity.add_carousel'))
 
-        image_folder = time.strftime('%Y%m', time.localtime())
-        image_name = str(uuid.uuid4()) + '.'
-        image_name = media.save(image_file, folder=image_folder, name=image_name)
-        full_image_url = media.url(image_name)
-        full_image_root = media.path(image_name)
-        if not check_image_size(full_image_root, *settings['STARTPAGE_IMG_SIZE']):
-            flash(u'添加失败，图片尺寸必须为%s' % str(settings['STARTPAGE_IMG_SIZE']))
-            return redirect(url_for('admin_entity.add_startpage'))
-
+        full_image_url = upload_image(image_file, *settings['STARTPAGE_IMG_SIZE'])
         startpage = StartPage(name, full_image_url)
         db.session.add(startpage)
         db.session.commit()
@@ -89,15 +78,8 @@ def edit_startpage(startpage_id):
 
         startpage.name = name
         if image_file:
-            image_folder = time.strftime('%Y%m', time.localtime())
-            image_name = str(uuid.uuid4()) + '.'
-            image_name = media.save(image_file, folder=image_folder, name=image_name)
-            full_image_url = media.url(image_name)
-            full_image_root = media.path(image_name)
-            if not check_image_size(full_image_root, *settings['STARTPAGE_IMG_SIZE']):
-                flash(u'更新失败，图片尺寸必须为%s' % str(settings['STARTPAGE_IMG_SIZE']))
-                return redirect(url_for('admin_entity.edit_startpage', startpage_id=startpage_id))
-            startpage.image = full_image_url
+            image_url = upload_image(image_file, *settings['STARTPAGE_IMG_SIZE'])
+            startpage.image = image_url
         db.session.commit()
 
         flash(u'更新成功')
@@ -158,14 +140,7 @@ def add_building():
         logo_file = request.files['logo']
         full_logo_url = ''
         if logo_file:
-            logo_folder = time.strftime('%Y%m', time.localtime())
-            logo_name = str(uuid.uuid4()) + '.'
-            logo_name = media.save(logo_file, folder=logo_folder, name=logo_name)
-            full_logo_url = media.url(logo_name)
-            full_logo_root = media.path(logo_name)
-            if not check_image_size(full_logo_root, *settings['BUILDING_LOGO_SIZE']):
-                flash(u'添加失败，图片尺寸必须为%s' % str(settings['BUILDING_LOGO_SIZE']))
-                return redirect(url_for('admin_entity.add_building'))
+            full_logo_url = upload_image(logo_file, *settings['BUILDING_LOGO_SIZE'])
 
         building = Building(name)
         building.logo = full_logo_url
@@ -208,14 +183,7 @@ def edit_building(building_id):
 
         logo_file = request.files['logo']
         if logo_file:
-            logo_folder = time.strftime('%Y%m', time.localtime())
-            logo_name = str(uuid.uuid4()) + '.'
-            logo_name = media.save(logo_file, folder=logo_folder, name=logo_name)
-            full_logo_url = media.url(logo_name)
-            full_logo_root = media.path(logo_name)
-            if not check_image_size(full_logo_root, *settings['BUILDING_LOGO_SIZE']):
-                flash(u'更新失败，图片尺寸必须为%s' % str(settings['BUILDING_LOGO_SIZE']))
-                return redirect(url_for('admin_entity.edit_building'))
+            full_logo_url = upload_image(logo_file, *settings['BUILDING_LOGO_SIZE'])
             building.logo = full_logo_url
         db.session.commit()
 
@@ -274,14 +242,7 @@ def add_carousel():
         image_file = request.files['image']
         full_image_url = ''
         if image_file:
-            image_folder = time.strftime('%Y%m', time.localtime())
-            image_name = str(uuid.uuid4()) + '.'
-            image_name = media.save(image_file, folder=image_folder, name=image_name)
-            full_image_url = media.url(image_name)
-            full_image_root = media.path(image_name)
-            if not check_image_size(full_image_root, *settings['CAROUSEL_IMG_SIZE']):
-                flash(u'添加失败，图片尺寸必须为%s' % str(settings['CAROUSEL_IMG_SIZE']))
-                return redirect(url_for('admin_entity.add_carousel'))
+            full_image_url = upload_image(image_file, *settings['CAROUSEL_IMG_SIZE'])
 
         carousel = Carousel(name, full_image_url)
         if carousel_num == 0:
@@ -317,14 +278,7 @@ def edit_carousel(carousel_id):
 
         image_file = request.files['image']
         if image_file:
-            image_folder = time.strftime('%Y%m', time.localtime())
-            image_name = str(uuid.uuid4()) + '.'
-            image_name = media.save(image_file, folder=image_folder, name=image_name)
-            full_image_url = media.url(image_name)
-            full_image_root = media.path(image_name)
-            if not check_image_size(full_image_root, *settings['CAROUSEL_IMG_SIZE']):
-                flash(u'添加失败，图片尺寸必须为%s' % str(settings['CAROUSEL_IMG_SIZE']))
-                return redirect(url_for('admin_entity.add_carousel'))
+            full_image_url = upload_image(image_file, *settings['CAROUSEL_IMG_SIZE'])
             carousel.image = full_image_url
         db.session.commit()
 
