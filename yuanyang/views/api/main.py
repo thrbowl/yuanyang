@@ -2,6 +2,7 @@
 import os
 from flask import Blueprint, request, send_file
 from flask.ext.login import current_user
+from ...message import message
 from ...models import *
 from ...utils import jsonify, login_required, remove_if_startwith
 
@@ -62,3 +63,94 @@ def my_info():
         'id': supplier.id,
     }
     return jsonify(data)
+
+
+@main.route('/comment', methods=['GET'])
+@login_required
+def my_comment():
+    supplier = current_user.supplier
+
+    comment_list = supplier.comments
+    data = [
+        {
+            'id': comment.id,
+            'readFlag': comment.is_read,
+            'title': '',
+            'mark': comment.service_score,
+            'commentNum': 0
+        }
+        for comment in comment_list
+    ]
+    return jsonify(data)
+
+
+@main.route('/comment/<int:comment_id>', methods=['GET'])
+def comment_info(comment_id):
+    comment = Comment.query.get(comment_id)
+
+    data = {
+        'title': '',
+        'serviceMark': comment.service_score,
+        'costMark': comment.cost_score,
+        'quantityMark': comment.quality_score,
+        'timeMark': comment.time_score,
+        'comments': [],
+    }
+    return jsonify(data)
+
+
+@main.route('/comment/<int:comment_id>', methods=['POST'])
+@catch_db_error
+@login_required
+def comment_appeal(comment_id):
+    appeal = request.form['content']
+
+    comment = Comment.query.get(comment_id)
+    comment.appeal = appeal
+    db.session.commit()
+
+    return jsonify(message.ok(u'申诉提交成功'))
+
+
+@main.route('/bid', methods=['GET'])
+@login_required
+def bid_list():
+    type = request.args['type'].strip()
+    start = int(request.args['start'])
+
+    supplier = current_user.supplier
+
+    if type == 'bid':
+        bid_list1 = Bid.query.filter(Bid.supplier_id == supplier.id).order_by(Bid.create_date.desc) \
+            .offset(start).limit(10).all()
+    elif type == 'win':
+        bid_list1 = Bid.query.join(Project).offset(start).limit(10).all()
+    else:
+        return jsonify(message.error(u'类型不正确'))
+
+    data = [
+        {
+            'type': bid.project.business_scope.name,
+            'imgUrl': '',
+            'title': '',
+            'subTitle': '',
+            'state': '',
+            'from': '',
+            'to': '',
+            'publishTime': '',
+            'deadline': '',
+            'id': '',
+        }
+        for bid in bid_list1
+    ]
+    return jsonify(data)
+
+
+@main.route('/enterInfoValidated', methods=['GET'])
+@login_required
+def check_supplier_status():
+    supplier = current_user.supplier
+
+    result = supplier.status == Supplier.STATUS_PASS
+    return jsonify(result)
+
