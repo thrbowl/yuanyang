@@ -4,7 +4,7 @@ from flask import Blueprint, request, send_file
 from flask.ext.login import current_user
 from ...message import message
 from ...models import *
-from ...utils import jsonify, login_required, remove_if_startwith
+from ...utils import convert_to_timestamp, jsonify, login_required, remove_if_startwith
 
 main = Blueprint('api_main', __name__)
 
@@ -121,28 +121,32 @@ def bid_list():
     supplier = current_user.supplier
 
     if type == 'bid':
-        bid_list1 = Bid.query.filter(Bid.supplier_id == supplier.id).order_by(Bid.create_date.desc) \
+        bid_list1 = Bid.query.filter(Bid.supplier_id == supplier.id).order_by(Bid.create_date.desc()) \
             .offset(start).limit(10).all()
     elif type == 'win':
-        bid_list1 = Bid.query.join(Project).offset(start).limit(10).all()
+        bid_list1 = Bid.query.join(Project).filter(Bid.id == Project.bid_id).order_by(Bid.create_date.desc()) \
+            .offset(start).limit(10).all()
     else:
         return jsonify(message.error(u'类型不正确'))
 
-    data = [
-        {
-            'type': bid.project.business_scope.name,
-            'imgUrl': '',
-            'title': '',
-            'subTitle': '',
-            'state': '',
-            'from': '',
-            'to': '',
-            'publishTime': '',
-            'deadline': '',
-            'id': '',
-        }
-        for bid in bid_list1
-    ]
+    data = []
+    for bid in bid_list1:
+        project = bid.project
+        data.append(
+            {
+                'type': project.business_scope.name,
+                'imgUrl': project.building.logo,
+                'title': project.name,
+                'subTitle': project.building.name,
+                'state': project.status.get_display_name(),
+                'from': convert_to_timestamp(project.lead_start_date),
+                'to': convert_to_timestamp(project.lead_end_date),
+                'publishTime': convert_to_timestamp(project.publish_date),
+                'deadline': convert_to_timestamp(project.due_date),
+                'id': project.id,
+                'price': project.price_range.get_display_name(),
+            }
+        )
     return jsonify(data)
 
 

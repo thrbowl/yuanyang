@@ -204,7 +204,8 @@ def add_project():
                     for area1 in area.children:
                         supplier_set = supplier_set & set(area1.suppliers)
                     supplier_set = [supplier for supplier in supplier_set
-                                    if project.business_scope in supplier.business_scopes]
+                                    if supplier.status == Supplier.STATUS_PASS
+                                    and project.business_scope in supplier.business_scopes]
                     for receiver in supplier_set:
                         message = Message(settings['MESSAGE_ADD_PROJECT'])
                         message.type = Message.TYPE_SYSTEM
@@ -367,14 +368,14 @@ def publish_project(project_id):
     result = project.publish()
     db.session.commit()
     if result:
-
         try:
             area = project.building.area
             supplier_set = set(area.suppliers)
             for area1 in area.children:
                 supplier_set = supplier_set & set(area1.suppliers)
             supplier_set = [supplier for supplier in supplier_set
-                            if project.business_scope in supplier.business_scopes]
+                            if supplier.status == Supplier.STATUS_PASS
+                            and project.business_scope in supplier.business_scopes]
             for receiver in supplier_set:
                 message = Message(settings['MESSAGE_ADD_PROJECT'])
                 message.type = Message.TYPE_SYSTEM
@@ -442,10 +443,11 @@ def select_supplier(bid_id):
             db.session.add(message)
 
             for bid in project.bids:
-                message = Message(settings['MESSAGE_PROJECT_NOT_BID'] % project.name)
-                message.type = Message.TYPE_PROJECT
-                message.receiver_id = bid.supplier_id
-                db.session.add(message)
+                if bid.project != project:
+                    message = Message(settings['MESSAGE_PROJECT_NOT_BID'] % project.name)
+                    message.type = Message.TYPE_PROJECT
+                    message.receiver_id = bid.supplier_id
+                    db.session.add(message)
 
             db.session.commit()
         except Exception, e:

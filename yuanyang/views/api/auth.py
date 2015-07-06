@@ -21,6 +21,8 @@ def register():
     db.session.add(supplier)
     db.session.commit()
 
+    login_user(user)
+
     return jsonify(message.ok(u'注册成功'))
 
 

@@ -107,6 +107,10 @@ def bid(project_id):
         return jsonify(message.error(u'不存在此项目'))
 
     supplier = current_user.supplier
+
+    if supplier.status != Supplier.STATUS_PASS:
+        return jsonify(message.error(u'未通过审核，无法报名'))
+
     if supplier.is_bid(project_id):
         return jsonify(message.error(u'已经报名过该项目'))
 

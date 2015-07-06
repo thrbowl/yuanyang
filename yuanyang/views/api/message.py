@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from flask.ext.login import current_user
 from ...message import message as msgutil
 from ...models import *
-from ...utils import jsonify, login_required
+from ...utils import convert_to_timestamp, jsonify, login_required
 
 message = Blueprint('api_message', __name__)
 
@@ -32,6 +32,7 @@ def message_list():
             'title': '',
             'content': msg.content,
             'readFlag': msg.is_read,
+            'time': convert_to_timestamp(msg.create_date)
         }
         for msg in message_list
     ]

@@ -96,7 +96,8 @@
                     {% if supplier.business_licence_image %}
                     <div style="position:relative;">
                         <img src="{{ supplier.business_licence_image }}">
-                        <a href="" style="position:absolute; bottom:0;">查看大图</a>
+                        <a href="{{ supplier.business_licence_image }}" target="_blank"
+                           style="position:absolute; bottom:0;">查看大图</a>
                     </div>
                     {% endif %}
                 </td>
@@ -108,7 +109,8 @@
                     {% if supplier.tax_registration_certificate_image %}
                     <div style="position:relative;">
                         <img src="{{ supplier.tax_registration_certificate_image }}">
-                        <a href="" style="position:absolute; bottom:0;">查看大图</a>
+                        <a href="{{ supplier.tax_registration_certificate_image }}" target="_blank"
+                           style="position:absolute; bottom:0;">查看大图</a>
                     </div>
                     {% endif %}
                 </td>
@@ -120,7 +122,8 @@
                     {% if supplier.organization_code_certificate_image %}
                     <div style="position:relative;">
                         <img src="{{ supplier.organization_code_certificate_image }}">
-                        <a href="{{ supplier.organization_code_certificate_image }}" target="_blank" style="position:absolute; bottom:0;">查看大图</a>
+                        <a href="{{ supplier.organization_code_certificate_image }}" target="_blank"
+                           style="position:absolute; bottom:0;">查看大图</a>
                     </div>
                     {% endif %}
                 </td>

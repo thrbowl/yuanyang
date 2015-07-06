@@ -283,7 +283,7 @@ class Project(db.Model):
 
     STATUS_DRAFT = _CONS(0, u'草稿')
     STATUS_BIDDING = _CONS(1, u'招标中')
-    STATUS_ENDED = _CONS(2, u'已截至')
+    STATUS_ENDED = _CONS(2, u'已截止')
     STATUS_COMPLETED = _CONS(3, u'已完成')
     STATUS_COMMENTED = _CONS(4, u'已评价')
     STATUS_FAILURE = _CONS(5, u'流标')
