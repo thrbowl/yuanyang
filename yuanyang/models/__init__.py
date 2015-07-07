@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import datetime
 import traceback
 from functools import wraps
@@ -287,6 +288,7 @@ class Project(db.Model):
     STATUS_COMPLETED = _CONS(3, u'已完成')
     STATUS_COMMENTED = _CONS(4, u'已评价')
     STATUS_FAILURE = _CONS(5, u'流标')
+    STATUS_SELECTED = _CONS(6, u'已选中')
 
     PRICE_RANGE_0_5W = _CONS(1, u'5W以下')
     PRICE_RANGE_5_10W = _CONS(2, u'5W-10W')
@@ -329,9 +331,9 @@ class Project(db.Model):
         elif self._status == Project.STATUS_BIDDING:
             today = datetime.date.today()
             if today > self.due_date:
-                self._status = Project.STATUS_FAILURE
+                self._status = Project.STATUS_ENDED
                 db.session.commit()
-                return Project.STATUS_FAILURE
+                return Project.STATUS_ENDED
             return Project.STATUS_BIDDING
         elif self._status == Project.STATUS_ENDED:
             return Project.STATUS_ENDED
@@ -342,8 +344,13 @@ class Project(db.Model):
 
                 try:
                     message = Message(settings['MESSAGE_PROJECT_COMMENTED'] % self.name)
+                    message.title = Message.TITLE_PROJECT_COMMENTED
                     message.type = Message.TYPE_PROJECT
                     message.receiver_id = self.supplier_id
+                    data = {
+                        'project_id': self.id
+                    }
+                    message.data = json.dumps(data)
                     db.session.add(message)
                     db.session.commit()
                 except Exception, e:
@@ -355,6 +362,8 @@ class Project(db.Model):
             return Project.STATUS_COMMENTED
         elif self._status == Project.STATUS_FAILURE:
             return Project.STATUS_FAILURE
+        elif self._status == Project.STATUS_SELECTED:
+            return Project.STATUS_SELECTED
 
     def set_status(self, status):
         self._status = status
@@ -395,7 +404,7 @@ class Project(db.Model):
     def is_closure_period(self):
         today = datetime.date.today()
         return self._status == self.STATUS_COMPLETED \
-               and today < self.completed_date + datetime.timedelta(settings['CLOSURE_PERIOD'])
+               and today > self.completed_date + datetime.timedelta(settings['CLOSURE_PERIOD'])
 
     @property
     def comments_count(self):
@@ -425,6 +434,7 @@ PROJECT_PRICE_RANGE_LIST = [
 
 PROJECT_STATUS_LIST = [
     Project.STATUS_BIDDING,
+    Project.STATUS_SELECTED,
     Project.STATUS_COMPLETED,
     Project.STATUS_COMMENTED,
     Project.STATUS_ENDED,
@@ -497,6 +507,7 @@ class Message(db.Model):
     TITLE_PROJECT_NOT_BID = _CONS(6, u'未中标通知')
     TITLE_PROJECT_FAILURE = _CONS(7, u'流标通知')
     TITLE_PROJECT_COMMENTED = _CONS(8, u'评价通知')
+    TITLE_PROJECT_COMPLETED = _CONS(9, u'完成通知')
 
     id = Column(Integer, primary_key=True)
     _title = Column('title', Integer, nullable=False)

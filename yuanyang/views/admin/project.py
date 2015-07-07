@@ -135,6 +135,8 @@ def view_project(project_id):
     if project1.status == Project.STATUS_BIDDING:
         project_status_list = [Project.STATUS_FAILURE]
     elif project1.status == Project.STATUS_ENDED:
+        project_status_list = [Project.STATUS_FAILURE]
+    elif project1.status == Project.STATUS_SELECTED:
         project_status_list = [Project.STATUS_COMPLETED]
         bid = Bid.query.get(project1.bid_id)
     elif project1.status == Project.STATUS_COMPLETED:
@@ -208,8 +210,13 @@ def add_project():
                                     and project.business_scope in supplier.business_scopes]
                     for receiver in supplier_set:
                         message = Message(settings['MESSAGE_ADD_PROJECT'])
+                        message.title = Message.TITLE_SYSTEM_ADD_PROJECT
                         message.type = Message.TYPE_SYSTEM
                         message.receiver_id = receiver.id
+                        data = {
+                            'project_id': project.id
+                        }
+                        message.data = json.dumps(data)
                         db.session.add(message)
                     db.session.commit()
                 except Exception, e:
@@ -378,8 +385,13 @@ def publish_project(project_id):
                             and project.business_scope in supplier.business_scopes]
             for receiver in supplier_set:
                 message = Message(settings['MESSAGE_ADD_PROJECT'])
+                message.title = Message.TITLE_SYSTEM_ADD_PROJECT
                 message.type = Message.TYPE_SYSTEM
                 message.receiver_id = receiver.id
+                data = {
+                    'project_id': project.id
+                }
+                message.data = json.dumps(data)
                 db.session.add(message)
             db.session.commit()
         except Exception, e:
@@ -401,15 +413,42 @@ def set_status(project_id):
     project1 = Project.query.get(project_id)
     if project1.status == Project.STATUS_BIDDING and status == Project.STATUS_FAILURE:
         project1.status = status
-        if project1.status == Project.STATUS_ENDED:
-            project1.due_date = datetime.date.today()
         db.session.commit()
+
+        try:
+            for bid in project1.bids:
+                message = Message(settings['MESSAGE_PROJECT_FAILURE'] % project1.name)
+                message.title = Message.TITLE_PROJECT_FAILURE
+                message.type = Message.TYPE_PROJECT
+                message.receiver_id = bid.supplier_id
+                data = {
+                    'project_id': project1.id
+                }
+                message.data = json.dumps(data)
+                db.session.add(message)
+            db.session.commit()
+        except Exception, e:
+            print 111, e
 
         flash(u'修改成功')
         return jsonify(SUCCESS_MESSAGE)
-    elif project1.status == Project.STATUS_ENDED and status == Project.STATUS_COMPLETED:
+    elif project1.status == Project.STATUS_SELECTED and status == Project.STATUS_COMPLETED:
         project1.status = status
         db.session.commit()
+
+        try:
+            message = Message(settings['MESSAGE_PROJECT_COMPLETED'] % project1.name)
+            message.title = Message.TITLE_PROJECT_COMPLETED
+            message.type = Message.TYPE_PROJECT
+            message.receiver_id = project1.supplier_id
+            data = {
+                'project_id': project1.id
+            }
+            message.data = json.dumps(data)
+            db.session.add(message)
+            db.session.commit()
+        except Exception, e:
+            print 111, e
 
         flash(u'修改成功')
         return jsonify(SUCCESS_MESSAGE)
@@ -432,21 +471,30 @@ def select_supplier(bid_id):
     else:
         project.supplier_id = bid.supplier_id
         project.bid_id = bid.id
-        project.status = Project.STATUS_ENDED
-        project.completed_date = datetime.date.today()
+        project.status = Project.STATUS_SELECTED
         db.session.commit()
 
         try:
             message = Message(settings['MESSAGE_PROJECT_BID'] % project.name)
+            message.title = Message.TITLE_PROJECT_BID
             message.type = Message.TYPE_PROJECT
             message.receiver_id = project.supplier_id
+            data = {
+                'project_id': project.id
+            }
+            message.data = json.dumps(data)
             db.session.add(message)
 
             for bid in project.bids:
                 if bid.id != project.bid_id:
                     message = Message(settings['MESSAGE_PROJECT_NOT_BID'] % project.name)
+                    message.title = Message.TITLE_PROJECT_NOT_BID
                     message.type = Message.TYPE_PROJECT
                     message.receiver_id = bid.supplier_id
+                    data = {
+                        'project_id': project.id
+                    }
+                    message.data = json.dumps(data)
                     db.session.add(message)
 
             db.session.commit()

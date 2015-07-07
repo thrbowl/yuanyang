@@ -129,6 +129,7 @@ def audit_pass():
 
     try:
         message = Message(settings['MESSAGE_AUDIT_PASS'])
+        message.title = Message.TITLE_SYSTEM_AUDIT_PASS
         message.type = Message.TYPE_SYSTEM
         message.receiver_id = supplier.id
         db.session.add(message)
@@ -155,6 +156,7 @@ def audit_reject():
 
     try:
         message = Message(settings['MESSAGE_AUDIT_REJECT'])
+        message.title = Message.TITLE_SYSTEM_AUDIT_REJECT
         message.type = Message.TYPE_SYSTEM
         message.receiver_id = supplier.id
         db.session.add(message)

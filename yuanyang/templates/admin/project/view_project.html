@@ -106,7 +106,7 @@
             </div>
         </div>
         {% if project.bids %}
-            {% if project.status==Project.STATUS_BIDDING %}
+            {% if project.status==Project.STATUS_BIDDING or project.status==Project.STATUS_ENDED  %}
                 <div class="text-right">
                     已报名列表({{ project.bids|length }})
                 </div>
@@ -137,7 +137,7 @@
                         </tr>
                     {% endfor %}
                 </table>
-            {% elif project.status==Project.STATUS_ENDED %}
+            {% elif project.status==Project.STATUS_SELECTED %}
                 <div style="border: 1px #a9a9a9 solid;margin-bottom: 30px;">
                     <div class="panel-title">已选中</div>
                     <div style="padding: 5px;">
@@ -146,7 +146,6 @@
                             <div>
                                 <span>联系人: {{ bid.supplier.company_contact }}</span>
                                 <span style="margin-left: 30px;">联系方式: {{ bid.supplier.company_contact_telephone }}</span>
-                                <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
                             </div>
                         </div>
                         <div class="summary">
@@ -200,7 +199,6 @@
                             <div>
                                 <span>联系人: {{ bid.supplier.company_contact }}</span>
                                 <span style="margin-left: 30px;">联系方式: {{ bid.supplier.company_contact_telephone }}</span>
-                                <a href="javascript:;" class="pull-right btn btn-default btn-xs">详情</a>
                             </div>
                         </div>
                         <div class="summary">
