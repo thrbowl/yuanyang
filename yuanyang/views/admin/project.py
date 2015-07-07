@@ -443,7 +443,7 @@ def select_supplier(bid_id):
             db.session.add(message)
 
             for bid in project.bids:
-                if bid.project != project:
+                if bid.id != project.bid_id:
                     message = Message(settings['MESSAGE_PROJECT_NOT_BID'] % project.name)
                     message.type = Message.TYPE_PROJECT
                     message.receiver_id = bid.supplier_id

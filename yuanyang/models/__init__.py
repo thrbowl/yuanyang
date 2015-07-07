@@ -489,15 +489,27 @@ class Message(db.Model):
     TYPE_SYSTEM = _CONS(1, u'系统消息')
     TYPE_PROJECT = _CONS(2, u'项目消息')
 
+    TITLE_SYSTEM_ADD_PROJECT = _CONS(1, u'新项目')
+    TITLE_SYSTEM_AUDIT_PASS = _CONS(2, u'信息通过审核')
+    TITLE_SYSTEM_AUDIT_REJECT = _CONS(3, u'信息未通过审核')
+    TITLE_PROJECT_APPLY = _CONS(4, u'报名成功')
+    TITLE_PROJECT_BID = _CONS(5, u'中标通知')
+    TITLE_PROJECT_NOT_BID = _CONS(6, u'未中标通知')
+    TITLE_PROJECT_FAILURE = _CONS(7, u'流标通知')
+    TITLE_PROJECT_COMMENTED = _CONS(8, u'评价通知')
+
     id = Column(Integer, primary_key=True)
+    _title = Column('title', Integer, nullable=False)
     content = Column(String(500), nullable=False)
     receiver_id = Column(Integer, ForeignKey('suppliers.id'), nullable=False)
     is_read = Column(Boolean, nullable=False, default=False)
     read_date = Column(DateTime)
     _type = Column('type', Integer, nullable=False)
+    data = Column(String(1000))
     create_date = Column(DateTime, nullable=False)
 
     def __init__(self, content):
+        self.data = '{}'
         self.content = content
         self.create_date = datetime.datetime.now()
 
@@ -509,15 +521,38 @@ class Message(db.Model):
         return False
 
     def get_type(self):
-        if self._type == Project.TYPE_SYSTEM:
-            return Project.TYPE_SYSTEM
-        elif self._type == Project.TYPE_PROJECT:
-            return Project.TYPE_PROJECT
+        if self._type == Message.TYPE_SYSTEM:
+            return Message.TYPE_SYSTEM
+        elif self._type == Message.TYPE_PROJECT:
+            return Message.TYPE_PROJECT
 
     def set_type(self, type):
         self._type = type
 
     type = property(get_type, set_type)
+
+    def get_title(self):
+        if self._title == Message.TITLE_SYSTEM_ADD_PROJECT:
+            return Message.TITLE_SYSTEM_ADD_PROJECT
+        elif self._title == Message.TITLE_SYSTEM_AUDIT_PASS:
+            return Message.TITLE_SYSTEM_AUDIT_PASS
+        elif self._title == Message.TITLE_SYSTEM_AUDIT_REJECT:
+            return Message.TITLE_SYSTEM_AUDIT_REJECT
+        elif self._title == Message.TITLE_PROJECT_APPLY:
+            return Message.TITLE_PROJECT_APPLY
+        elif self._title == Message.TITLE_PROJECT_BID:
+            return Message.TITLE_PROJECT_BID
+        elif self._title == Message.TITLE_PROJECT_NOT_BID:
+            return Message.TITLE_PROJECT_NOT_BID
+        elif self._title == Message.TITLE_PROJECT_FAILURE:
+            return Message.TITLE_PROJECT_FAILURE
+        elif self._title == Message.TITLE_PROJECT_COMMENTED:
+            return Message.TITLE_PROJECT_COMMENTED
+
+    def set_title(self, title):
+        self._title = title
+
+    title = property(get_title, set_title)
 
 
 def _re_computer_score(score):

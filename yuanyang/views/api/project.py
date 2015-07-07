@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import json
 from flask import Blueprint, request
 from flask.ext.login import current_user
-from ...message import message
+from ...message import message as msgutil
 from ...models import *
 from ...utils import convert_to_timestamp, jsonify, login_required
 
@@ -21,7 +22,7 @@ def project_list():
         try:
             area = Area.query.filter(Area.name == position).one()
         except:
-            return jsonify(message.error(u'该地区不存在'))
+            return jsonify(msgutil.error(u'该地区不存在'))
 
     building = None
     if pn:
@@ -29,7 +30,7 @@ def project_list():
             building = Building.query.filter(Building.name == pn).one()
             area = None
         except:
-            return jsonify(message.error(u'该楼盘不存在'))
+            return jsonify(msgutil.error(u'该楼盘不存在'))
 
     business_scope = None
     if classify:
@@ -37,7 +38,7 @@ def project_list():
             business_scope = BusinessScope.query.filter(BusinessScope.parent_id != None,
                                                         BusinessScope.name == classify).one()
         except:
-            return jsonify(message.error(u'该经营范围不存在'))
+            return jsonify(msgutil.error(u'该经营范围不存在'))
 
     query = Project.query.join(Building)
 
@@ -104,15 +105,15 @@ def bid(project_id):
 
     project = Project.query.get(project_id)
     if not project:
-        return jsonify(message.error(u'不存在此项目'))
+        return jsonify(msgutil.error(u'不存在此项目'))
 
     supplier = current_user.supplier
 
     if supplier.status != Supplier.STATUS_PASS:
-        return jsonify(message.error(u'未通过审核，无法报名'))
+        return jsonify(msgutil.error(u'未通过审核，无法报名'))
 
     if supplier.is_bid(project_id):
-        return jsonify(message.error(u'已经报名过该项目'))
+        return jsonify(msgutil.error(u'已经报名过该项目'))
 
     bid = Bid()
     bid.project_id = project_id
@@ -125,4 +126,18 @@ def bid(project_id):
     db.session.add(bid)
     db.session.commit()
 
-    return jsonify(message.ok(u'报名成功'))
+    try:
+        message = Message(settings['MESSAGE_PROJECT_APPLY'] % project.name)
+        message.title = Message.TITLE_PROJECT_APPLY
+        message.type = Message.TYPE_PROJECT
+        message.receiver_id = bid.project_id
+        data = {
+            'project_id': project.id
+        }
+        message.data = json.dumps(data)
+        db.session.add(message)
+        db.session.commit()
+    except Exception, e:
+        print 111, e
+
+    return jsonify(msgutil.ok(u'报名成功'))

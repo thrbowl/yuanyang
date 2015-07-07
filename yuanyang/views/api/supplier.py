@@ -63,7 +63,7 @@ def update_supplier_info():
     organization_code_certificate = request.form.get('occ')
 
     city = int(request.form.get('city', 0))
-    business_scope_list = map(int, request.form.getlist('bs'))
+    bs = request.form.get('bs')
 
     supplier = current_user.supplier
     if company_name:
@@ -86,8 +86,16 @@ def update_supplier_info():
         supplier.organization_code_certificate = organization_code_certificate
     if city:
         supplier.company_area_id = city
-    if business_scope_list:
-        supplier.business_scopes = [BusinessScope.query.get(bs_id) for bs_id in business_scope_list]
+    if bs:
+        business_scope_list = bs.split(',')
+        business_scopes = []
+        for bs_name in business_scope_list:
+            try:
+                bs = BusinessScope.query.filter(BusinessScope.parent_id != None, BusinessScope.name == bs_name).one()
+                business_scopes.append(bs)
+            except:
+                pass
+        supplier.business_scopes = business_scopes
 
     db.session.commit()
 
