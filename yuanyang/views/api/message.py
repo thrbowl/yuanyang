@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 from flask import Blueprint, request
 from flask.ext.login import current_user
 from ...message import message as msgutil
@@ -26,21 +27,24 @@ def message_list():
     message_list = Message.query.filter(Message._type == type, Message.receiver_id == supplier.id) \
         .offset(start).limit(10).all()
 
-    data = [
-        {
+    data = []
+    for msg in message_list:
+        d = {
             'id': msg.id,
             'title': msg.title.get_display_name(),
             'content': msg.content,
             'readFlag': msg.is_read,
             'time': convert_to_timestamp(msg.create_date)
         }
-        for msg in message_list
-    ]
+        d.update(json.loads(msg.data))
+        data.append(d)
+
     return jsonify(data)
 
 
 @message.route('/myMsg/<int:msgId>', methods=['POST'])
 @login_required
+@catch_db_error
 def read_message(msgId):
     supplier = current_user.supplier
 
@@ -49,4 +53,6 @@ def read_message(msgId):
         return jsonify(msgutil.error(u'不能读别人的消息'))
 
     message.read()
+    db.session.commit()
+
     return jsonify(msgutil.ok(u'标记成功'))

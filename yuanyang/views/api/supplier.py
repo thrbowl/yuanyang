@@ -97,6 +97,9 @@ def update_supplier_info():
                 pass
         supplier.business_scopes = business_scopes
 
+    if supplier.status == Supplier.STATUS_NOTAUTH:
+        supplier.status = Supplier.STATUS_PENDING
+
     db.session.commit()
 
     return jsonify(message.ok(u'更新成功'))

@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from flask.ext.login import current_user, login_user, logout_user
 from ...models import *
 from ...message import message
-from ...utils import jsonify, login_required
+from ...utils import jsonify, login_required, send_email
 
 auth = Blueprint('api_auth', __name__)
 
@@ -14,6 +14,14 @@ def register():
     username = request.form['user'].strip()
     password = request.form['passwd'].strip()
     mail = request.form['mail'].strip()
+
+    is_unique = (User.query.filter(User.username == username).count() == 0)
+    if not is_unique:
+        return jsonify(message.error(u'该用户已经存在'))
+
+    is_unique = (Supplier.query.filter(Supplier.email == mail).count() == 0)
+    if not is_unique:
+        return jsonify(message.error(u'该邮箱已经被使用'))
 
     user = User(username, password)
     db.session.add(user)
@@ -62,7 +70,18 @@ def logout():
 
 @auth.route('/forget', methods=['POST'])
 def forget_pwd():
-    pass
+    username = request.form['user'].strip()
+    mail = request.form['mail'].strip()
+
+    try:
+        user = User.query.filter(User.username == username).one()
+        if user.supplier.email == mail:
+            send_email(u'找回密码', u'您的密码是：%s，请妥善保管。', mail)
+            return jsonify(message.ok(u'密码发送成功'))
+        else:
+            return jsonify(message.ok(u'用户和邮箱不匹配'))
+    except:
+        return jsonify(message.ok(u'用户不存在'))
 
 
 @auth.route('/checkLogin', methods=['GET'])

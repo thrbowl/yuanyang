@@ -155,7 +155,7 @@ def audit_reject():
     db.session.commit()
 
     try:
-        message = Message(settings['MESSAGE_AUDIT_REJECT'])
+        message = Message(settings['MESSAGE_AUDIT_REJECT'] % reason)
         message.title = Message.TITLE_SYSTEM_AUDIT_REJECT
         message.type = Message.TYPE_SYSTEM
         message.receiver_id = supplier.id

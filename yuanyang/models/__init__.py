@@ -559,6 +559,8 @@ class Message(db.Model):
             return Message.TITLE_PROJECT_FAILURE
         elif self._title == Message.TITLE_PROJECT_COMMENTED:
             return Message.TITLE_PROJECT_COMMENTED
+        elif self._title == Message.TITLE_PROJECT_COMPLETED:
+            return Message.TITLE_PROJECT_COMPLETED
 
     def set_title(self, title):
         self._title = title

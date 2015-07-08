@@ -49,87 +49,91 @@
 {% endblock %}
 
 {% block body_content %}
-    <div id="score" style="border: 1px #dcdcdc solid;padding: 30px;float: right">
-        <div style="font-size: 21px;">服务评分: <span id="service_score"></span>&nbsp;{{ supplier.service_score }}分</div>
-        <div>成本: <span id="cost_score"></span>&nbsp;{{ supplier.cost_score }}分</div>
-        <div>质量: <span id="quality_score"></span>&nbsp;{{ supplier.quality_score }}分</div>
-        <div>时间: <span id="time_score"></span>&nbsp;{{ supplier.time_score }}分</div>
-    </div>
-    <div>
-        <table id="supplier" width="100%">
-            <tr>
-                <td class="property" width="30%">企业名称：</td>
-                <td colspan="3" width="70%">{{ supplier.company_name }}</td>
-            </tr>
-            <tr>
-                <td class="property">经营范围：</td>
-                <td>
-                    {{ supplier.business_scopes[0].parent.name }}-
-                    {% for bs in supplier.business_scopes %}
-                        {{ bs.name }}&nbsp;
-                    {% endfor %}
-                </td>
-            </tr>
-            <tr>
-                <td class="property">企业联系人：</td>
-                <td>{{ supplier.company_contact }}</td>
+    <div style="position: relative;">
+        <div id="score" style="border: 1px #dcdcdc solid;padding: 30px;position: absolute;right: 0px;">
+            <div style="font-size: 21px;">服务评分: <span id="service_score"></span>&nbsp;{{ supplier.service_score }}分
+            </div>
+            <div>成本: <span id="cost_score"></span>&nbsp;{{ supplier.cost_score }}分</div>
+            <div>质量: <span id="quality_score"></span>&nbsp;{{ supplier.quality_score }}分</div>
+            <div>时间: <span id="time_score"></span>&nbsp;{{ supplier.time_score }}分</div>
+        </div>
+        <div>
+            <table id="supplier" width="100%">
+                <tr>
+                    <td class="property" width="30%">企业名称：</td>
+                    <td colspan="3" width="70%">{{ supplier.company_name }}</td>
+                </tr>
+                <tr>
+                    <td class="property">经营范围：</td>
+                    <td>
+                        {{ supplier.business_scopes[0].parent.name }}-
+                        {% for bs in supplier.business_scopes %}
+                            {{ bs.name }}&nbsp;
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="property">企业联系人：</td>
+                    <td>{{ supplier.company_contact }}</td>
 
-            </tr>
-            <tr>
-                <td class="property">公司电话：</td>
-                <td>{{ supplier.company_contact_telephone }}</td>
-            </tr>
-            <tr>
-                <td class="property">公司地址所在地：</td>
-                <td colspan="3">{{ supplier.area.full_name }}</td>
-            </tr>
-            <tr>
-                <td class="property">银行账号：</td>
-                <td>{{ supplier.deposit_bank }}</td>
-                <td class="property">开户银行：</td>
-                <td>{{ supplier.bank_account }}</td>
-            </tr>
-            <tr>
-                <td class="property" style="vertical-align: top;">营业执照：</td>
-                <td colspan="3">
-                    {{ supplier.business_licence }}
-                    {% if supplier.business_licence_image %}
-                    <div style="position:relative;">
-                        <img src="{{ supplier.business_licence_image }}">
-                        <a href="{{ supplier.business_licence_image }}" target="_blank"
-                           style="position:absolute; bottom:0;">查看大图</a>
-                    </div>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td class="property" style="vertical-align: top;">税务登记证：</td>
-                <td colspan="3">
-                    {{ supplier.tax_registration_certificate }}
-                    {% if supplier.tax_registration_certificate_image %}
-                    <div style="position:relative;">
-                        <img src="{{ supplier.tax_registration_certificate_image }}">
-                        <a href="{{ supplier.tax_registration_certificate_image }}" target="_blank"
-                           style="position:absolute; bottom:0;">查看大图</a>
-                    </div>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td class="property" style="vertical-align: top;">组织机构代码证：</td>
-                <td colspan="3">
-                    {{ supplier.organization_code_certificate }}
-                    {% if supplier.organization_code_certificate_image %}
-                    <div style="position:relative;">
-                        <img src="{{ supplier.organization_code_certificate_image }}">
-                        <a href="{{ supplier.organization_code_certificate_image }}" target="_blank"
-                           style="position:absolute; bottom:0;">查看大图</a>
-                    </div>
-                    {% endif %}
-                </td>
-            </tr>
-        </table>
+                </tr>
+                <tr>
+                    <td class="property">公司电话：</td>
+                    <td>{{ supplier.company_contact_telephone }}</td>
+                </tr>
+                <tr>
+                    <td class="property">公司地址所在地：</td>
+                    <td colspan="3">{{ supplier.area.full_name }}</td>
+                </tr>
+                <tr>
+                    <td class="property">银行账号：</td>
+                    <td>{{ supplier.deposit_bank }}</td>
+                    <td class="property">开户银行：</td>
+                    <td>{{ supplier.bank_account }}</td>
+                </tr>
+                <tr>
+                    <td class="property" style="vertical-align: top;">营业执照：</td>
+                    <td colspan="3">
+                        {{ supplier.business_licence }}
+                        {% if supplier.business_licence_image %}
+                            <div style="position:relative;">
+                                <img src="{{ supplier.business_licence_image }}">
+                                <a href="{{ supplier.business_licence_image }}" target="_blank"
+                                   style="position:absolute; bottom:0;">查看大图</a>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="property" style="vertical-align: top;">税务登记证：</td>
+                    <td colspan="3">
+                        {{ supplier.tax_registration_certificate }}
+                        {% if supplier.tax_registration_certificate_image %}
+                            <div style="position:relative;">
+                                <img src="{{ supplier.tax_registration_certificate_image }}">
+                                <a href="{{ supplier.tax_registration_certificate_image }}" target="_blank"
+                                   style="position:absolute; bottom:0;">查看大图</a>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="property" style="vertical-align: top;">组织机构代码证：</td>
+                    <td colspan="3">
+                        {{ supplier.organization_code_certificate }}
+                        {% if supplier.organization_code_certificate_image %}
+                            <div style="position:relative;">
+                                <img src="{{ supplier.organization_code_certificate_image }}">
+                                <a href="{{ supplier.organization_code_certificate_image }}" target="_blank"
+                                   style="position:absolute; bottom:0;">查看大图</a>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
+    <div class="clearfix"></div>
     {% if project_list %}
         <h3>项目历史</h3>
         <table class="table table-striped">

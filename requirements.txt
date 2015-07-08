@@ -4,6 +4,7 @@ Flask-Login
 Flask-SQLAlchemy
 Flask-WTF
 Flask-Uploads
+Flask-Mail
 SQLAlchemy
 MySQL-python
 WTForms

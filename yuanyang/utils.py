@@ -10,6 +10,7 @@ from PIL import Image
 from flask import json, Response, current_app
 from flask.ext.login import current_user
 from flask.ext.uploads import UploadSet, configure_uploads
+from flask.ext.mail import Mail, Message
 from .message import message
 
 SALT_CHARS = string.ascii_letters + string.digits
@@ -17,6 +18,8 @@ SALT_CHARS = string.ascii_letters + string.digits
 settings = current_app.config
 media = UploadSet(name='media', extensions=settings['UPLOADS_ALLOWED_EXTENSIONS'])
 configure_uploads(current_app, media)
+
+mail = Mail(current_app)
 
 
 def remove_if_endswith(str, *args):
@@ -87,3 +90,9 @@ def convert_to_timestamp(dt):
 
 def jsonify(data):
     return Response(json.dumps(data), mimetype='application/json')
+
+
+def send_email(subject, context, receiver, sender=None):
+    msg = Message(subject, sender=sender, recipients=[receiver])
+    msg.html = context
+    mail.send(msg)

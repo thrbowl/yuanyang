@@ -56,7 +56,7 @@ def my_info():
         'imgUrl': '',
         'companyName': supplier.company_name,
         'mail': supplier.email,
-        'authenticated': supplier.status == Supplier.STATUS_PASS,
+        'authenticated': supplier.status,
         'mark': supplier.service_score,
         'bidCount': len(supplier.bids),
         'winCount': winCount,
@@ -124,8 +124,8 @@ def bid_list():
         bid_list1 = Bid.query.filter(Bid.supplier_id == supplier.id).order_by(Bid.create_date.desc()) \
             .offset(start).limit(10).all()
     elif type == 'win':
-        bid_list1 = Bid.query.join(Project).filter(Bid.id == Project.bid_id).order_by(Bid.create_date.desc()) \
-            .offset(start).limit(10).all()
+        bid_list1 = Bid.query.join(Project).filter(Bid.supplier_id == supplier.id, Bid.id == Project.bid_id) \
+            .order_by(Bid.create_date.desc()).offset(start).limit(10).all()
     else:
         return jsonify(message.error(u'类型不正确'))
 
