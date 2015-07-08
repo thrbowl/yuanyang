@@ -149,9 +149,9 @@ def view_project(project_id):
         supplier = Supplier.query.get(project1.supplier_id)
         comment_list = Comment.query.filter(Comment.project_id == project1.id).all()
 
-    for bid in project1.bids:
-        if current_user not in bid.viewers:
-            bid.viewers.append(current_user)
+    for bid1 in project1.bids:
+        if current_user not in bid1.viewers:
+            bid1.viewers.append(current_user)
     db.session.commit()
 
     return render_template(

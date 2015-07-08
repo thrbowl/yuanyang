@@ -76,7 +76,7 @@ def forget_pwd():
     try:
         user = User.query.filter(User.username == username).one()
         if user.supplier.email == mail:
-            send_email(u'找回密码', u'您的密码是：%s，请妥善保管。', mail)
+            send_email(u'找回密码', u'您的密码是：%s，请妥善保管。' % user.password, mail)
             return jsonify(message.ok(u'密码发送成功'))
         else:
             return jsonify(message.ok(u'用户和邮箱不匹配'))

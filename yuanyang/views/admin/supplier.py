@@ -124,6 +124,10 @@ def audit_pass():
     supplier_id = int(request.form['supplier_id'])
 
     supplier = Supplier.query.get(supplier_id)
+    if supplier.status != Supplier.STATUS_PENDING:
+        flash(u'供应商不处于待审核状态')
+        return jsonify(ERROR_MESSAGE)
+
     supplier.status = Supplier.STATUS_PASS
     db.session.commit()
 
@@ -151,6 +155,10 @@ def audit_reject():
         reason = u'无'
 
     supplier = Supplier.query.get(supplier_id)
+    if supplier.status != Supplier.STATUS_PENDING:
+        flash(u'供应商不处于待审核状态')
+        return jsonify(ERROR_MESSAGE)
+
     supplier.status = Supplier.STATUS_NOTAUTH
     db.session.commit()
 

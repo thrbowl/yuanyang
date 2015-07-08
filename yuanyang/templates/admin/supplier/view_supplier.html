@@ -60,12 +60,12 @@
         <div>
             <table id="supplier" width="100%">
                 <tr>
-                    <td class="property" width="30%">企业名称：</td>
-                    <td colspan="3" width="70%">{{ supplier.company_name }}</td>
+                    <td class="property" width="20%">企业名称：</td>
+                    <td colspan="3" width="80%">{{ supplier.company_name }}</td>
                 </tr>
                 <tr>
                     <td class="property">经营范围：</td>
-                    <td>
+                    <td colspan="3">
                         {{ supplier.business_scopes[0].parent.name }}-
                         {% for bs in supplier.business_scopes %}
                             {{ bs.name }}&nbsp;
@@ -74,12 +74,12 @@
                 </tr>
                 <tr>
                     <td class="property">企业联系人：</td>
-                    <td>{{ supplier.company_contact }}</td>
+                    <td colspan="3">{{ supplier.company_contact }}</td>
 
                 </tr>
                 <tr>
                     <td class="property">公司电话：</td>
-                    <td>{{ supplier.company_contact_telephone }}</td>
+                    <td colspan="3">{{ supplier.company_contact_telephone }}</td>
                 </tr>
                 <tr>
                     <td class="property">公司地址所在地：</td>
@@ -160,7 +160,7 @@
                     </td>
                     <td>
                         <div class="row1">&nbsp;</div>
-                        <div class="row2">评论(11)</div>
+                        <div class="row2">评论({{ len(project.comments) }})</div>
                     </td>
                 </tr>
             {% endfor %}

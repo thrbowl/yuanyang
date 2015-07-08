@@ -31,6 +31,7 @@ def message_list():
     for msg in message_list:
         d = {
             'id': msg.id,
+            'type': msg.title,
             'title': msg.title.get_display_name(),
             'content': msg.content,
             'readFlag': msg.is_read,
