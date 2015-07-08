@@ -29,7 +29,7 @@ def message_list():
     data = [
         {
             'id': msg.id,
-            'title': '',
+            'title': msg.title.get_display_name(),
             'content': msg.content,
             'readFlag': msg.is_read,
             'time': convert_to_timestamp(msg.create_date)
