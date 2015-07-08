@@ -56,8 +56,14 @@ def project_list():
 
     project_list = query.offset(start).limit(10).all()
 
-    data = [
-        {
+
+    supplier = None
+    if current_user.is_authenticated():
+        supplier = current_user.supplier
+
+    data = []
+    for project in project_list:
+        d = {
             'type': project.business_scope.name,
             'imgUrl': project.building.logo,
             'title': project.name,
@@ -66,16 +72,26 @@ def project_list():
             'price': project.price_range.get_display_name(),
             'position': project.building.area.name,
             'deadline': convert_to_timestamp(project.due_date),
-            'id': project.id
+            'id': project.id,
+            'is_apply': False,
+            'is_bidding': False
         }
-        for project in project_list
-    ]
+        if supplier:
+            d['is_apply'] = supplier.is_apply(project.id)
+            d['is_bidding'] = supplier.is_bidding(project.id)
+        data.append(d)
+
     return jsonify(data)
 
 
 @project.route('/pro/<int:project_id>', methods=['GET'])
 def project_info(project_id):
     project = Project.query.get(project_id)
+
+    supplier = None
+    if current_user.is_authenticated():
+        supplier = current_user.supplier
+
     data = {
         'type': project.business_scope.name,
         'imgUrl': project.building.logo,
@@ -90,7 +106,13 @@ def project_info(project_id):
         'rangeTo': convert_to_timestamp(project.lead_end_date),
         'baseInfo': project.requirements,
         'publishTime': convert_to_timestamp(project.publish_date),
+        'is_apply': False,
+        'is_bidding': False
     }
+    if supplier:
+        data['is_apply'] = supplier.is_apply(project.id)
+        data['is_bidding'] = supplier.is_bidding(project.id)
+
     return jsonify(data)
 
 
@@ -112,7 +134,7 @@ def bid(project_id):
     if supplier.status != Supplier.STATUS_PASS:
         return jsonify(msgutil.error(u'未通过审核，无法报名'))
 
-    if supplier.is_bid(project_id):
+    if supplier.is_apply(project_id):
         return jsonify(msgutil.error(u'已经报名过该项目'))
 
     bid = Bid()

@@ -258,8 +258,12 @@ class Supplier(db.Model):
 
     status = property(get_status, set_status)
 
-    def is_bid(self, project_id):
+    def is_apply(self, project_id):
         return Bid.query.filter(Bid.project_id == project_id, Bid.supplier_id == self.id).count() > 0
+
+    def is_bidding(self, project_id):
+        project = Project.query.get(project_id)
+        return project.supplier_id == self.id
 
     @property
     def comments_count(self):

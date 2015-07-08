@@ -105,7 +105,7 @@
             {% endfor %}
         </table>
         {% from 'admin/macros/pagination.html' import render_pagination %}
-        {{ render_pagination(pager, 'admin_project.supplier_list', exe_params='sort=%s&area=%s&business_scope=%s' % (sort,area,business_scope)) }}
+        {{ render_pagination(pager, 'admin_supplier.supplier_list', exe_params='sort=%s&area=%s&business_scope=%s' % (sort,area,business_scope)) }}
     {% else %}
         <p class="text-warning">没有符合条件的供应商</p>
     {% endif %}

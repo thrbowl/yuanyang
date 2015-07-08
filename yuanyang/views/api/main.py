@@ -76,6 +76,7 @@ def my_comment():
             'id': comment.id,
             'readFlag': comment.is_read,
             'title': '',
+            'content': comment.content,
             'mark': comment.service_score,
             'commentNum': 0
         }
@@ -90,6 +91,7 @@ def comment_info(comment_id):
 
     data = {
         'title': '',
+        'content': comment.content,
         'serviceMark': comment.service_score,
         'costMark': comment.cost_score,
         'quantityMark': comment.quality_score,
