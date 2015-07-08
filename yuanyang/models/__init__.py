@@ -404,7 +404,7 @@ class Project(db.Model):
     def is_closure_period(self):
         today = datetime.date.today()
         return self._status == self.STATUS_COMPLETED \
-               and today > self.completed_date + datetime.timedelta(settings['CLOSURE_PERIOD'])
+               and today < self.completed_date + datetime.timedelta(settings['CLOSURE_PERIOD'])
 
     @property
     def comments_count(self):

@@ -434,6 +434,7 @@ def set_status(project_id):
         return jsonify(SUCCESS_MESSAGE)
     elif project1.status == Project.STATUS_SELECTED and status == Project.STATUS_COMPLETED:
         project1.status = status
+        project1.completed_date = datetime.date.today()
         db.session.commit()
 
         try:

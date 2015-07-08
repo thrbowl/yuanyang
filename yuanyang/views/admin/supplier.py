@@ -28,7 +28,7 @@ def supplier_list():
 
     page = int(request.args.get('page', 1))
     per_page = 15
-    query = Supplier.query.join(Supplier.business_scopes).filter(
+    query = Supplier.query.filter(
         Supplier._status == Supplier.STATUS_PASS
     )
 
@@ -63,8 +63,8 @@ def supplier_list():
 def audit_list():
     page = int(request.args.get('page', 1))
     per_page = 15
-    pager = Supplier.query.join(Supplier.business_scopes).filter(
-        Supplier._status == Supplier.STATUS_PENDING
+    pager = Supplier.query.filter(
+        Supplier._status == Supplier.STATUS_PENDING, Supplier.business_scopes.any()
     ).paginate(page, per_page, False)
 
     g.breadcrumbs = [

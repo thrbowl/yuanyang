@@ -8,3 +8,4 @@ SQLAlchemy
 MySQL-python
 WTForms
 Pillow
+gunicorn
