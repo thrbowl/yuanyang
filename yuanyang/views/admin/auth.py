@@ -18,7 +18,7 @@ def login():
         password = form.password.data
         user = User.get(username)
         if user and user.password == password:
-            login_user(user)
+            login_user(user, form.remember_me)
             return redirect(next)
     return render_template('admin/auth/login.html', form=form, next=next)
 
