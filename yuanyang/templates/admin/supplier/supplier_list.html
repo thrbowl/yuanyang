@@ -3,6 +3,16 @@
 {% block title %}供应商列表{% endblock %}
 
 {% block css %}
+    <style type="text/css">
+        option.lv1 {
+            font-size: 16px;
+            font-weight: bold
+        }
+
+        option.lv2 {
+            padding-left: 20px;;
+        }
+    </style>
 {% endblock %}
 
 {% block js %}
@@ -67,14 +77,16 @@
                                 style="width: 230px;">
                             <option value="-1">全部</option>
                             {% for bs1 in business_scope_list %}
-                                <optgroup label="{{ bs1.name }}">
-                                    {% for bs2 in bs1.children %}
-                                        <option value="{{ bs2.id }}"
-                                                {% if business_scope==bs2.id %}selected{% endif %}>
-                                            {{ bs2.name }}
-                                        </option>
-                                    {% endfor %}
-                                </optgroup>
+                                <option value="{{ bs1.id }}"
+                                        {% if business_scope==bs1.id %}selected{% endif %} class="lv1">
+                                    {{ bs1.name }}
+                                </option>
+                                {% for bs2 in bs1.children %}
+                                    <option value="{{ bs2.id }}"
+                                            {% if business_scope==bs2.id %}selected{% endif %} class="lv2">
+                                        {{ bs2.name }}
+                                    </option>
+                                {% endfor %}
                             {% endfor %}
                         </select>
                     </div>
@@ -87,7 +99,7 @@
             {% for supplier in pager.items %}
                 <tr>
                     <td>
-                        <div style="font-size: 18px;font-weight: bold; float: left">{{ supplier.company_name }}</div>
+                        <div style="font-size: 18px;font-weight: bold; float: left; overflow:hidden;width: 200px;">{{ supplier.company_name }}</div>
                         <div class="pull-left" style="margin-left: 20px;margin-top: 5px;color: gray;">经营范围:
                             {% for bs in supplier.business_scopes %}{{ bs.name }}&nbsp;&nbsp;{% endfor %}</div>
                         <div class="clearfix"></div>

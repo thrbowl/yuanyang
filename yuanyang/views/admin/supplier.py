@@ -35,7 +35,12 @@ def supplier_list():
     if area != -1:
         query = query.filter(Supplier.company_area_id == area)
     if business_scope != -1:
-        query = query.filter(BusinessScope.id == business_scope)
+        _obj = BusinessScope.query.get(business_scope)
+        if _obj.parent:
+            business_scope_ids = [_obj.id]
+        else:
+            business_scope_ids = [bs.id for bs in _obj.children]
+        query = query.filter(Supplier.business_scopes.any(BusinessScope.id.in_(business_scope_ids)))
     if sort == 1:
         query = query.order_by(Supplier.service_score.desc())
     elif sort == 2:
