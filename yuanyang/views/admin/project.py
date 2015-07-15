@@ -90,7 +90,7 @@ def view_building(building_id=None):
         query = query.filter(Project.publish_date >= publish_date_begin)
     if publish_date_end:
         query = query.filter(Project.publish_date <= publish_date_end)
-    pager = query.order_by(Project.due_date.desc()).paginate(page, per_page, False)
+    pager = query.order_by(Project.publish_date.desc()).paginate(page, per_page, False)
 
     new_supplier_count = 0
     for project in building.projects:
