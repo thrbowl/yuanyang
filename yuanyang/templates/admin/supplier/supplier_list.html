@@ -95,22 +95,27 @@
         </div>
     </div>
     {% if pager.total > 0 %}
-        <table class="table table-striped">
+        <table class="table table-striped supplier-list">
             {% for supplier in pager.items %}
-                <tr>
+                <tr class="supplier-info fixed">
                     <td>
-                        <div style="font-size: 18px;font-weight: bold; float: left; overflow:hidden;width: 200px;">{{ supplier.company_name }}</div>
-                        <div class="pull-left" style="margin-left: 20px;margin-top: 5px;color: gray;">经营范围:
-                            {% for bs in supplier.business_scopes %}{{ bs.name }}&nbsp;&nbsp;{% endfor %}</div>
-                        <div class="clearfix"></div>
-                        <div>
+                        <div class="supplier-name">{{ supplier.company_name }}</div>
+                        <div class="suppler-business-scope">
+                            经营范围:{% for bs in supplier.business_scopes %}{{ bs.name }}&nbsp;&nbsp;{% endfor %}
+                        </div>
+                        <div class="supplier-others">
                             <div style="width: 100px;float: left;">联系人: {{ supplier.company_contact }}</div>
-                            <div style="margin-left: 30px;width: 160px;float: left;">联系方式: {{ supplier.company_contact_telephone }}</div>
-                            <div style="margin-left: 30px;width: 160px;float: left;">所在地: {{ supplier.area.full_name }}</div>
-                            <div style="margin-left: 30px;width: 160px;float: left;">加入时间: {{ supplier.create_date.strftime('%Y-%m-%d') }}</div>
-                            <div style="margin-left: 30px;width: 160px;float: left;">服务评分: {{ supplier.service_score }}</div>
+                            <div style="margin-left: 25px;width: 160px;float: left;">
+                                联系方式: {{ supplier.company_contact_telephone }}</div>
+                            <div style="margin-left: 25px;width: 160px;float: left;">
+                                所在地: {{ supplier.area.full_name }}</div>
+                            <div style="margin-left: 25px;width: 160px;float: left;">
+                                加入时间: {{ supplier.create_date.strftime('%Y-%m-%d') }}</div>
+                            <div style="margin-left: 25px;width: 160px;float: left;">
+                                服务评分: {{ supplier.service_score }}</div>
                             <a href="{{ url_for('admin_supplier.view_supplier', supplier_id=supplier.id) }}"
-                               class="pull-right btn btn-default btn-xs">详情</a>
+                               class="pull-right btn btn-default btn-xs detail-btn">详情</a>
+                            <div class="clearfix"></div>
                         </div>
                     </td>
                 </tr>

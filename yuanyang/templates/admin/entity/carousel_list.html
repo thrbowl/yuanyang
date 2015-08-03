@@ -61,11 +61,11 @@
                     <tr>
                         <td><img src="{{ carousel.image }}" class="img-thumbnail carousel-img-thumbnail"/></td>
                         <td>{{ carousel.name }}</td>
-                        <td>
-                            <a href="javascript:;" onclick="editCarousel({{ carousel.id }})">编辑</a>
-                            <a href="javascript:;" onclick="deleteCarousel({{ carousel.id }})">删除</a>
+                        <td width="20%">
+                            <a href="javascript:;" onclick="editCarousel({{ carousel.id }})" class="action-link">编辑</a>
+                            <a href="javascript:;" onclick="deleteCarousel({{ carousel.id }})" class="action-link">删除</a>
                             {% if not loop.first %}
-                                <a href="javascript:;" onclick="moveUp({{ last_id }}, {{ carousel.id }} )">上升</a>
+                                <a href="javascript:;" onclick="moveUp({{ last_id }}, {{ carousel.id }} )" class="action-link">上升</a>
                             {% endif %}
                         </td>
                     </tr>

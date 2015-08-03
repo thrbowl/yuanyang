@@ -85,3 +85,44 @@ table td .row1 {
 .btn-create {
     width: 200px;
 }
+
+.supplier-list .supplier-info {
+    height: 109px;
+}
+
+.supplier-list tr.fixed > td {
+    vertical-align: top;
+    padding: 17px 8px;
+}
+
+.supplier-list .supplier-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.supplier-list .suppler-business-scope {
+    color: gray;
+    margin-left: 8px;
+}
+
+.supplier-list .supplier-others {
+    margin-top: 16px;
+    margin-left: 8px;
+}
+
+.supplier-list .detail-btn {
+    margin-right: 33px;
+}
+
+.action-link {
+    margin-left: 16px;
+}
+
+.user-list tr.fixed > td {
+    padding: 17px;
+}
+
+.user-list .building-list {
+    margin-right: 16px;
+}

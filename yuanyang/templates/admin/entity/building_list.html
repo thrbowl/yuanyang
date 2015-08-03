@@ -51,11 +51,11 @@
                         <td width="10%">
                             <img src="{{ building.logo }}" class="img-thumbnail building-logo-thumbnail"/>
                         </td>
-                        <td width="30%">{{ building.name }}</td>
-                        <td width="10%">{{ building.area.name }}</td>
-                        <td width="15%">
+                        <td>{{ building.name }}</td>
+                        <td width="15%">{{ building.area.name }}</td>
+                        <td width="20%">
                             <a href="javascript:;" onclick="editBuilding({{ building.id }})">编辑</a>
-                            <a href="javascript:;" onclick="deleteBuilding({{ building.id }})">删除</a>
+                            <a href="javascript:;" onclick="deleteBuilding({{ building.id }})" class="action-link">删除</a>
                         </td>
                     </tr>
                 {% endfor %}

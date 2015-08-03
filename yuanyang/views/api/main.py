@@ -160,3 +160,26 @@ def check_supplier_status():
     result = supplier.status == Supplier.STATUS_PASS
     return jsonify(result)
 
+
+@main.route('/project_supplier', methods=['GET'])
+def project_supplier():
+    project_id = int(request.args['project_id'])
+
+    project = Project.query.get(project_id)
+    if not project:
+        return jsonify(message.error(u'项目不存在'))
+
+    if not project.supplier_id:
+        return jsonify(message.error(u'供应商不存在'))
+
+    supplier = Supplier.query.get(project.supplier_id)
+    data = {
+        'companyName': supplier.company_name,
+        'contactName': supplier.company_contact,
+        'tel': supplier.company_contact_telephone,
+        'position': supplier.area and supplier.area.full_name,
+        'addrSpec': supplier.company_address,
+        'bank': supplier.deposit_bank,
+        'account': supplier.bank_account,
+    }
+    return jsonify(data)

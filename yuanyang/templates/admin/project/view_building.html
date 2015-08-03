@@ -41,7 +41,7 @@
     {% if building_list %}
         <form class="form-inline" style="margin-bottom: 40px;">
             <div class="form-group">
-                <select class="form-control col-xs-offset-2" style="width: 300px;" id="building">
+                <select class="form-control" style="width: 300px;" id="building">
                     {% for building1 in building_list %}
                         <option value="{{ building1.id }}"
                                 {% if building1.id==building.id %}selected{% endif %}>
