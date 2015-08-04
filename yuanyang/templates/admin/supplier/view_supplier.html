@@ -50,7 +50,7 @@
 
 {% block body_content %}
     <div style="position: relative;">
-        <div id="score" style="border: 1px #dcdcdc solid;padding: 30px;position: absolute;right: 0px;">
+        <div id="score" style="border: 1px #dcdcdc solid;padding: 33px;position: absolute;right: 0px;">
             <div style="font-size: 21px;">服务评分: <span id="service_score"></span>&nbsp;{{ supplier.service_score }}分
             </div>
             <div>成本: <span id="cost_score"></span>&nbsp;{{ supplier.cost_score }}分</div>
@@ -87,9 +87,11 @@
                 </tr>
                 <tr>
                     <td class="property">银行账号：</td>
-                    <td>{{ supplier.deposit_bank }}</td>
+                    <td colspan="3">{{ supplier.deposit_bank }}</td>
+                </tr>
+                <tr>
                     <td class="property">开户银行：</td>
-                    <td>{{ supplier.bank_account }}</td>
+                    <td colspan="3">{{ supplier.bank_account }}</td>
                 </tr>
                 <tr>
                     <td class="property" style="vertical-align: top;">营业执照：</td>

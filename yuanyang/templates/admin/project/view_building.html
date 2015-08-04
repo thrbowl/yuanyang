@@ -159,15 +159,17 @@
             </div>
         </div>
         {% if pager.total > 0 %}
-            <div class="text-right">
-                正在招商({{ building.bidding_project_total }})
-                &nbsp;&nbsp;&nbsp;
-                新供应商({{ new_supplier_count }})
+            <div class="project-stat">
+                <div class="project-stat-content">
+                    正在招商({{ building.bidding_project_total }})
+                    &nbsp;&nbsp;&nbsp;
+                    新供应商({{ new_supplier_count }})
+                </div>
             </div>
-            <table class="table table-striped">
+            <table class="table table-striped project-list">
                 {% for project in pager.items %}
                     {% if project.status != Project.STATUS_DRAFT %}
-                        <tr>
+                        <tr class="fixed">
                             <td width="30%">
                                 <div class="row1">
                                     <a href="{{ url_for('admin_project.view_project', project_id=project.id) }}"

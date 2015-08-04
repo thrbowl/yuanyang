@@ -98,17 +98,15 @@ table td .row1 {
 .supplier-list .supplier-name {
     font-size: 18px;
     font-weight: bold;
-    margin-left: 8px;
 }
 
 .supplier-list .suppler-business-scope {
     color: gray;
-    margin-left: 8px;
+    margin-top: 4px;
 }
 
 .supplier-list .supplier-others {
-    margin-top: 16px;
-    margin-left: 8px;
+    margin-top: 12px;
 }
 
 .supplier-list .detail-btn {
@@ -125,4 +123,22 @@ table td .row1 {
 
 .user-list .building-list {
     margin-right: 16px;
+}
+
+.project-stat {
+    position: relative;
+    margin-top: -20px;
+    height: 45px;
+    width: 100%;
+}
+
+.project-stat-content{
+    position: absolute;
+    bottom: 8px;
+    right: 0;
+}
+
+.project-list tr.fixed > td {
+    vertical-align: top;
+    padding: 17px 8px;
 }

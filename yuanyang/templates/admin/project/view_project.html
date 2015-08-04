@@ -12,13 +12,13 @@
         }
 
         .summary {
-            margin-left: 5px;
             padding: 5px;
             border-top: 1px #dcdcdc solid;
+            padding-left: 0;
         }
 
         .panel-title {
-            background-color: #a9a9a9;
+            background-color: #187bac;
             height: 50px;
             line-height: 50px;
             color: white;
@@ -58,8 +58,8 @@
 {% block body_content %}
     <div>
         <div style="margin-bottom: 20px;">
-            <div style="padding: 10px;">
-                <span class="label label-default" style="font-size: 14px;">{{ project.business_scope.name }}</span>
+            <div style="margin-bottom: 20px;">
+                <span class="label label-default" style="font-size: 14px;background-color: #187bac;">{{ project.business_scope.name }}</span>
                 <span style="margin-left: 30px;font-size: 18px;">{{ project.building.area.name }}·{{ project.building.name }}</span>
                 <span style="margin-left: 30px;font-size: 16px;">{{ project.name }}</span>
                 <span style="margin-left: 30px;"><b>发布时间:</b>&nbsp;&nbsp;{{ project.publish_date.strftime('%Y-%m-%d') }}</span>
@@ -87,14 +87,14 @@
                 {% endif %}
             </div>
             <div class="clearfix"></div>
-            <div style="padding: 10px;">
+            <div style="margin-bottom: 20px;">
                 <span><b>报价区间:</b>&nbsp;&nbsp;{{ project.price_range.get_display_name() }}</span>
                 <span style="margin-left: 30px;"><b>截止时间:</b>&nbsp;&nbsp;{{ project.due_date }}</span>
             </div>
-            <div style="padding: 10px;">
+            <div style="margin-bottom: 20px;">
                 <span><b>项目交付周期:</b>&nbsp;&nbsp;{{ project.lead_start_date }} — {{ project.lead_end_date }}</span>
             </div>
-            <div style="padding: 10px;">
+            <div>
                 <div>
                     <b>项目需求:</b>&nbsp;&nbsp;<a href="javascript:;" onclick="expandRequirements(this);">
                     展开 <i class="fa fa-caret-down"></i>
@@ -140,7 +140,7 @@
             {% elif project.status==Project.STATUS_SELECTED %}
                 <div style="border: 1px #a9a9a9 solid;margin-bottom: 30px;">
                     <div class="panel-title">已选中</div>
-                    <div style="padding: 5px;">
+                    <div style="padding: 5px;padding-left: 20px;">
                         <div style="margin-bottom: 10px;cursor:pointer">
                             <div style="font-size: 18px;font-weight: bold">{{ bid.supplier.company_name }}</div>
                             <div>
@@ -164,7 +164,7 @@
                         {% for bid1 in project.bids %}
                             {% if bid1.id!=bid.id %}
                                 <tr>
-                                    <td>
+                                    <td style="padding-left: 20px;">
                                         <div style="margin-bottom: 10px;cursor:pointer"
                                              onclick="$('#summary{{ bid1.id }}').show();">
                                             <div style="font-size: 18px;font-weight: bold">{{ bid1.supplier.company_name }}</div>
